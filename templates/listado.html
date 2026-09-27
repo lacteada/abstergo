@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <a class="btn-muni" href="{{ url_nueva }}">+ {{ etiqueta_nueva }}</a>
+  </div>
+  {% if subtitulo %}<p class="subtitulo">{{ subtitulo }}</p>{% endif %}
+
+  <div class="barra">
+    <form class="buscador" method="get">
+      <span class="buscador-campo">
+        <input type="search" name="q" value="{{ request.GET.q|default:'' }}"
+               placeholder="Buscar..." autocomplete="off"
+               data-busqueda data-url="{% url url_listado %}">
+        <svg class="buscador-lupa" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+        </svg>
+      </span>
+    </form>
+  </div>
+
+  <div class="tabla-envoltura">
+    <table class="tabla">
+      <thead>
+        <tr>{% block encabezado %}{% endblock %}</tr>
+      </thead>
+      <tbody data-filas>
+        {% for fila in object_list %}
+          <tr>{% block fila %}{% endblock %}</tr>
+        {% empty %}
+          <tr><td colspan="20" class="vacio">Sin registros.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# El contador sale del propio QuerySet que ya trajo la vista. #}
+  <p class="pie" data-pie>{{ object_list|length }} registro{{ object_list|length|pluralize }}.</p>
+
+  <script src="{% static 'js/busqueda.js' %}"></script>
+
+{% endblock %}

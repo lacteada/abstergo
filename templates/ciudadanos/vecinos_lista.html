@@ -1,0 +1,29 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>#</th>
+  <th>Nombre</th>
+  <th>RUT</th>
+  <th>Dirección</th>
+  <th>Teléfono</th>
+  <th>Territorio</th>
+  <th>Tipo de Gestión</th>
+  <th>Estado</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.id }}</td>
+  <td>{{ fila.nombre }}</td>
+  <td>{{ fila.rut }}</td>
+  <td>{{ fila.direccion }}</td>
+  <td>{{ fila.telefono }}</td>
+  {# El punto sigue la llave foránea y usa el __str__ de Delegacion. #}
+  <td>{{ fila.territorio }}</td>
+  <td>{{ fila.tipo_gestion }}</td>
+  <td><span class="estado {{ fila.estado|lower }}">{{ fila.get_estado_display }}</span></td>
+  <td class="acciones">
+    <a class="accion" href="{% url 'ciudadanos:vecinos_editar' fila.pk %}">Editar</a>
+    <a class="accion peligro" href="{% url 'ciudadanos:vecinos_eliminar' fila.pk %}">Eliminar</a>
+  </td>
+{% endblock %}

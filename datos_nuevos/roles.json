@@ -1,0 +1,26 @@
+[
+  {
+    "nombre": "ADMIN",
+    "descripcion": "Configura el sistema, administra usuarios y define metas."
+  },
+  {
+    "nombre": "COORDINADOR",
+    "descripcion": "Supervisa la operación y resuelve criterios entre delegaciones."
+  },
+  {
+    "nombre": "DELEGADO",
+    "descripcion": "Gestiona los requerimientos de su delegación."
+  },
+  {
+    "nombre": "FUNCIONARIO",
+    "descripcion": "Registra la atención entregada a los vecinos."
+  },
+  {
+    "nombre": "VERIFICADOR",
+    "descripcion": "Revisa y valida los registros de atención."
+  },
+  {
+    "nombre": "CONSULTA",
+    "descripcion": "Solo lectura sobre los listados del sistema."
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "nombre": "Cobertura de atención territorial",
+    "descripcion": "Porcentaje de requerimientos vecinales respondidos dentro del plazo comprometido."
+  },
+  {
+    "nombre": "Tiempo de respuesta",
+    "descripcion": "Días hábiles promedio entre el ingreso de un requerimiento y su respuesta."
+  },
+  {
+    "nombre": "Participación comunitaria",
+    "descripcion": "Número de instancias de participación convocadas por territorio en el período."
+  },
+  {
+    "nombre": "Actualización de registros vecinales",
+    "descripcion": "Porcentaje de fichas de vecinos con datos de contacto vigentes."
+  },
+  {
+    "nombre": "Cobertura de operativos sociales",
+    "descripcion": "Operativos sociales realizados por delegación durante el período."
+  },
+  {
+    "nombre": "Satisfacción del vecino",
+    "descripcion": "Evaluación promedio de la atención recibida en cada delegación."
+  }
+]

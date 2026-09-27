@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <h1 class="titulo">{{ titulo }}</h1>
+
+  <p class="aviso">
+    ¿Confirmas dar de baja <strong>{{ object }}</strong>?
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="botonera">
+      <button class="btn-muni" type="submit">Eliminar</button>
+      <a class="accion" href="{% url url_listado %}">Cancelar</a>
+    </div>
+  </form>
+
+{% endblock %}

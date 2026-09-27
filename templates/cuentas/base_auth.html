@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Sistema Municipal{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/frameworkV1.css' %}">
+  <link rel="stylesheet" href="{% static 'css/institucional.css' %}">
+</head>
+<body class="auth">
+
+  <div class="auth-tarjeta">
+    {% block ventana %}{% endblock %}
+
+    <span class="auth-logo"></span>
+    <h1 class="auth-titulo">Sistema Municipal</h1>
+    <p class="auth-subtitulo">Gestión de Atención Ciudadana</p>
+
+    {% block contenido %}{% endblock %}
+  </div>
+
+</body>
+</html>

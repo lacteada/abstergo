@@ -1,0 +1,21 @@
+{% extends "cuentas/base_auth.html" %}
+
+{% block titulo %}Recuperar contraseña · Sistema Municipal{% endblock %}
+
+{% block contenido %}
+  <p class="auth-texto">
+    Ingresa tu correo electrónico y te enviaremos las instrucciones para
+    recuperar tu contraseña.
+  </p>
+
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    <label for="{{ form.correo.id_for_label }}">{{ form.correo.label }}</label>
+    {{ form.correo }}
+    {% for error in form.correo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+
+    <button class="btn-muni auth-boton" type="submit">Enviar instrucciones</button>
+  </form>
+
+  <a class="auth-enlace" href="{% url 'cuentas:login' %}">Volver al login</a>
+{% endblock %}

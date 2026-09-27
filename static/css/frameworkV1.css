@@ -1,0 +1,622 @@
+/* ========================================================================
+   Estilos para paginas de La Ilustre Municipalidad de La Serena
+   ------------------------------------------------------------------------
+  Autor: Alejandro Julio Ulloa
+  Sección: Seccion de Ingeniería y Desarrollo.
+  Fecha: 25 de septiembre de 2024.
+  Descripción: Este archivo contiene los estilos para la página principal
+  del sitio web, incluyendo la barra de navegación, el contenido principal,
+  y el pie de página.
+======================================================================== */
+
+:root {
+--muni-base: #AD0000;
+
+--bg-muni-a1: #f9dcdc;
+--bg-muni-a2: #f2b5b5;
+--bg-muni-a3: #e08080;
+--bg-muni-a4: #cc6666;
+--bg-muni-a5: #b33d3d;
+
+--bg-muni-b1: #7a0000;
+--bg-muni-b2: #660000;
+--bg-muni-b3: #4d0000;
+--bg-muni-b4: #330000;
+--bg-muni-b5: #1a0000;
+
+
+--bg-muni-v1: #b33d00;
+--bg-muni-v2: #cc6600;
+--bg-muni-v3: #e08000;
+--bg-muni-v4: #f2b500;
+
+
+--gris-0: #fff;
+--gris-10: #e6e6e6;
+--gris-20: #cccccc;
+--gris-30: #b3b3b3;
+--gris-40: #999999;
+--gris-50: #808080;
+--gris-60: #666666;
+--gris-70: #4d4d4d;
+--gris-80: #333333;
+--gris-90: #1a1a1a;
+--gris-100: #000000;
+
+--tx-1: 0.7em;
+--tx-2: 0.8em;
+--tx-3: 0.9em;
+--tx-4: 1em;
+--tx-5: 1.1em;
+--tx-6: 1.2em;
+--tx-7: 1.3em;
+--tx-8: 1.5em;
+--tx-9: 1.75em;
+--tx-10: 2em;
+--tx-11: 2.5em;
+
+}
+
+
+html, body{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/*-----------------------------------------------------------COLORES MUNICIPALES*/
+
+.bg-muni {background-color: var(--muni-base) !important;}
+.bg-muni-a1 {background-color: var(--bg-muni-a1);}
+.bg-muni-a2 {background-color: var(--bg-muni-a2);}
+.bg-muni-a3 {background-color: var(--bg-muni-a3);}
+.bg-muni-a4 {background-color: var(--bg-muni-a4);}
+.bg-muni-a5 {background-color: var(--bg-muni-a5);}
+.bg-muni-b1 {background-color: var(--bg-muni-b1);}
+.bg-muni-b2 {background-color: var(--bg-muni-b2);}
+.bg-muni-b3 {background-color: var(--bg-muni-b3);}
+.bg-muni-b4 {background-color: var(--bg-muni-b4);}
+.bg-muni-b5 {background-color: var(--bg-muni-b5);}
+
+/*-----------------------------------------------------------COLORES VARIACIONES*/
+
+.bg-muni-v1 {background-color: var(--bg-muni-v1);}
+.bg-muni-v2 {background-color: var(--bg-muni-v2);}
+.bg-muni-v3 {background-color: var(--bg-muni-v3);}
+.bg-muni-v4 {background-color: var(--bg-muni-v4);}
+
+/*-----------------------------------------------------------COLORES GRISES*/
+
+.bg-gris-10 {background-color: var(--gris-10);}
+.bg-gris-20 {background-color: var(--gris-20);}
+.bg-gris-30 {background-color: var(--gris-30);}
+.bg-gris-40 {background-color: var(--gris-40);}
+.bg-gris-50 {background-color: var(--gris-50);}
+.bg-gris-60 {background-color: var(--gris-60);}
+.bg-gris-70 {background-color: var(--gris-70);}
+.bg-gris-80 {background-color: var(--gris-80);}
+.bg-gris-90 {background-color: var(--gris-90);}
+.bg-gris-100 {background-color: var(--gris-100);}
+
+/*-----------------------------------------------------------COLORES IMPORTANTES*/
+
+.bg-importante-1 {
+  animation: bg-importante-1 1s infinite alternate;
+}
+
+@keyframes bg-importante-1 {
+  0% {
+    background-color: var(--bg-muni-a3);
+  }
+  100% {
+    background-color: var(--bg-muni-a5);
+  }
+}
+
+.bg-importante-2 {
+  animation: bg-importante-2 1s infinite alternate;
+}
+
+
+@keyframes bg-importante-2 {
+  0% {
+    background-color: var(--bg-muni-b1);
+  }
+  100% {
+    background-color:var(--bg-muni-b5); 
+  }
+}
+
+
+.bg-importante-3 {
+  animation: bg-importante-3 1s infinite alternate;
+}
+
+@keyframes bg-importante-3 {
+  0% {
+    background-color: var(--muni-base); 
+  }
+  100% {
+    background-color:var(--bg-muni-v3); 
+  }
+}
+
+
+/*-----------------------------------------------------------BOTONES*/
+
+.btn-muni {
+   display: inline-block;
+   padding: 10px 18px;
+   border: 0;
+   border-radius: 6px;
+   font-weight: bold;
+   text-decoration: none;
+   background-color: var(--muni-base);
+   color: var(--gris-0);
+}
+.btn-muni:hover {
+   background-color: var(--bg-muni-v1);
+   color: var(--gris-0);
+}
+
+.btn-muni-v2 {
+   background-color: var(--bg-muni-v1);
+   color: var(--gris-0);;
+}
+.btn-muni-v2:hover {
+   background-color: var(--bg-muni-v2);
+   color: var(--gris-0);;
+}
+
+.btn-muni-v3 {
+   background-color: var(--bg-muni-b3);
+   color: var(--gris-0);;
+}
+.btn-muni-v3:hover {
+   background-color: var(--bg-muni-b5);
+   color: var(--gris-0);;
+}
+
+
+.btn-importante {
+  animation: bg-importante-3 1s infinite alternate;
+  color: var(--gris-0);;
+  background-color: var(--bg-muni-b1); 
+  transition: 2s;
+}
+
+.btn-importante:hover{
+background-color: var(--bg-muni-b4); 
+transition: 2s;
+animation: 0s ;
+color: var(--gris-10);
+}
+
+/*-----------------------------------------------------------TEXTOS*/
+
+/* Tamaño base */
+.tx-1 {font-size: var(--tx-1);}
+.tx-2 {font-size: var(--tx-2);}
+.tx-3 {font-size: var(--tx-3);}
+.tx-4 {font-size: var(--tx-4);}
+.tx-5 {font-size: var(--tx-5);}
+.tx-6 {font-size: var(--tx-6);}
+.tx-7 {font-size: var(--tx-7);}
+.tx-8 {font-size: var(--tx-8);}
+.tx-9 {font-size: var(--tx-9);}
+.tx-10 {font-size: var(--tx-10);}
+.tx-11 {font-size: var(--tx-11);}
+
+/*-----------------------------------------------------------LISTAS*/
+
+
+.ulMuni li {
+  list-style-type: none  !important; /* Quita el marcador por defecto */
+  position: relative; /* Para posicionar el marcador personalizado */
+  margin-top: 10px;
+}
+
+.ulMuni li::before {
+  content: '•'; /* Simula un marcador con el carácter "•" */
+  font-size: 40px; /* Ajusta el tamaño */
+  color: var(--muni-base); /* Cambia el color */
+  position: absolute;
+  top: -20px;
+  left: -20px; /* Ajusta la posición respecto al texto */
+}
+
+.ulMuni li::marker {
+  font-size: 30px; /* Aumenta el tamaño del marcador */
+  color: var(--muni-base); /* Cambia el color del marcador */
+}
+
+
+ol.olNum li {
+  list-style-type: decimal;
+}
+
+ol.olNum li::marker {
+  font-weight: bold;
+  font-size: 20px; /* Aumenta el tamaño del marcador */
+  color: var(--muni-base); /* Cambia el color del marcador */
+}
+
+ol.olLet li {
+  list-style-type: lower-latin;
+}
+
+ol.olLet li::marker {
+  font-weight: bold;
+  font-size: 20px; /* Aumenta el tamaño del marcador */
+  color: var(--muni-base); /* Cambia el color del marcador */
+}
+
+
+/*-----------------------------------------------------------SCROLL*/
+
+body::-webkit-scrollbar {
+  width: .5em;
+}
+ 
+body::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px var(--gris-60);
+}
+ 
+body::-webkit-scrollbar-thumb {
+  background-color: var(--bg-muni-b1);
+  outline: 1px solid var(--bg-muni-b1);
+  border-radius: 10px;
+}
+
+/*-----------------------------------------------------------ACORDEON*/
+
+.accordion-button {
+    background-color: var(--bg-muni-b1) !important;
+    color: var(--gris-0) !important;
+}
+
+.accordion-button:not(.collapsed) {
+    color: var(--gris-0) !important;
+    background-color: var(--bg-muni-v1) !important;
+}
+
+.accordion-button:not(.collapsed)::after {
+    filter: invert(1) !important;
+}
+
+.accordion-button::after {
+    filter: invert(1) !important;
+}
+
+/*-----------------------------------------------------------TOOLTIPS*/
+
+
+.tooltip-danger {
+  --bs-tooltip-bg: var(--bg-muni-b1) !important;
+  --bs-tooltip-color: var(--gris-0); /* Color de fondo para tooltips de advertencia */
+}
+
+.tooltip-success {
+  --bs-tooltip-bg: #004610 !important;
+  --bs-tooltip-color: var(--gris-0); /* Color de fondo para tooltips de éxito */
+}
+
+.tooltip-bg-muni-v3 {
+  --bs-tooltip-bg: var(--bg-muni-b3) !important;
+  --bs-tooltip-color: var(--gris-0); /* Color de fondo para tooltips de éxito */
+}
+
+/*-----------------------------------------------------------TABLAS*/
+
+table {
+	border-bottom: 2px solid var(--gris-30);
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	border-collapse: collapse;
+	border-spacing: 0;
+  background-color: var(--gris-0);
+}
+
+table tr {
+	border: 1px solid var(--gris-50)
+
+}
+
+table th{
+  border: 1px solid var(--gris-50);
+  padding: 5px;
+  text-align: center;
+}
+
+table td {
+	text-align: center;
+  font-size: var(--tx-2);
+}
+
+tbody tr:hover {
+  background-color:var(--gris-20) !important;
+}
+
+/*tbody td:hover {
+  background-color: var(--gris-20);
+  color: var(--gris-0);
+}*/
+
+table thead {
+		background-color: var(--gris-90);
+    color: var(--gris-0);
+    font-size: var(--tx-2);
+	}
+
+.table-hover tbody tr:hover td {
+  background-color: inherit; /* Mantiene el color de fondo original */
+}
+
+/* Esto aplica solo a la celda específica */
+.no-hover:hover {
+  background-color: inherit; /* Mantiene el color de fondo original en el hover */
+}
+
+/*//////////////////////////////////////////////*/
+
+/* Estilo general de los botones de paginación */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 6px 12px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background-color: var(--gris-0);
+  color: var(--muni-base);
+  border: 1px solid var(--gris-0);
+  text-decoration: none;
+}
+
+/* Al pasar el cursor por encima */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: var(--muni-base);
+  color: var(--gris-0);
+}
+
+
+
+div.dataTables_wrapper div.dataTables_paginate {
+    margin: 0;
+    white-space: nowrap;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+div.dataTables_wrapper div.dataTables_info {
+    padding-top: 8px;
+    white-space: nowrap;
+    margin-bottom: 20px;
+}
+
+/* Botón de paginación activo */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background-color: var(--muni-base);
+  color: var(--gris-0);
+  border: 1px solid var(--muni-base);
+}
+
+/* Estilo para los botones "Siguiente" y "Anterior" */
+.dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+.dataTables_wrapper .dataTables_paginate .paginate_button.next {
+  background-color: var(--gris-0);
+  border-radius: 25px;
+  padding: 5px 10px;
+}
+
+/* Hover en los botones "Siguiente" y "Anterior" */
+.dataTables_wrapper .dataTables_paginate .paginate_button.previous:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button.next:hover {
+  background-color: var(--muni-base);
+  color: var(--gris-0);
+}
+
+/* Estilo para la columna ordenada en ascendente */
+th.sorting_asc::after {
+    content: "↑" !important; /* Caracter flecha hacia arriba */
+    color: var(--gris-0) !important;
+}
+
+/* Estilo para la columna ordenada en descendente */
+th.sorting_desc::after {
+    content: "↓" !important; /* Caracter flecha hacia abajo */
+    color: var(--gris-0) !important;
+}
+
+/* Estilo para cuando la columna no está ordenada */
+th.sorting::after {
+    content: "⇅" !important; /* Caracter doble flecha (sin ordenar) */
+    color: var(--gris-0) !important;
+}
+
+
+/*//////////////////////////////////////////////*/
+
+@media screen and (min-width: 350px) and (max-width: 768px) {
+
+.table-responsive{
+  height: 600px;
+  overflow:scroll;  
+  padding: 5px;
+  border:1px solid var(--gris-30);
+  border-radius: 5px;
+}
+
+	.table-responsive table {
+		border:0;
+	}
+
+	.table-responsive table tr {
+		margin-bottom: 10px;
+		display: block;
+	}
+
+	.table-responsive table td {
+		display: block;
+		text-align: center;
+		font-size: var(--tx-1);
+		border-bottom: 1px dotted var(--gris-30)
+	}
+
+	.table-responsive table td:last-child {
+		border-bottom: 0;
+	}
+
+	.table-responsive table td:before {
+    width: 30%;
+    text-align: center;
+    background-color: var(--gris-80);
+    color: var(--gris-0);
+		content: attr(data-cell);
+		float: left;
+		text-transform: uppercase;
+    font-size: var(--tx-3);
+	}
+
+	.table-responsive table thead {
+		display: none;
+	}
+
+
+
+}
+
+
+/* Bootstrap 5.3 breakpoints */
+
+/*---------------------------------------------------------------------360---------------------------*/
+@media (min-width: 360px) { 
+  
+  .titulo{
+  font-size: var(--tx-7);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  color: var(--gris-100);
+  border-left: 10px solid var(--muni-base);
+  padding-left: 10px;
+  margin-bottom: 20px;
+}
+.subtitulo{
+  font-size: var(--tx-3);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  border-left: 7px solid var(--gris-80);
+  padding-left: 5px;
+  color: var(--gris-80);
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+ }
+
+/*---------------------------------------------------------------------480---------------------------*/
+
+@media (min-width: 480px) { 
+.titulo{
+  font-size: var(--tx-6);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  color: var(--gris-100);
+  border-left: 10px solid var(--muni-base);
+  padding-left: 10px;
+}
+.subtitulo{
+  font-size: var(--tx-3);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  border-left: 7px solid var(--gris-80);
+  padding-left: 5px;
+  color: var(--gris-80);
+  width: 100%;
+  margin-bottom: 20px;
+}
+ }
+
+/*---------------------------------------------------------------------768---------------------------*/ 
+@media (min-width: 768px) { 
+  .titulo{
+  font-size: var(--tx-8);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  color: var(--gris-100);
+  border-left: 10px solid var(--muni-base);
+  padding-left: 10px;
+}
+.subtitulo{
+  font-size: var(--tx-6);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  border-left: 7px solid var(--gris-80);
+  padding-left: 5px;
+  color: var(--gris-80);
+  width: 80%;
+  margin-bottom: 20px;
+}
+ }
+
+/*---------------------------------------------------------------------1024---------------------------*/ 
+
+@media (min-width: 1024px) { 
+  .titulo{
+  font-size: var(--tx-8);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  color: var(--gris-100);
+  border-left: 10px solid var(--muni-base);
+  padding-left: 10px;
+}
+.subtitulo{
+  font-size: var(--tx-6);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  border-left: 7px solid var(--gris-80);
+  padding-left: 5px;
+  color: var(--gris-80);
+  width: 80%;
+  margin-bottom: 20px;
+}
+ }
+/*---------------------------------------------------------------------1200---------------------------*/  
+@media (min-width: 1200px) { 
+.titulo{
+  font-size: var(--tx-9);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  color: var(--gris-100);
+  border-left: 10px solid var(--muni-base);
+  padding-left: 10px;
+}
+.subtitulo{
+  font-size: var(--tx-6);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  border-left: 7px solid var(--gris-80);
+  padding-left: 5px;
+  color: var(--gris-80);
+  width: 80%;
+  margin-bottom: 10px;
+}
+ }
+
+/*---------------------------------------------------------------------1400---------------------------*/ 
+@media (min-width: 1400px) {
+  .titulo{
+  font-size: var(--tx-9);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  color: var(--gris-100);
+  border-left: 10px solid var(--muni-base);
+  padding-left: 10px;
+}
+.subtitulo{
+  font-size: var(--tx-6);/*mínimo, preferido, máximo */
+  line-height: 1em;
+  font-weight: bold;
+  border-left: 7px solid var(--gris-80);
+  padding-left: 5px;
+  color: var(--gris-80);
+  width: 80%;
+  margin-bottom: 10px;
+}
+ }

@@ -1,0 +1,34 @@
+[
+  {
+    "nombre": "Información de trámites",
+    "tipo_atencion": "Orientación e información"
+  },
+  {
+    "nombre": "Orientación previsional",
+    "tipo_atencion": "Orientación e información"
+  },
+  {
+    "nombre": "Subsidio de agua potable",
+    "tipo_atencion": "Asistencia social"
+  },
+  {
+    "nombre": "Ayuda técnica",
+    "tipo_atencion": "Asistencia social"
+  },
+  {
+    "nombre": "Pensión básica solidaria",
+    "tipo_atencion": "Asistencia social"
+  },
+  {
+    "nombre": "Mantención de áreas verdes",
+    "tipo_atencion": "Requerimiento territorial"
+  },
+  {
+    "nombre": "Alumbrado público",
+    "tipo_atencion": "Requerimiento territorial"
+  },
+  {
+    "nombre": "Mediación por ruidos molestos",
+    "tipo_atencion": "Convivencia vecinal"
+  }
+]

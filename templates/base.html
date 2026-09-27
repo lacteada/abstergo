@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Sistema Municipal{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/frameworkV1.css' %}">
+  <link rel="stylesheet" href="{% static 'css/institucional.css' %}">
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar bg-muni">
+    <div class="marca">
+      <img class="marca-logo" src="{% static 'img/logolaserena.png' %}"
+           alt="Ilustre Municipalidad de La Serena">
+      <span class="marca-textos">
+        <span class="marca-texto">Sistema Municipal</span>
+        <span class="marca-subtitulo">abstergo</span>
+      </span>
+    </div>
+
+    <nav class="nav">
+      <a class="nav-item{% if seccion == 'inicio' %} activo{% endif %}"
+         href="{% url 'panel:inicio' %}">Inicio</a>
+
+      <div class="grupo">
+        <span class="grupo-titulo">Mantenedores</span>
+
+        <a class="nav-sub{% if seccion == 'delegaciones' %} activo{% endif %}"
+           href="{% url 'organizacion:delegaciones' %}">Delegaciones Municipales</a>
+        <a class="nav-sub{% if seccion == 'usuarios' %} activo{% endif %}"
+           href="{% url 'cuentas:usuarios' %}">Usuarios</a>
+        <a class="nav-sub{% if seccion == 'roles' %} activo{% endif %}"
+           href="{% url 'cuentas:roles' %}">Roles</a>
+        <a class="nav-sub{% if seccion == 'metas' %} activo{% endif %}"
+           href="{% url 'catalogos:metas' %}">Metas</a>
+        <a class="nav-sub{% if seccion == 'tipos' %} activo{% endif %}"
+           href="{% url 'catalogos:tipos' %}">Tipo de Atención</a>
+        <a class="nav-sub{% if seccion == 'subatenciones' %} activo{% endif %}"
+           href="{% url 'catalogos:subatenciones' %}">Sub Atención</a>
+        <a class="nav-sub{% if seccion == 'vecinos' %} activo{% endif %}"
+           href="{% url 'ciudadanos:vecinos' %}">Vecinos</a>
+      </div>
+    </nav>
+  </aside>
+
+  <div class="contenido">
+    <header class="header">
+      <span class="header-espacio"></span>
+      <details class="usuario">
+        <summary class="usuario-resumen">
+          <span class="avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"></circle>
+              <path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path>
+            </svg>
+          </span>
+          <span class="usuario-textos">
+            <span class="usuario-nombre">
+              {{ user.get_full_name|default:user.username }}
+            </span>
+            <span class="usuario-rol">{{ user.perfil.rol|default:"sin rol" }}</span>
+          </span>
+          <span class="usuario-flecha" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          </span>
+        </summary>
+        <div class="usuario-menu">
+          {# Desde Django 5 el logout va por POST, no por enlace. #}
+          <form method="post" action="{% url 'cuentas:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="usuario-salir">Cerrar sesión</button>
+          </form>
+        </div>
+      </details>
+    </header>
+
+    <main class="main">
+      {% block contenido %}{% endblock %}
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

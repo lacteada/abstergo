@@ -1,0 +1,18 @@
+[
+  {
+    "nombre": "Orientación e información",
+    "descripcion": "Consultas sobre trámites, plazos y documentos requeridos."
+  },
+  {
+    "nombre": "Asistencia social",
+    "descripcion": "Apoyo directo a personas y familias en situación de vulnerabilidad."
+  },
+  {
+    "nombre": "Requerimiento territorial",
+    "descripcion": "Solicitudes de mejora en espacios públicos y servicios del sector."
+  },
+  {
+    "nombre": "Convivencia vecinal",
+    "descripcion": "Conflictos y mediaciones entre vecinos o con organizaciones del territorio."
+  }
+]

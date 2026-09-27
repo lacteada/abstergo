@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block titulo %}Inicio{% endblock %}
+
+{% block contenido %}
+  <h1 class="titulo">Bienvenido</h1>
+  <p class="subtitulo">
+    {{ user.get_full_name|default:user.username }} · {{ user.perfil.rol|default:"sin rol" }}
+  </p>
+{% endblock %}

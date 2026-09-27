@@ -1,0 +1,18 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>#</th>
+  <th>Nombre</th>
+  <th>Descripción</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.id }}</td>
+  <td>{{ fila.nombre }}</td>
+  <td>{{ fila.descripcion }}</td>
+  <td class="acciones">
+    <a class="accion" href="{% url 'cuentas:roles_editar' fila.pk %}">Editar</a>
+    <a class="accion peligro" href="{% url 'cuentas:roles_eliminar' fila.pk %}">Eliminar</a>
+  </td>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "cuentas/base_auth.html" %}
+
+{% block titulo %}Validar código · Sistema Municipal{% endblock %}
+
+{% block ventana %}
+  <div class="ventana">
+    <span></span><span></span><span></span>
+    <em>Sistema Municipal - Validar código</em>
+  </div>
+{% endblock %}
+
+{% block contenido %}
+  <h2 class="auth-seccion">Ingresa el código de verificación</h2>
+  <hr class="divisor">
+
+  <p class="auth-texto">Hemos enviado un código de 6 dígitos a:</p>
+  <p class="auth-destacado">{{ correo }}</p>
+
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+    {{ form.codigo }}
+    {% for error in form.codigo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+    {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+
+    <p class="ayuda">El código expira en {{ minutos }} minutos.</p>
+
+    <button class="btn-muni auth-boton" type="submit">Verificar código</button>
+  </form>
+
+  <p class="auth-texto">¿No recibiste el código?</p>
+
+  <form method="post" action="{% url 'cuentas:reenviar' %}">
+    {% csrf_token %}
+    <button class="accion" type="submit">Reenviar código</button>
+  </form>
+
+  <a class="auth-enlace" href="{% url 'cuentas:login' %}">Volver al login</a>
+{% endblock %}

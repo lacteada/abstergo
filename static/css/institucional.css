@@ -1,0 +1,260 @@
+/* Armazón del sistema. Solo lo que frameworkV1.css no trae.
+   Sin Bootstrap: la grilla, el sidebar y la tabla son de aquí. */
+
+:root {
+  --muni-base: #C41230;
+  --muni-claro: #DB3334;
+  --muni-oscuro: #8B1D19;
+  --gris-borde: #dcdfe4;
+  --gris-fondo: #f4f5f7;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  color: #22262b;
+  background: var(--gris-fondo);
+}
+
+/* nowrap: el sidebar y el contenido se quedan uno al lado del otro. Sin esto,
+   al hacer zoom el sidebar se comprime o el contenido se va abajo. */
+.app { display: flex; flex-wrap: nowrap; min-height: 100vh; }
+
+/* ---------- Sidebar ----------
+   El rojo no lo pongo acá: viene de la clase bg-muni del framework,
+   que usa su token --muni-base. Acá solo ajusto el texto. */
+.sidebar {
+  width: 250px;
+  flex: 0 0 250px;
+  padding: 18px 14px;
+  color: #fff;
+}
+.marca {
+  display: flex; align-items: center; justify-content: flex-start;
+  gap: 12px; margin-bottom: 22px;
+}
+.marca-textos { display: flex; flex-direction: column; min-width: 0; }
+.marca-texto { color: #fff; font-weight: 700; font-size: 14px; line-height: 1.2; }
+.marca-subtitulo {
+  color: rgba(255, 255, 255, .72); font-size: 11px; letter-spacing: .06em;
+}
+.marca-logo { height: 46px; width: auto; display: block; flex: 0 0 auto; }
+
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav-item, .nav-sub {
+  display: block; padding: 8px 10px; border-radius: 6px;
+  color: rgba(255, 255, 255, .88); text-decoration: none; font-size: 14px;
+}
+.nav-item:hover, .nav-sub:hover {
+  background: rgba(255, 255, 255, .14); color: #fff;
+}
+/* El Rojo Oscuro del manual, que existe justo para esto. */
+.nav-item.activo, .nav-sub.activo {
+  background: var(--muni-oscuro); color: #fff; font-weight: 600;
+}
+.grupo { margin-top: 14px; }
+.grupo-titulo {
+  display: block; padding: 6px 10px; font-size: 11px;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: rgba(255, 255, 255, .6);
+}
+.nav-sub { padding-left: 22px; }
+
+/* ---------- Contenido ---------- */
+.contenido { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.header {
+  display: flex; align-items: center; background: #fff;
+  border-bottom: 1px solid var(--gris-borde); padding: 12px 24px;
+}
+.header-espacio { flex: 1; }
+/* ---------- Usuario del header ----------
+   Icono, nombre con el rol debajo y un desplegable para cerrar la sesión. */
+.usuario { position: relative; font-size: 14px; }
+.usuario-resumen {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; list-style: none;
+}
+.usuario-resumen::-webkit-details-marker { display: none; }
+.avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--gris-borde); display: inline-flex;
+  align-items: center; justify-content: center; flex: 0 0 auto;
+}
+.avatar svg { width: 18px; height: 18px; color: #5b6169; }
+.usuario-textos { display: flex; flex-direction: column; line-height: 1.15; }
+.usuario-nombre { font-weight: 600; }
+.usuario-rol { color: #8a9099; font-size: 12px; }
+.usuario-flecha { display: inline-flex; color: #8a9099; }
+.usuario-flecha svg { width: 14px; height: 14px; }
+.usuario-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 10;
+  min-width: 160px; padding: 6px; background: #fff;
+  border: 1px solid var(--gris-borde); border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
+}
+.usuario-salir {
+  width: 100%; padding: 8px 10px; text-align: left; font-size: 14px;
+  color: var(--muni-oscuro); background: none; border: 0;
+  border-radius: 6px; cursor: pointer;
+}
+.usuario-salir:hover { background: var(--gris-fondo); }
+
+.main { padding: 24px; min-width: 0; }
+
+/* ---------- Cabecera del listado ----------
+   El título a la izquierda y la acción principal en la esquina superior derecha. */
+.cabecera {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px;
+}
+.cabecera .titulo { min-width: 0; }
+.cabecera .btn-muni { flex: 0 0 auto; }
+
+/* ---------- Barra de acciones del listado ---------- */
+.barra {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: nowrap; gap: 12px; margin: 14px 0 16px;
+}
+.buscador { display: flex; flex-wrap: nowrap; gap: 8px; flex: 1; }
+/* El buscador se encoge con la ventana en vez de empujar la barra fuera del
+   ancho disponible. */
+.buscador-campo { position: relative; display: flex; flex: 1; max-width: 340px; }
+.buscador-campo input {
+  padding: 8px 34px 8px 12px; width: 100%; min-width: 140px;
+  border: 1px solid var(--gris-borde); border-radius: 6px; font-size: 14px;
+}
+/* Se esconde la cruz nativa del input search: en su lugar va la lupa. */
+.buscador-campo input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.buscador-lupa {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; color: #000; pointer-events: none;
+}
+
+/* ---------- Tabla ----------
+   Una línea por fila y, si no cabe, desplazamiento horizontal en vez de
+   apretar las celdas. Es lo que evita que al angostar la ventana o al hacer
+   zoom cada fila se parta en varias líneas. */
+.tabla-envoltura {
+  overflow-x: auto;
+  max-width: 100%;
+  background: #fff;
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
+}
+.tabla {
+  width: 100%; border-collapse: collapse; font-size: 14px;
+}
+/* Explícito en las celdas y no heredado: si otra regla cambia el white-space
+   más adelante, esta lo gana. */
+.tabla th, .tabla td { white-space: nowrap; }
+.tabla thead th {
+  background: var(--gris-fondo); text-align: left; padding: 10px 12px;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
+  color: #5b6169; border-bottom: 1px solid var(--gris-borde);
+}
+.tabla tbody td { padding: 10px 12px; border-bottom: 1px solid #eef0f2; }
+.tabla tbody tr:last-child td { border-bottom: 0; }
+.tabla tbody tr:hover { background: #fafbfc; }
+.vacio { text-align: center; color: #8a9099; padding: 22px; }
+
+/* ---------- Estado ---------- */
+.estado {
+  display: inline-block; padding: 3px 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+}
+.estado.activo { background: #e4f4e8; color: #1d6b33; }
+.estado.inactivo { background: #fbe6e6; color: #9b1c1c; }
+
+/* ---------- Acciones de fila ---------- */
+.acciones { white-space: nowrap; }
+.accion {
+  font-size: 12px; color: var(--muni-base);
+  text-decoration: none; margin-right: 10px;
+}
+.accion.peligro { color: var(--muni-oscuro); }
+.accion:hover { text-decoration: underline; }
+
+.pie { color: #8a9099; font-size: 13px; margin-top: 12px; }
+
+/* ---------- Pantalla de login ---------- */
+.auth {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--gris-fondo);
+}
+.auth-tarjeta {
+  background: #fff; border: 1px solid var(--gris-borde); border-radius: 10px;
+  padding: 32px; width: 100%; max-width: 360px; text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+.auth-logo {
+  display: inline-block; width: 52px; height: 52px; border-radius: 10px;
+  background: var(--muni-base); margin-bottom: 14px;
+}
+.auth-titulo { margin: 0; font-size: 20px; }
+.auth-subtitulo { margin: 4px 0 22px; color: #8a9099; font-size: 13px; }
+.auth-form { display: flex; flex-direction: column; text-align: left; gap: 6px; }
+.auth-form label { font-size: 12px; font-weight: 600; color: #5b6169; }
+.auth-form input {
+  padding: 9px 12px; border: 1px solid var(--gris-borde);
+  border-radius: 6px; font-size: 14px;
+}
+.auth-boton { width: 100%; margin-top: 14px; }
+.auth-error {
+  background: #fbe6e6; color: #9b1c1c; border-radius: 6px;
+  padding: 8px 10px; font-size: 13px; margin: 0 0 6px;
+}
+.auth-enlace {
+  display: inline-block; margin-top: 16px; font-size: 13px;
+  color: var(--muni-base);
+}
+.auth-texto { font-size: 13px; color: #5b6169; text-align: center; margin: 10px 0; }
+.auth-destacado { font-weight: 700; text-align: center; margin: 4px 0 16px; }
+.auth-seccion { font-size: 16px; margin: 0 0 10px; }
+.divisor { border: 0; border-top: 1px solid var(--gris-borde); margin: 16px 0; }
+.requisitos {
+  background: var(--gris-fondo); border: 1px solid var(--gris-borde);
+  border-radius: 6px; padding: 12px 12px 12px 28px; margin: 0 0 18px;
+  font-size: 12px; color: #5b6169; text-align: left;
+}
+.requisitos li { margin: 2px 0; }
+
+/* La barra decorativa de tres círculos del mockup 0.3 */
+.ventana {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--gris-fondo); border-bottom: 1px solid var(--gris-borde);
+  margin: -32px -32px 22px; padding: 9px 14px; border-radius: 10px 10px 0 0;
+}
+.ventana span {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--gris-borde); display: inline-block;
+}
+.ventana em { font-style: normal; font-size: 11px; color: #8a9099; margin-left: 6px; }
+
+/* El código de 6 dígitos del mockup 0.3, en un solo campo */
+.auth-form input.codigo {
+  text-align: center; letter-spacing: 10px;
+  font-size: 22px; font-weight: 600;
+}
+
+/* ---------- Formularios de los mantenedores ---------- */
+.formulario {
+  background: #fff; border: 1px solid var(--gris-borde); border-radius: 8px;
+  padding: 22px; max-width: 560px;
+}
+.campo { margin-bottom: 14px; }
+.campo label {
+  display: block; font-size: 12px; font-weight: 600;
+  color: #5b6169; margin-bottom: 4px;
+}
+.campo input, .campo select, .campo textarea {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--gris-borde);
+  border-radius: 6px; font-size: 14px;
+}
+.ayuda { font-size: 12px; color: #8a9099; margin: 4px 0 0; }
+.error { font-size: 12px; color: #9b1c1c; margin: 4px 0 0; }
+.aviso {
+  background: #fff; border: 1px solid var(--gris-borde); border-radius: 8px;
+  padding: 18px 22px; max-width: 560px; font-size: 14px;
+}
+.botonera { display: flex; align-items: center; gap: 14px; margin-top: 18px; }

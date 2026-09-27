@@ -1,0 +1,24 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>#</th>
+  <th>Nombre</th>
+  <th>Correo</th>
+  <th>Rol</th>
+  <th>Delegación</th>
+  <th>Estado</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.id }}</td>
+  <td>{{ fila.usuario.get_full_name|default:fila.usuario.username }}</td>
+  <td>{{ fila.usuario.email }}</td>
+  <td>{{ fila.rol|default:"—" }}</td>
+  <td>{{ fila.delegacion|default:"—" }}</td>
+  <td><span class="estado {{ fila.estado|lower }}">{{ fila.get_estado_display }}</span></td>
+  <td class="acciones">
+    <a class="accion" href="{% url 'cuentas:usuarios_editar' fila.pk %}">Editar</a>
+    <a class="accion peligro" href="{% url 'cuentas:usuarios_eliminar' fila.pk %}">Eliminar</a>
+  </td>
+{% endblock %}

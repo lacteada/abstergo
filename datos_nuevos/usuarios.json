@@ -1,0 +1,44 @@
+[
+  {
+    "nombre": "Carlos Mendoza",
+    "email": "carlos@muniserena.cl",
+    "rol": "ADMIN",
+    "delegacion": "centro",
+    "activo": true
+  },
+  {
+    "nombre": "Laura Muñoz",
+    "email": "laura@muniserena.cl",
+    "rol": "COORDINADOR",
+    "delegacion": "centro",
+    "activo": true
+  },
+  {
+    "nombre": "Pedro Soto",
+    "email": "pedro@muniserena.cl",
+    "rol": "DELEGADO",
+    "delegacion": "centro",
+    "activo": true
+  },
+  {
+    "nombre": "María González",
+    "email": "maria@muniserena.cl",
+    "rol": "FUNCIONARIO",
+    "delegacion": "centro",
+    "activo": true
+  },
+  {
+    "nombre": "Roberto Silva",
+    "email": "roberto@muniserena.cl",
+    "rol": "VERIFICADOR",
+    "delegacion": "la-antena",
+    "activo": true
+  },
+  {
+    "nombre": "Ana Rodríguez",
+    "email": "ana@muniserena.cl",
+    "rol": "CONSULTA",
+    "delegacion": "la-pampa",
+    "activo": true
+  }
+]

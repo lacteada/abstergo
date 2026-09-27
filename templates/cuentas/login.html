@@ -1,0 +1,23 @@
+{% extends "cuentas/base_auth.html" %}
+
+{% block titulo %}Login · Sistema Municipal{% endblock %}
+
+{% block contenido %}
+  <form method="post" class="auth-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <p class="auth-error">Correo o contraseña incorrectos.</p>
+    {% endif %}
+
+    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+    {{ form.username }}
+
+    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    {{ form.password }}
+
+    <button class="btn-muni auth-boton" type="submit">Ingresar</button>
+  </form>
+
+  <a class="auth-enlace" href="{% url 'cuentas:recuperar' %}">¿Olvidaste tu contraseña?</a>
+{% endblock %}

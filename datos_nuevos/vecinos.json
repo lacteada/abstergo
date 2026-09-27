@@ -1,0 +1,92 @@
+[
+  {
+    "nombre": "Rosa Alvarado Pérez",
+    "rut": "11.111.111-1",
+    "direccion": "Los Aromos 145",
+    "telefono": "+56 9 1111 1111",
+    "territorio": "centro",
+    "tipo_gestion": "Orientación e información",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Manuel Contreras Rojas",
+    "rut": "12.222.222-2",
+    "direccion": "Balmaceda 908",
+    "telefono": "+56 9 2222 2222",
+    "territorio": "centro",
+    "tipo_gestion": "Asistencia social",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Julia Fuentes Naranjo",
+    "rut": "13.333.333-3",
+    "direccion": "Av. del Mar 3120",
+    "telefono": "+56 9 3333 3333",
+    "territorio": "avenida-del-mar",
+    "tipo_gestion": "Requerimiento territorial",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Héctor Pizarro Leiva",
+    "rut": "14.444.444-4",
+    "direccion": "Los Nogales 67",
+    "telefono": "+56 9 4444 4444",
+    "territorio": "avenida-del-mar",
+    "tipo_gestion": "Convivencia vecinal",
+    "estado": "Inactivo"
+  },
+  {
+    "nombre": "Carmen Sepúlveda Díaz",
+    "rut": "15.555.555-5",
+    "direccion": "Pasaje El Roble 21",
+    "telefono": "+56 9 5555 5555",
+    "territorio": "la-antena",
+    "tipo_gestion": "Asistencia social",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Luis Miranda Tapia",
+    "rut": "16.666.666-6",
+    "direccion": "Regimiento Coquimbo 1890",
+    "telefono": "+56 9 6666 6666",
+    "territorio": "la-antena",
+    "tipo_gestion": "Orientación e información",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Patricia Vergara Soto",
+    "rut": "17.777.777-7",
+    "direccion": "Ruta 5 Norte 1450",
+    "telefono": "+56 9 7777 7777",
+    "territorio": "las-companias",
+    "tipo_gestion": "Requerimiento territorial",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Jorge Cáceres Bravo",
+    "rut": "18.888.888-8",
+    "direccion": "Los Clarines 389",
+    "telefono": "+56 9 8888 8888",
+    "territorio": "la-pampa",
+    "tipo_gestion": "Asistencia social",
+    "estado": "Inactivo"
+  },
+  {
+    "nombre": "Silvia Rojas Alcaíno",
+    "rut": "19.999.999-9",
+    "direccion": "Camino a Vicuña Km 8",
+    "telefono": "+56 9 9999 9999",
+    "territorio": "rural",
+    "tipo_gestion": "Orientación e información",
+    "estado": "Activo"
+  },
+  {
+    "nombre": "Ramón Olivares Muñoz",
+    "rut": "20.000.000-0",
+    "direccion": "Camino a Vicuña Km 15",
+    "telefono": "+56 9 1010 1010",
+    "territorio": "rural",
+    "tipo_gestion": "Requerimiento territorial",
+    "estado": "Activo"
+  }
+]
