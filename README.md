@@ -1,15 +1,80 @@
-### Steps followed
+# Abstergo — Sistema Municipal de Gestión de Atención Ciudadana
 
-- Setup AWS and Git
-    - `.gitignore` en la raíz del repositorio (excluye venv, .env, *.pem, cachés)
-    - Llave SSH en `~/.ssh/abstergo-key.pem`, fuera del repositorio
-    - Amazon Linux 2023 (kernel-6.18)
-    - `ssh -i "abstergo-key.pem" ec2-user@ec2-54-172-183-44.compute-1.amazonaws.com`
-    - `sudo dnf upgrade -y`
-    - `sudo dnf install -y httpd wget php-fpm php-mysqli php-json php php-devel python3`
-    - `sudo dnf install mariadb105-server`
-    - https://docs.aws.amazon.com/linux/al2023/ug/ec2-lamp-amazon-linux-2023.html#prepare-lamp-server-2023
-- venv
-    - `python -m venv venv`
-    - `source venv/bin/activate`
-    - `python -m pip install Django`
+Evaluación Sumativa 2 · Programación Back End (TI3041) · INACAP La Serena.
+
+Continuación del proyecto de la Evaluación 1, que guardaba sus datos en archivos
+JSON. En esta entrega esos datos pasan a una base de datos relacional y el
+sistema se administra desde Django Admin, con un front-end de listados y CRUD
+sobre plantillas Django.
+
+Repo: https://github.com/lacteada/abstergo
+
+## Qué incluye
+
+- 7 entidades con ORM y migraciones.
+- Comando de carga de datos desde JSON, idempotente.
+- Django Admin con las 7 entidades, en solo lectura.
+- Front-end: los 7 listados con alta, edición y borrado, más búsqueda en vivo.
+- Autenticación: login, recuperar contraseña, código OTP y nueva contraseña.
+
+## Stack
+
+- Python 3.14 · Django 6.1
+- MariaDB, driver `mysqlclient`
+- `gunicorn` para producción
+
+## Estructura
+
+```text
+abstergo/
+├── config/           settings, urls, wsgi
+├── apps/
+│   ├── common/       vistas base, Admin en solo lectura, borrado lógico
+│   ├── cuentas/      Rol, PerfilUsuario, autenticación
+│   ├── organizacion/ Delegacion
+│   ├── catalogos/    Meta, TipoAtencion, SubAtencion
+│   ├── ciudadanos/   Vecino
+│   └── panel/        Inicio y comando cargar_datos
+├── datos_nuevos/     JSON de importación, uno por entidad
+├── templates/        armazón, listados y pantallas de acceso
+├── static/           css, js, img
+└── documentacion/    planificación, traslado, prompts y documento técnico
+```
+
+## Puesta en marcha
+
+1. Requisitos del sistema: MariaDB y sus librerías de desarrollo. El orden
+   importa: `mysqlclient` compila contra los headers de MariaDB.
+
+   ```bash
+   sudo pacman -S mariadb        # o el gestor de paquetes de tu distro
+   ```
+
+2. Entorno virtual y dependencias:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   pip install mysqlclient        # después de instalar MariaDB
+   ```
+
+3. Variables de entorno: copiar `.env.example` a `.env` y completar las
+   credenciales.
+
+4. Base de datos y datos:
+
+   ```bash
+   python manage.py migrate
+   python manage.py cargar_datos   # lee datos_nuevos/; reejecutable sin duplicar
+   python manage.py runserver
+   ```
+
+## Documentación
+
+En `documentacion/`:
+
+- `documento_tecnico.md` — documento técnico (se exporta a PDF).
+- `prompts.md` — evidencia de uso de IA.
+- `traslado_de_datos.md` — mapeo del JSON de origen a las tablas.
+- `07_Frontend.md` y `08_Backend.md` — guías de estudio.
