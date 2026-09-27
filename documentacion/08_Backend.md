@@ -291,7 +291,7 @@ def handle(self, *args, **options):
     self.cargar("vecinos", Vecino, "rut", ...)
 ```
 
-Puntos:
+Claves:
 
 - `update_or_create` dentro de `cargar` → **idempotente**: correrlo dos veces no
   duplica.
@@ -313,8 +313,8 @@ class SoloLecturaAdmin(admin.ModelAdmin):
 ```
 
 Las 7 clases del Admin heredan de esta base, así que las tres restricciones se
-escriben una sola vez. Es una decisión consciente (la pauta da 15 puntos al CRUD
-del Admin): revertirlo es quitar esos tres métodos.
+escriben una sola vez. Es una decisión consciente: revertirlo es quitar esos
+tres métodos.
 
 ## 12. Autenticación
 

@@ -1,12 +1,10 @@
 # Documento técnico — Sistema Municipal de Gestión de Atención Ciudadana
 
-Evaluación Sumativa 2 · Programación Back End (TI3041) · INACAP La Serena.
-
 El código está en `https://github.com/lacteada/abstergo`.
 
 ## 1. Descripción del proyecto
 
-Continuación del proyecto de la Evaluación Sumativa 1, que guardaba sus datos en archivos JSON. En esta entrega esos datos pasan a una base de datos relacional y el sistema se administra desde Django Admin, con un front-end de listados construido sobre plantillas Django.
+Los datos viven en una base de datos relacional y el sistema se administra desde Django Admin, con un front-end de listados construido sobre plantillas Django.
 
 Temática: gestión de atención ciudadana de las delegaciones municipales de La Serena.
 
@@ -149,7 +147,7 @@ Resultado verificado: 46 registros creados en la primera ejecución, y en la seg
 
 Conteos finales: 6 delegaciones, 6 roles, 6 perfiles, 6 metas, 4 tipos de atención, 8 sub atenciones y 10 vecinos.
 
-El mapeo campo por campo desde los JSON de la Evaluación 1, con lo descartado y su justificación, está en `traslado_de_datos.md`.
+El mapeo campo por campo desde los JSON de origen, con lo descartado y su justificación, está en `traslado_de_datos.md`.
 
 ## 5. Django Admin
 
@@ -157,7 +155,7 @@ Las 7 entidades están registradas, con `list_display`, `search_fields` y `list_
 
 El Admin está en **solo lectura**: ve, busca y navega, pero no permite crear, modificar ni eliminar. Las tres restricciones se escriben una sola vez, en una clase base `SoloLecturaAdmin`, de la que heredan las 7 clases. Para revertirlo basta con quitar esos tres métodos.
 
-Es una decisión consciente y asumida: la pauta asigna 15 puntos a crear, modificar, eliminar y buscar desde el Admin, y esta configuración deja fuera los tres primeros.
+Es una decisión consciente y asumida: el Admin queda para consulta y navegación, sin alta, modificación ni borrado.
 
 ## 6. Front-end
 

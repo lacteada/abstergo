@@ -91,7 +91,7 @@ Estructura:
       <main class="main">               {% block contenido %} va acá
 ```
 
-Puntos:
+Claves:
 
 - `.app` es un flex que pone el sidebar y el contenido uno al lado del otro.
   `flex-wrap: nowrap` evita que el contenido se vaya abajo al angostar o hacer

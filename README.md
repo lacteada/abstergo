@@ -1,11 +1,9 @@
 # Abstergo — Sistema Municipal de Gestión de Atención Ciudadana
 
-Evaluación Sumativa 2 · Programación Back End (TI3041) · INACAP La Serena.
-
-Continuación del proyecto de la Evaluación 1, que guardaba sus datos en archivos
-JSON. En esta entrega esos datos pasan a una base de datos relacional y el
-sistema se administra desde Django Admin, con un front-end de listados y CRUD
-sobre plantillas Django.
+Aplicación Django para la gestión de atención ciudadana de las delegaciones
+municipales. Los datos viven en una base de datos relacional y el sistema se
+administra desde Django Admin, con un front-end de listados y CRUD sobre
+plantillas Django.
 
 Repo: https://github.com/lacteada/abstergo
 

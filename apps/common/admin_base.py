@@ -4,8 +4,8 @@ from django.contrib import admin
 class SoloLecturaAdmin(admin.ModelAdmin):
     """Admin sin alta, edición ni borrado.
 
-    Decisión consciente: la pauta de la evaluación da 15 puntos al CRUD del
-    Admin. Para volver a habilitarlo, quitar los tres métodos de abajo.
+    Decisión consciente: el Admin queda para consulta y navegación. Para volver
+    a habilitarlo, quitar los tres métodos de abajo.
     """
 
     list_per_page = 25
