@@ -92,7 +92,7 @@ class BorradoBase(Comun, LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         # Las entidades con borrado lógico se marcan, no se borran. Así el
-        # vecino no pierde su territorio ni el perfil su rol.
+        # vecino no pierde su territorio ni el usuario su rol.
         if hasattr(self.object, "eliminar"):
             self.object.eliminar()
         else:

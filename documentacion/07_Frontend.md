@@ -288,8 +288,8 @@ la plantilla o a llenar condicionales.
   <summary class="usuario-resumen">
     <span class="avatar"><svg .../></span>          icono de persona
     <span class="usuario-textos">
-      <span class="usuario-nombre">{{ user.get_full_name|default:user.username }}</span>
-      <span class="usuario-rol">{{ user.perfil.rol|default:"sin rol" }}</span>
+      <span class="usuario-nombre">{{ user.get_full_name|default:user.email }}</span>
+      <span class="usuario-rol">{{ user.rol|default:"sin rol" }}</span>
     </span>
     <span class="usuario-flecha"><svg .../></span>   chevron del desplegable
   </summary>
@@ -304,8 +304,8 @@ la plantilla o a llenar condicionales.
 
 Detalles:
 
-- `user.perfil` es una relación `OneToOne`; si no existiera, el template
-  devuelve vacío (Django silencia `ObjectDoesNotExist`) y se muestra "sin rol".
+- `user.rol` es una llave foránea directa del usuario, no una relación a través
+  de un perfil. Si viniera vacía, el filtro `default` muestra "sin rol".
 - El menú se posiciona absoluto (_absolute_) bajo el resumen
   (`.usuario-menu { position: absolute; right: 0; top: calc(100% + 8px) }`).
 

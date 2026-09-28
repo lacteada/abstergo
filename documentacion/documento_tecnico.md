@@ -28,7 +28,7 @@ abstergo/
 │   │   ├── vistas_base.py   las 4 vistas genéricas de los mantenedores
 │   │   ├── admin_base.py    el Admin en solo lectura
 │   │   └── soft_delete.py   el borrado lógico
-│   ├── cuentas/             Rol, PerfilUsuario, autenticación
+│   ├── cuentas/             Rol, Usuario, autenticación
 │   ├── organizacion/        Delegacion
 │   ├── catalogos/           Meta, TipoAtencion, SubAtencion
 │   ├── ciudadanos/          Vecino
@@ -50,64 +50,82 @@ Decisiones de estructura:
 
 Motor: MariaDB. Driver: `mysqlclient`. Las credenciales salen del `.env`, nunca del código.
 
+`AUTH_USER_MODEL` apunta a `cuentas.Usuario`: el usuario del sistema es un modelo propio.
+
 ### Entidades y relaciones
 
 | Tabla | Campos | Relación |
 |---|---|---|
-| `organizacion_delegacion` | codigo, nombre, direccion, comuna, activo, eliminado | — |
+| `organizacion_delegacion` | codigo, nombre, direccion, comuna, eliminado | — |
 | `cuentas_rol` | nombre, descripcion, eliminado | — |
-| `cuentas_perfilusuario` | usuario, rol, delegacion, estado | → Rol, → Delegacion |
-| `catalogos_meta` | nombre, descripcion | — |
+| `cuentas_usuario` | email, first_name, last_name, password, is_active, rol, delegacion, eliminado | → Rol, → Delegacion |
+| `catalogos_meta` | nombre, descripcion, delegacion, eliminado | → Delegacion |
 | `catalogos_tipoatencion` | nombre, descripcion, eliminado | — |
-| `catalogos_subatencion` | nombre, tipo_atencion | → TipoAtencion |
-| `ciudadanos_vecino` | nombre, rut, direccion, telefono, territorio, tipo_gestion, estado | → Delegacion |
+| `catalogos_subatencion` | nombre, tipo_atencion, eliminado | → TipoAtencion |
+| `ciudadanos_vecino` | nombre, rut, direccion, telefono, territorio, tipo_gestion, estado, eliminado | → Delegacion |
 
-Cuatro relaciones en total:
+Cinco relaciones en total:
 
-- `PerfilUsuario` → `Rol`
-- `PerfilUsuario` → `Delegacion`
+- `Usuario` → `Rol`
+- `Usuario` → `Delegacion`
+- `Meta` → `Delegacion`
 - `SubAtencion` → `TipoAtencion`
 - `Vecino` → `Delegacion`
 
-`Meta` queda sin relaciones, por decisión consciente: los cargos del origen no se modelaron, así que no hay de dónde colgarla. Se detalla en `traslado_de_datos.md`.
+Las siete tablas llevan la columna `eliminado`. `Delegacion` ya no lleva `activo`: el borrado lógico cumple ese papel. La única bandera Activo/Inactivo que queda es la de `Vecino` (el estado del vecino) y la de `Usuario` (`is_active`, que es lo que Django consulta al iniciar sesión).
+
+### El usuario
+
+El `Usuario` es un modelo propio, no el `auth.User`:
+
+- No tiene `username`. La llave primaria es un `id` propio, y así el correo se puede editar sin tocar la identidad del usuario.
+- El correo es el campo de acceso (`USERNAME_FIELD`), único y editable.
+- El rol y la delegación viven en el propio usuario. Ya no hay tabla de perfil ni señal `post_save`.
+- El correo admite nulos: varios usuarios sin correo conviven sin chocar contra el índice único, porque en la base los `NULL` no se comparan entre sí.
+
+De ahí salen dos efectos deliberados:
+
+- Un usuario sin correo **no puede iniciar sesión**. Su contraseña queda inutilizable, que es la forma que tiene Django de decir que la cuenta existe pero no entra.
+- El `objects` del modelo sigue siendo un `UserManager`. Es obligatorio: `createsuperuser`, `authenticate` y las sesiones dependen de él.
 
 ### Integridad
 
-Ninguna llave foránea borra en cascada: las cuatro relaciones entre entidades usan `PROTECT`, y `PerfilUsuario` → `User` es la única en cascada, porque el perfil es una extensión del usuario y no tiene sentido sin él.
+Ninguna llave foránea borra en cascada: las cinco relaciones usan `PROTECT`. Ya no queda ninguna en cascada, porque desapareció el perfil que colgaba de `auth.User`.
 
 `PROTECT` por sí solo dejaba el mantenedor inservible: no se podía dar de baja una Delegación o un Rol que estuviera en uso. La solución no fue cambiar el borrado a cascada ni a `SET_NULL`, porque `SET_NULL` habría dejado al vecino sin el dato de su territorio.
 
-La solución fue el **borrado lógico** en las tres entidades que otras referencian:
+La solución fue el **borrado lógico**, aplicado a las siete entidades:
 
 | Entidad | Por qué |
 |---|---|
-| `Delegacion` | la referencian `Vecino` y `PerfilUsuario` |
-| `Rol` | lo referencia `PerfilUsuario` |
+| `Delegacion` | la referencian `Vecino`, `Usuario` y `Meta` |
+| `Rol` | lo referencia `Usuario` |
 | `TipoAtencion` | lo referencia `SubAtencion` |
+| `Usuario`, `Meta`, `SubAtencion`, `Vecino` | para que "Eliminar" signifique lo mismo en los siete módulos |
 
-Las tres heredan de un modelo abstracto `BorradoLogico` que aporta:
+`apps/common/soft_delete.py` está partido en dos clases:
 
-- Una columna `eliminado`, fecha nula mientras la fila está vigente.
-- Un gestor `objects` que esconde las dadas de baja, y un gestor `todos` que las ve todas.
-- Un método `eliminar()` que escribe la fecha en vez de borrar.
+- `Eliminado`: aporta la columna `eliminado` y un método `eliminar()` que escribe la fecha en vez de borrar.
+- `BorradoLogico`: hereda de `Eliminado` y además cambia los gestores. `objects` esconde las dadas de baja; `todos` las ve todas.
 
-El botón de eliminar del mantenedor llama a `eliminar()` en esas tres. La fila sale del listado y nadie pierde la referencia: el vecino sigue mostrando su territorio y el perfil su rol. `PROTECT` queda como red de seguridad ante un `DELETE` directo desde phpMyAdmin.
+Seis entidades heredan de `BorradoLogico`. `Usuario` hereda solo de `Eliminado`, porque no puede cambiar su gestor. Por eso su listado filtra el borrado a mano.
 
-En los otros cuatro mantenedores el borrado es real, y la fila desaparece de la base.
+El botón de eliminar del mantenedor llama a `eliminar()` en las siete. La fila sale del listado y nadie pierde la referencia: el vecino sigue mostrando su territorio y el usuario su rol. `PROTECT` queda como red de seguridad ante un `DELETE` directo desde phpMyAdmin.
 
 Efectos asumidos, todos conscientes:
 
 - Una Delegación dada de baja sigue ocupando su `codigo`, y un Rol su `nombre`. No se puede crear otro con el mismo valor mientras la fila esté marcada.
 - Recargar el JSON con `cargar_datos` restaura lo dado de baja: el comando usa el gestor sin filtro y limpia la fecha, para seguir siendo idempotente.
 - `Vecino.territorio` es obligatorio, así que un vecino siempre tiene territorio.
+- Un usuario sin correo existe, no puede entrar, y no arrastra a nadie: su contraseña es inutilizable.
 
 Django no delega el borrado a la base: no emite cláusulas `ON DELETE` al crear las tablas. Resuelve las referencias desde Python, así que el comportamiento es el mismo en SQLite y en MariaDB.
-
-El modelo `Usuario` no se duplica: se usa el `auth.User` de Django y un perfil con `OneToOne` que aporta el rol, la delegación y el estado. El perfil se crea solo, con una señal `post_save` sobre `User`.
 
 ### Migraciones
 
 Cuatro archivos `0001_initial.py`, uno por app con modelos: `cuentas`, `organizacion`, `catalogos` y `ciudadanos`.
+
+Se rehicieron al introducir el usuario propio, porque Django exige fijar `AUTH_USER_MODEL` antes de la primera migración. La base se recreó en el mismo paso; no hubo pérdida de información, porque los 46 registros se regeneran desde `datos_nuevos/` con `cargar_datos`.
 
 ### Consultas ORM
 
@@ -141,11 +159,13 @@ python manage.py cargar_datos
 - Usa `update_or_create`, así que es reejecutable sin duplicar.
 - Recorre en orden de dependencia: delegaciones y roles, después usuarios, luego los catálogos y al final vecinos.
 - Informa cuántos registros creó y cuántos actualizó.
-- Asigna la contraseña de los usuarios migrados con `set_password()`, tomándola del `.env`.
+- A los usuarios migrados les asigna la contraseña del `.env` (`USUARIOS_PASSWORD_INICIAL`). Si el usuario no trae correo, la contraseña queda inutilizable.
+
+Los usuarios se buscan por nombre y apellido, no por correo: si el correo es nulo no sirve como llave de idempotencia, y `update_or_create` no puede comparar contra un `NULL`.
 
 Resultado verificado: 46 registros creados en la primera ejecución, y en la segunda, 0 creados y 46 actualizados.
 
-Conteos finales: 6 delegaciones, 6 roles, 6 perfiles, 6 metas, 4 tipos de atención, 8 sub atenciones y 10 vecinos.
+Conteos finales: 6 delegaciones, 6 roles, 6 usuarios, 6 metas, 4 tipos de atención, 8 sub atenciones y 10 vecinos.
 
 El mapeo campo por campo desde los JSON de origen, con lo descartado y su justificación, está en `traslado_de_datos.md`.
 
@@ -176,7 +196,7 @@ Vive en la vista, no en la plantilla: `get_queryset` filtra con `icontains` sobr
 
 ### Borrado
 
-El botón de eliminar llama a `eliminar()` en las tres entidades con borrado lógico y a `delete()` en las otras cuatro.
+El botón de eliminar llama a `eliminar()` en los siete módulos: el borrado es lógico en todas las entidades.
 
 ### Diseño
 
@@ -186,7 +206,7 @@ Sin Bootstrap. El framework institucional de laserena.cl aporta la tipografía, 
 
 Cuatro pantallas, siguiendo el mockup §1 a §4:
 
-- **Login** por correo y contraseña contra `auth.User`. En los datos migrados el correo es el `username`, así que se usa el formulario estándar de Django con las etiquetas cambiadas.
+- **Login** por correo y contraseña contra `cuentas.Usuario`. El correo es el `USERNAME_FIELD` del modelo, así que se usa el formulario estándar de Django con las etiquetas cambiadas.
 - **Recuperar**: pide el correo y genera un código de 6 dígitos.
 - **Validar**: los 6 dígitos, con la barra decorativa del mockup.
 - **Nueva contraseña**: valida contra `AUTH_PASSWORD_VALIDATORS` y guarda con `set_password()`.
@@ -197,6 +217,7 @@ Detalles:
 - Vence a los 10 minutos, valor que sale de `OTP_EXPIRY_MINUTES` en el `.env`.
 - Hay un reenvío: `POST /reenviar/` regenera el código desde la sesión, sin volver a pedir el correo.
 - La respuesta al pedir el código es la misma exista o no el correo, para no revelar qué cuentas hay.
+- La búsqueda del correo es por `email__iexact`, así que los usuarios sin correo nunca entran en el flujo de recuperación. Recuperar la contraseña es, en la práctica, cosa de las cuentas con correo.
 - El envío sale del `.env`: consola en desarrollo, SMTP en el EC2.
 - El Admin conserva su propio login y su propio superusuario, aparte del login del sistema.
 
@@ -225,9 +246,10 @@ Aplicación concreta:
 - La estructura de apps bajo `apps/` y los settings alimentados por `.env`.
 - El modelo de datos y las relaciones entre las 7 entidades.
 - El comando de carga idempotente con `update_or_create`.
-- El borrado lógico en las tres entidades referenciadas, para poder dar de baja una Delegación o un Rol en uso sin perder la referencia.
+- El borrado lógico en las siete entidades, para que dar de baja signifique lo mismo en todos los módulos y nadie pierda la referencia.
 - Las vistas base compartidas, para que los 7 módulos no repitan el mismo código.
 - La detección de que `EMAIL_BACKEND` ya no es la vía en Django 6.1, y de que el loader de plantillas cachea siempre, ambas verificadas contra el código fuente del framework instalado.
+- La reestructura del esquema: usuario propio sin `username`, `Meta` colgando de `Delegacion`, borrado lógico en las siete tablas y Activo/Inactivo reducido a `Vecino` y `Usuario`.
 
 ## 10. Evidencias pendientes
 

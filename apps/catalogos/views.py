@@ -10,7 +10,8 @@ class MetasListado(ListadoBase):
     titulo = "Metas"
     seccion = "metas"
     etiqueta_nueva = "Nueva meta"
-    busqueda = ("nombre", "descripcion")
+    busqueda = ("nombre", "descripcion", "delegacion__nombre")
+    relacionadas = ("delegacion",)
     url_nueva = "catalogos:metas_nueva"
     url_listado = "catalogos:metas"
 

@@ -6,8 +6,10 @@ from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
 
 @admin.register(Meta)
 class MetaAdmin(SoloLecturaAdmin):
-    list_display = ("nombre", "descripcion")
-    search_fields = ("nombre", "descripcion")
+    list_display = ("nombre", "delegacion", "descripcion")
+    search_fields = ("nombre", "descripcion", "delegacion__nombre")
+    list_filter = ("delegacion",)
+    autocomplete_fields = ("delegacion",)
 
 
 @admin.register(TipoAtencion)

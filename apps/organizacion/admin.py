@@ -6,6 +6,6 @@ from apps.organizacion.models import Delegacion
 
 @admin.register(Delegacion)
 class DelegacionAdmin(SoloLecturaAdmin):
-    list_display = ("codigo", "nombre", "comuna", "activo")
+    list_display = ("codigo", "nombre", "comuna")
     search_fields = ("codigo", "nombre", "comuna")
-    list_filter = ("activo", "comuna")
+    list_filter = ("comuna",)

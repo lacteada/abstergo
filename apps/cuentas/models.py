@@ -1,9 +1,7 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
-from apps.common.soft_delete import BorradoLogico
+from apps.common.soft_delete import BorradoLogico, Eliminado
 
 
 class Rol(BorradoLogico):
@@ -19,27 +17,47 @@ class Rol(BorradoLogico):
         return self.nombre
 
 
-class PerfilUsuario(models.Model):
-    ACTIVO = "Activo"
-    INACTIVO = "Inactivo"
-    ESTADOS = [(ACTIVO, "Activo"), (INACTIVO, "Inactivo")]
+class UsuarioManager(UserManager):
+    """UserManager con el correo como identificador.
 
-    # Todas las referencias usan PROTECT. No estorba para el mantenedor,
-    # porque Rol y Delegacion se dan de baja con borrado lógico y nunca se
-    # borran de verdad. PROTECT queda como red de seguridad ante un DELETE
-    # directo desde phpMyAdmin.
-    usuario = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="perfil",
-        verbose_name="usuario",
-    )
+    El de Django recibe `username` como primer argumento y lo exige; con
+    USERNAME_FIELD apuntando al correo, `createsuperuser` no pasaría.
+    """
+
+    def create_user(self, email=None, password=None, **extra_fields):
+        if not email:
+            raise ValueError("El correo es obligatorio.")
+        usuario = self.model(email=self.normalize_email(email), **extra_fields)
+        usuario.set_password(password)
+        usuario.save(using=self._db)
+        return usuario
+
+    def create_superuser(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        return self.create_user(email, password, **extra_fields)
+
+
+class Usuario(AbstractUser, Eliminado):
+    """El usuario del sistema.
+
+    Sin `username`: la llave es el `id` y el correo es un dato más, editable.
+    Hereda de `Eliminado` y no de `BorradoLogico` porque `objects` tiene que
+    seguir siendo un UserManager.
+
+    El correo admite nulos para que varios usuarios puedan no tener. En MySQL
+    el índice único deja convivir varios NULL. Un usuario sin correo no puede
+    iniciar sesión; su contraseña queda inutilizable.
+    """
+
+    username = None
+    email = models.EmailField("correo", unique=True, null=True, blank=True)
     rol = models.ForeignKey(
         Rol,
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name="perfiles",
+        related_name="usuarios",
         verbose_name="rol",
     )
     delegacion = models.ForeignKey(
@@ -47,22 +65,25 @@ class PerfilUsuario(models.Model):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name="perfiles",
+        related_name="usuarios",
         verbose_name="delegación",
     )
-    estado = models.CharField(
-        "estado", max_length=10, choices=ESTADOS, default=ACTIVO
-    )
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = UsuarioManager()
 
     class Meta:
-        verbose_name = "perfil de usuario"
-        verbose_name_plural = "perfiles de usuario"
+        verbose_name = "usuario"
+        verbose_name_plural = "usuarios"
+        ordering = ["first_name", "last_name"]
 
     def __str__(self):
-        return f"{self.usuario.get_full_name() or self.usuario.username} · {self.rol}"
+        return self.get_full_name() or self.email or f"Usuario {self.pk}"
 
-
-@receiver(post_save, sender=User)
-def crear_perfil(sender, instance, created, **kwargs):
-    if created:
-        PerfilUsuario.objects.create(usuario=instance)
+    def clean(self):
+        # AbstractBaseUser.clean() normaliza el USERNAME_FIELD, y
+        # normalize_username(None) revienta. Sin correo no hay qué normalizar.
+        if self.email:
+            super().clean()

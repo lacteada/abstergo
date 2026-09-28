@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.common.admin_base import SoloLecturaAdmin
-from apps.cuentas.models import PerfilUsuario, Rol
+from apps.cuentas.models import Rol, Usuario
 
 
 @admin.register(Rol)
@@ -10,13 +10,16 @@ class RolAdmin(SoloLecturaAdmin):
     search_fields = ("nombre", "descripcion")
 
 
-@admin.register(PerfilUsuario)
-class PerfilUsuarioAdmin(SoloLecturaAdmin):
-    list_display = ("usuario", "rol", "delegacion", "estado")
-    search_fields = (
-        "usuario__first_name",
-        "usuario__last_name",
-        "usuario__email",
+@admin.register(Usuario)
+class UsuarioAdmin(SoloLecturaAdmin):
+    list_display = (
+        "email",
+        "first_name",
+        "last_name",
+        "rol",
+        "delegacion",
+        "is_active",
     )
-    list_filter = ("rol", "delegacion", "estado")
+    search_fields = ("email", "first_name", "last_name")
+    list_filter = ("rol", "delegacion", "is_active")
     autocomplete_fields = ("rol", "delegacion")

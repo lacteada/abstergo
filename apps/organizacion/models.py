@@ -8,7 +8,6 @@ class Delegacion(BorradoLogico):
     nombre = models.CharField("nombre", max_length=120)
     direccion = models.CharField("dirección", max_length=200, blank=True)
     comuna = models.CharField("comuna", max_length=80, blank=True)
-    activo = models.BooleanField("activo", default=True)
 
     class Meta:
         verbose_name = "delegación"

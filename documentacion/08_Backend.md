@@ -31,7 +31,7 @@ abstergo/
 │   │   ├── vistas_base.py   las 4 vistas genéricas de los mantenedores
 │   │   ├── admin_base.py    el Admin en solo lectura
 │   │   └── soft_delete.py   el borrado lógico
-│   ├── cuentas/             Rol, PerfilUsuario, autenticación
+│   ├── cuentas/             Rol, Usuario, autenticación
 │   ├── organizacion/        Delegacion
 │   ├── catalogos/           Meta, TipoAtencion, SubAtencion
 │   ├── ciudadanos/          Vecino
@@ -51,6 +51,7 @@ compartido.
 - `load_dotenv(BASE_DIR / ".env")` y un helper `env(nombre, default)`; nada
   sensible queda escrito en el código.
 - `INSTALLED_APPS`: las apps propias con su ruta completa, más las de Django.
+- `AUTH_USER_MODEL`: apunta a `cuentas.Usuario`. El usuario del sistema es un modelo propio, y esta línea tiene que existir antes de la primera migración.
 - `DATABASES`: `django.db.backends.mysql`, con los valores del `.env`.
 - `TEMPLATES`: `DIRS` apunta a `templates/` y además `APP_DIRS`.
 - `AUTH_PASSWORD_VALIDATORS`: los de Django más un validador propio
@@ -77,7 +78,6 @@ class Delegacion(BorradoLogico):        # organizacion/models.py
     nombre = models.CharField("nombre", max_length=120)
     direccion = models.CharField("dirección", max_length=200, blank=True)
     comuna = models.CharField("comuna", max_length=80, blank=True)
-    activo = models.BooleanField("activo", default=True)
 ```
 
 ### Cuentas
@@ -87,37 +87,55 @@ class Rol(BorradoLogico):               # cuentas/models.py
     nombre = models.CharField("nombre", max_length=60, unique=True)
     descripcion = models.CharField("descripción", max_length=200, blank=True)
 
-class PerfilUsuario(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="perfil")
-    rol = models.ForeignKey(Rol, on_delete=models.PROTECT, null=True, blank=True)
+class Usuario(AbstractUser, Eliminado):
+    username = None
+    email = models.EmailField("correo", unique=True, null=True, blank=True)
+    rol = models.ForeignKey(Rol, on_delete=models.PROTECT, null=True, blank=True,
+                            related_name="usuarios")
     delegacion = models.ForeignKey("organizacion.Delegacion", on_delete=models.PROTECT,
-                                   null=True, blank=True)
-    estado = models.CharField("estado", max_length=10, choices=ESTADOS, default=ACTIVO)
+                                   null=True, blank=True, related_name="usuarios")
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+    objects = UsuarioManager()
 ```
 
-El `Usuario` **no** se modela de cero: se usa el `auth.User` de Django y un
-perfil `OneToOne` que aporta rol, delegación y estado. El perfil se crea solo,
-con una señal:
+El `Usuario` es un modelo propio, no el `auth.User`. Tres decisiones que hay que
+entender:
 
-```python
-@receiver(post_save, sender=User)
-def crear_perfil(sender, instance, created, **kwargs):
-    if created:
-        PerfilUsuario.objects.create(usuario=instance)
+- **Sin `username`.** La llave es un `id` propio, y el correo es un dato editable:
+  cambiarlo no toca la identidad de la cuenta. El correo es además el
+  `USERNAME_FIELD`, o sea el campo de acceso.
+- **`objects` sigue siendo un `UserManager`.** Por eso hereda de `Eliminado` y no
+  de `BorradoLogico`: cambiar el gestor rompería `createsuperuser`,
+  `authenticate` y las sesiones.
+- **El correo admite nulos.** En la base los `NULL` no se comparan entre sí, así
+  que varios usuarios sin correo conviven sin chocar contra el índice único. Un
+  usuario sin correo no puede entrar, y su contraseña queda inutilizable.
+
+`UsuarioManager` reescribe `create_user` y `create_superuser` para que el primer
+argumento sea el correo y no el `username`, que ya no existe. Y `Usuario.clean()`
+se salta la normalización del `USERNAME_FIELD` cuando el correo viene nulo,
+porque `normalize_username(None)` lanza `TypeError`.
+
+Ya no hay tabla de perfil ni señal `post_save`: el rol y la delegación viven en
+el propio usuario.
 ```
 
 ### Catálogos
 
 ```python
-class Meta(models.Model):               # catalogos/models.py
+class Meta(BorradoLogico):              # catalogos/models.py
     nombre = models.CharField("nombre", max_length=120)
     descripcion = models.CharField("descripción", max_length=200, blank=True)
+    delegacion = models.ForeignKey("organizacion.Delegacion", on_delete=models.PROTECT,
+                                   related_name="metas")
 
 class TipoAtencion(BorradoLogico):
     nombre = models.CharField("nombre", max_length=120)
     descripcion = models.CharField("descripción", max_length=200, blank=True)
 
-class SubAtencion(models.Model):
+class SubAtencion(BorradoLogico):
     nombre = models.CharField("nombre", max_length=120)
     tipo_atencion = models.ForeignKey(TipoAtencion, on_delete=models.PROTECT,
                                       related_name="sub_atenciones")
@@ -126,7 +144,7 @@ class SubAtencion(models.Model):
 ### Ciudadanos
 
 ```python
-class Vecino(models.Model):             # ciudadanos/models.py
+class Vecino(BorradoLogico):            # ciudadanos/models.py
     nombre = models.CharField("nombre", max_length=120)
     rut = models.CharField("RUT", max_length=15, unique=True)
     direccion = models.CharField("dirección", max_length=200, blank=True)
@@ -140,11 +158,11 @@ class Vecino(models.Model):             # ciudadanos/models.py
 ### Resumen de relaciones
 
 ```
-PerfilUsuario → Rol            (PROTECT)
-PerfilUsuario → Delegacion     (PROTECT)
+Usuario       → Rol            (PROTECT)
+Usuario       → Delegacion     (PROTECT)
+Meta          → Delegacion     (PROTECT)
 SubAtencion   → TipoAtencion   (PROTECT)
 Vecino        → Delegacion     (PROTECT)
-PerfilUsuario → User           (CASCADE: el perfil no existe sin el usuario)
 ```
 
 ## 6. Integridad: `PROTECT` + borrado lógico
@@ -153,9 +171,9 @@ El problema: con `PROTECT`, no se puede dar de baja una Delegación o un Rol que
 esté en uso. Cambiar a cascada borraría los vecinos; `SET_NULL` dejaría al
 vecino sin territorio.
 
-La solución: **borrado lógico** en las tres entidades que otras referencian
-(`Delegacion`, `Rol`, `TipoAtencion`). En vez de borrar la fila, se marca una
-fecha. La fila sale del listado pero nadie pierde la referencia.
+La solución: **borrado lógico** en las siete entidades. En vez de borrar la fila,
+se marca una fecha. La fila sale del listado pero nadie pierde la referencia, y
+"Eliminar" significa lo mismo en los siete módulos.
 
 `apps/common/soft_delete.py`:
 
@@ -168,10 +186,9 @@ class ActivosManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(eliminado__isnull=True)
 
-class BorradoLogico(models.Model):
+class Eliminado(models.Model):
+    """Solo el campo y el método. Es la mitad que usa Usuario."""
     eliminado = models.DateTimeField("eliminado", null=True, blank=True)
-    objects = ActivosManager()     # por defecto, sin dados de baja
-    todos = TodosManager()         # incluye los dados de baja
 
     class Meta:
         abstract = True
@@ -179,6 +196,13 @@ class BorradoLogico(models.Model):
     def eliminar(self):
         self.eliminado = timezone.now()
         self.save(update_fields=["eliminado"])
+
+class BorradoLogico(Eliminado):
+    objects = ActivosManager()     # por defecto, sin dados de baja
+    todos = TodosManager()         # incluye los dados de baja
+
+    class Meta:
+        abstract = True
 ```
 
 Efectos asumidos:
@@ -187,6 +211,10 @@ Efectos asumidos:
 - `cargar_datos` restaura lo dado de baja (usa el gestor `todos` y limpia la
   fecha), así el comando sigue siendo idempotente.
 - En las otras cuatro entidades el borrado es real (`delete()`).
+- `Usuario` hereda solo de `Eliminado`: conserva el `UserManager` y filtra el
+  borrado a mano en su listado.
+- Un usuario sin correo existe y no entra: `email` admite nulos y su contraseña
+  queda inutilizable. `authenticate` con el correo vacío no encuentra a nadie.
 
 ## 7. Migraciones
 
@@ -244,15 +272,19 @@ Y cada `views.py` declara **sólo sus datos**:
 
 ```python
 class UsuariosListado(ListadoBase):
-    model = PerfilUsuario
+    model = Usuario
     template_name = "cuentas/usuarios_lista.html"
     titulo = "Usuarios"
     seccion = "usuarios"
     etiqueta_nueva = "Nuevo usuario"
-    busqueda = ("usuario__first_name", "usuario__last_name", "usuario__email")
-    relacionadas = ("usuario", "rol", "delegacion")
+    busqueda = ("first_name", "last_name", "email")
+    relacionadas = ("rol", "delegacion")
     url_nueva = "cuentas:usuarios_nueva"
     url_listado = "cuentas:usuarios"
+
+    def get_queryset(self):
+        # Usuario conserva el UserManager, que no filtra el borrado lógico.
+        return super().get_queryset().filter(eliminado__isnull=True)
 ```
 
 Conceptos para estudiar:
@@ -298,7 +330,10 @@ Claves:
 - Recorre en orden de dependencia: primero lo que no tiene FK, al final `Vecino`.
 - `@transaction.atomic`: si algo falla, no deja datos a medias.
 - A los usuarios migrados les asigna la contraseña del `.env`
-  (`USUARIOS_PASSWORD_INICIAL`).
+  (`USUARIOS_PASSWORD_INICIAL`); si la fila no trae correo, la contraseña queda
+  inutilizable.
+- Los usuarios se buscan por nombre y apellido, no por correo: un correo nulo no
+  sirve como llave de `update_or_create`.
 
 ## 11. Admin en solo lectura
 
@@ -319,8 +354,9 @@ tres métodos.
 ## 12. Autenticación
 
 - **Login**: `django.contrib.auth.views.LoginView` con un formulario propio
-  (`FormularioLogin`) para cambiar las etiquetas. En los datos migrados el
-  `username` es el correo.
+  (`FormularioLogin`) para cambiar las etiquetas. El correo es el
+  `USERNAME_FIELD` del modelo, así que el campo del formulario sigue llamándose
+  `username` por dentro.
 - **Logout**: `LogoutView`, por **POST** (Django 5+).
 - **Recuperar / Validar / Nueva contraseña**: `FormView` propias en
   `apps/cuentas/views.py`.
@@ -415,7 +451,8 @@ Consecuencias a tener presentes:
 ## 16. Checklist de estudio
 
 - [ ] Sé por qué `apps/common` no es una app y qué contiene.
-- [ ] Sé qué entidades tienen borrado lógico y por qué.
+- [ ] Sé qué entidades tienen borrado lógico y por qué (ahora, las siete).
+- [ ] Sé por qué `Usuario` hereda de `Eliminado` y no de `BorradoLogico`.
 - [ ] Sé cómo una vista de listado filtra y evita el N+1.
 - [ ] Sé por qué `cargar_datos` es idempotente.
 - [ ] Sé cómo viaja el OTP y por qué se guarda en la sesión.

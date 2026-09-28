@@ -1,7 +1,9 @@
 from django.db import models
 
+from apps.common.soft_delete import BorradoLogico
 
-class Vecino(models.Model):
+
+class Vecino(BorradoLogico):
     ACTIVO = "Activo"
     INACTIVO = "Inactivo"
     ESTADOS = [(ACTIVO, "Activo"), (INACTIVO, "Inactivo")]

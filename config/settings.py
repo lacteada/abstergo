@@ -90,6 +90,10 @@ DATABASES = {
 }
 
 
+# Usuario propio: sin username, con el correo como campo de acceso.
+AUTH_USER_MODEL = "cuentas.Usuario"
+
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

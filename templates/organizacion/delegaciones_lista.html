@@ -6,7 +6,6 @@
   <th>Nombre</th>
   <th>Dirección</th>
   <th>Comuna</th>
-  <th>Estado</th>
   <th>Acciones</th>
 {% endblock %}
 
@@ -16,10 +15,6 @@
   <td>{{ fila.nombre }}</td>
   <td>{{ fila.direccion }}</td>
   <td>{{ fila.comuna }}</td>
-  <td>
-    {% if fila.activo %}<span class="estado activo">Activo</span>
-    {% else %}<span class="estado inactivo">Inactivo</span>{% endif %}
-  </td>
   <td class="acciones">
     <a class="accion" href="{% url 'organizacion:delegaciones_editar' fila.pk %}">Editar</a>
     <a class="accion peligro" href="{% url 'organizacion:delegaciones_eliminar' fila.pk %}">Eliminar</a>

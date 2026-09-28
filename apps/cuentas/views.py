@@ -2,7 +2,6 @@ import secrets
 from datetime import timedelta
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -12,11 +11,11 @@ from django.views.generic import FormView, View
 from apps.cuentas.forms import (
     CodigoForm,
     NuevaPasswordForm,
-    PerfilUsuarioForm,
     RecuperarForm,
     RolForm,
+    UsuarioForm,
 )
-from apps.cuentas.models import PerfilUsuario, Rol
+from apps.cuentas.models import Rol, Usuario
 from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
 
 
@@ -57,44 +56,42 @@ class RolesBorrado(BorradoBase):
 
 # --------------------------------------------------------------- Usuarios
 class UsuariosListado(ListadoBase):
-    model = PerfilUsuario
+    model = Usuario
     template_name = "cuentas/usuarios_lista.html"
     titulo = "Usuarios"
     seccion = "usuarios"
     etiqueta_nueva = "Nuevo usuario"
-    busqueda = ("usuario__first_name", "usuario__last_name", "usuario__email")
-    relacionadas = ("usuario", "rol", "delegacion")
+    busqueda = ("first_name", "last_name", "email")
+    relacionadas = ("rol", "delegacion")
     url_nueva = "cuentas:usuarios_nueva"
     url_listado = "cuentas:usuarios"
 
+    def get_queryset(self):
+        # Usuario conserva el UserManager, que no filtra por borrado lógico.
+        return super().get_queryset().filter(eliminado__isnull=True)
+
 
 class UsuariosAlta(AltaBase):
-    model = PerfilUsuario
-    form_class = PerfilUsuarioForm
+    model = Usuario
+    form_class = UsuarioForm
     titulo = "Nuevo usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
 
 
 class UsuariosEdicion(EdicionBase):
-    model = PerfilUsuario
-    form_class = PerfilUsuarioForm
+    model = Usuario
+    form_class = UsuarioForm
     titulo = "Editar usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
 
 
 class UsuariosBorrado(BorradoBase):
-    model = PerfilUsuario
+    model = Usuario
     titulo = "Eliminar usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
-
-    def form_valid(self, form):
-        # El mantenedor es de usuarios: se borra el usuario, y el perfil cae
-        # con él por la relación en cascada.
-        self.object.usuario.delete()
-        return redirect(self.url_listado)
 
 
 # ------------------------------------------------- Recuperar la contraseña
@@ -126,7 +123,7 @@ class Recuperar(FormView):
     success_url = reverse_lazy("cuentas:validar")
 
     def form_valid(self, form):
-        usuario = User.objects.filter(
+        usuario = Usuario.objects.filter(
             email__iexact=form.cleaned_data["correo"]
         ).first()
         if usuario:
@@ -147,7 +144,7 @@ class Validar(FormView):
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
-        usuario = User.objects.filter(
+        usuario = Usuario.objects.filter(
             pk=self.request.session.get("otp_usuario")
         ).first()
         contexto["correo"] = usuario.email if usuario else ""
@@ -170,7 +167,7 @@ class Validar(FormView):
 
 class Reenviar(View):
     def post(self, request):
-        usuario = User.objects.filter(pk=request.session.get("otp_usuario")).first()
+        usuario = Usuario.objects.filter(pk=request.session.get("otp_usuario")).first()
         if usuario:
             _guardar_otp(request, usuario)
         return redirect("cuentas:validar")
@@ -187,7 +184,7 @@ class NuevaPassword(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        usuario = User.objects.filter(
+        usuario = Usuario.objects.filter(
             pk=self.request.session.get("otp_usuario")
         ).first()
         if usuario:

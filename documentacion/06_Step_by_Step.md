@@ -84,28 +84,30 @@ for a in cuentas organizacion catalogos ciudadanos panel; do python manage.py st
 
 ## Fase 1 — Modelos y Admin
 
-Ninguna llave foránea borra en cascada: todas usan `PROTECT`. Para que el mantenedor pueda dar de baja una entidad en uso, `Delegacion`, `Rol` y `TipoAtencion` llevan borrado lógico.
+Ninguna llave foránea borra en cascada: todas usan `PROTECT`. Para que el mantenedor pueda dar de baja una entidad en uso, las siete entidades llevan borrado lógico.
 
 | App | Modelo | Campos |
 |---|---|---|
-| organizacion | Delegacion | codigo (único), nombre, direccion, comuna, activo |
+| organizacion | Delegacion | codigo (único), nombre, direccion, comuna |
 | cuentas | Rol | nombre (único), descripcion |
-| cuentas | PerfilUsuario | OneToOne con `auth.User`, rol (`PROTECT`), delegacion (`PROTECT`), estado |
-| catalogos | Meta | nombre, descripcion |
+| cuentas | Usuario | sin `username`; email (único, nulable, `USERNAME_FIELD`), first_name, last_name, is_active, rol (`PROTECT`), delegacion (`PROTECT`) |
+| catalogos | Meta | nombre, descripcion, delegacion (`PROTECT`) |
 | catalogos | TipoAtencion | nombre, descripcion |
 | catalogos | SubAtencion | nombre, tipo_atencion (`PROTECT`) |
 | ciudadanos | Vecino | nombre, rut (único), direccion, telefono, territorio (`PROTECT`), tipo_gestion, estado |
 
 - `Rol` es una entidad propia, con su CRUD. No se usa `auth.Group`.
-- El perfil se crea solo, con un `post_save` sobre `User`.
-- `estado` es el campo que muestra el mockup, con Activo e Inactivo. `auth.User.is_active` se deja como está y no se usa.
-- Relaciones: `PerfilUsuario` → `Rol` y → `Delegacion`, `SubAtencion` → `TipoAtencion` y `Vecino` → `Delegacion`.
-- `Delegacion`, `Rol` y `TipoAtencion` heredan de `BorradoLogico`: una columna `eliminado` con fecha, un gestor `objects` que esconde las dadas de baja, un gestor `todos` que las ve, y el método `eliminar()`.
-- Son las tres que otras entidades referencian. Con el borrado lógico, el mantenedor las da de baja sin que nadie pierda la referencia: el vecino sigue mostrando su territorio y el perfil su rol.
+- El usuario es un modelo propio (`AUTH_USER_MODEL = cuentas.Usuario`), no el `auth.User`. No hay tabla de perfil ni señal `post_save`.
+- No hay `username`: la llave es un `id` propio y el correo es editable, así que cambiarlo no toca la identidad de la cuenta. El correo es además el `USERNAME_FIELD`, o sea el campo de acceso.
+- `is_active` es la bandera Activo/Inactivo del usuario, porque es la que Django consulta al iniciar sesión.
+- Relaciones: `Usuario` → `Rol` y → `Delegacion`, `Meta` → `Delegacion`, `SubAtencion` → `TipoAtencion` y `Vecino` → `Delegacion`.
+- Las siete heredan el borrado lógico: seis de `BorradoLogico` (una columna `eliminado` con fecha, un gestor `objects` que esconde las dadas de baja, un gestor `todos` que las ve, y el método `eliminar()`), y `Usuario` solo de `Eliminado`, porque su `objects` tiene que seguir siendo un `UserManager`.
+- Con el borrado lógico, el mantenedor da de baja sin que nadie pierda la referencia: el vecino sigue mostrando su territorio y el usuario su rol.
 - `PROTECT` queda como red de seguridad: un `DELETE` real sobre una de ellas sigue bloqueado.
 - Efecto asumido: el `codigo` de una Delegación y el `nombre` de un Rol quedan ocupados aunque estén dados de baja. Recargar el JSON los restaura.
 - `Vecino.territorio` es obligatorio: un vecino siempre tiene territorio.
-- `Meta` queda sin ninguna relación, y es decisión consciente: los cargos del origen no se modelan, así que no hay de dónde colgarla. Los 6 cargos de `usuarios.json` se descartan y se justifican en `documentacion/traslado_de_datos.md`.
+- El correo admite nulos: varios usuarios sin correo conviven sin chocar contra el índice único. Un usuario sin correo no puede entrar, y su contraseña queda inutilizable.
+- `Meta` cuelga de `Delegacion`. Los 6 cargos de `usuarios.json` se siguen descartando, y se justifican en `documentacion/traslado_de_datos.md`.
 - Los campos del modelo son el contrato del JSON nuevo de la Fase 2: se define primero la tabla y después el archivo.
 
 Admin, escrito una sola vez:
@@ -127,11 +129,14 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
+Nota: `AUTH_USER_MODEL` tiene que quedar fijado **antes** de la primera migración, así que estas migraciones se rehicieron al introducir el usuario propio, y la base se recreó. No hay pérdida: los 46 registros se regeneran desde `datos_nuevos/`.
+
 **Verificar**
 
 - `migrate` termina limpio.
 - `/admin/` lista las 7 entidades y el buscador responde.
 - Desde Vecino se llega a la Delegación por la relación.
+- Se ve `cuentas_usuario`, y ninguna `cuentas_perfilusuario`.
 
 **Commit.**
 
@@ -157,7 +162,7 @@ El JSON nuevo es el formato de importación. Se construye entero, con los mismos
 
 - `delegaciones.json`: `codigo` y `nombre` del origen, más `direccion` y `comuna` agregadas. Se descartan `territorio`, `encargado`, `enfasis` e `imagen`.
 - `roles.json`: los 6 roles distintos que trae el origen. `nombre` se saca de `usuarios.json` y `descripcion` se escribe.
-- `usuarios.json`: `nombre`, `email`, `rol`, `activo` y `delegacion`. Se descartan `id`, `cargo` y `avatar_color`.
+- `usuarios.json`: `nombre`, `email`, `rol`, `activo` y `delegacion`. Se descartan `id`, `cargo` y `avatar_color`. `activo` llega hasta `is_active` en el usuario.
 
 Origen exacto: `Abstergo2/apps/delegacion/data/delegaciones.json` (6 filas) y `Abstergo2/apps/usuarios/data/usuarios.json` (6 filas, con los roles ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR y CONSULTA).
 
@@ -168,7 +173,7 @@ Origen exacto: `Abstergo2/apps/delegacion/data/delegaciones.json` (6 filas) y `A
 - Con suficientes filas para que cada listado y cada búsqueda tengan algo que mostrar.
 - Solo datos ficticios, nunca reales.
 - `sub_atenciones.json` referencia el nombre de su tipo de atención.
-- `vecinos.json` referencia el código de su delegación.
+- `vecinos.json` referencia el código de su delegación, y `metas.json` también.
 
 **Cargar.** Comando en `apps/panel/management/commands/cargar_datos.py`, en orden de dependencia: delegaciones y roles, después usuarios, luego los catálogos, y al final vecinos.
 
@@ -177,14 +182,15 @@ python manage.py cargar_datos
 ```
 
 - Escribe con `update_or_create` e informa creados y actualizados.
-- Asigna la contraseña de los 6 usuarios con `set_password()`. Sin eso, el login de la Fase 4 no tiene con qué entrar.
+- Asigna la contraseña de los 6 usuarios con `set_password()`. Sin eso, el login de la Fase 4 no tiene con qué entrar. Si un usuario no trae correo, la contraseña queda inutilizable: ese usuario existe pero no entra.
+- Los usuarios se buscan por nombre y apellido, no por correo: un correo nulo no sirve como llave de `update_or_create`.
 
 **Verificar**
 
 - Los 7 archivos no traen ninguna llave que no exista como campo en el modelo.
 - Correr `cargar_datos` dos veces seguidas deja los mismos conteos.
 - Las 7 tablas quedan con registros.
-- Un usuario migrado entra con la contraseña asignada.
+- Un usuario migrado con correo entra con la contraseña asignada; uno sin correo, no.
 - `documentacion/traslado_de_datos.md` queda escrito en esta fase, no después.
 
 **Commit.**

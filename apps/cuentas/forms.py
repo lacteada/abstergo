@@ -1,17 +1,16 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-from apps.cuentas.models import PerfilUsuario, Rol
+from apps.cuentas.models import Rol, Usuario
 
 
 class FormularioLogin(AuthenticationForm):
     """Login por correo.
 
-    En los datos migrados el correo es el username, así que el formulario
-    estándar de Django sirve: solo hay que rotular el campo.
+    Con USERNAME_FIELD apuntando al correo, el campo del formulario sigue
+    llamándose `username` por dentro, así que basta con rotularlo.
     """
 
     def __init__(self, *args, **kwargs):
@@ -27,10 +26,14 @@ class RolForm(forms.ModelForm):
         fields = ("nombre", "descripcion")
 
 
-class PerfilUsuarioForm(forms.ModelForm):
-    """El mantenedor de Usuarios: el perfil y su usuario en un solo formulario."""
+class UsuarioForm(forms.ModelForm):
+    """El mantenedor de Usuarios.
 
-    correo = forms.EmailField(label="Correo electrónico")
+    El correo es un dato editable y puede quedar vacío: en ese caso el usuario
+    existe pero no puede iniciar sesión. La unicidad la valida el ModelForm,
+    porque el campo es único en el modelo.
+    """
+
     nombre = forms.CharField(label="Nombre", max_length=150)
     apellido = forms.CharField(label="Apellido", max_length=150, required=False)
     clave = forms.CharField(
@@ -41,53 +44,35 @@ class PerfilUsuarioForm(forms.ModelForm):
     )
 
     class Meta:
-        model = PerfilUsuario
-        fields = ("rol", "delegacion", "estado")
+        model = Usuario
+        fields = ("email", "rol", "delegacion", "is_active")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["email"].required = False
+        self.fields["email"].label = "Correo electrónico"
+        self.fields["is_active"].label = "Activo"
         if self.instance.pk:
-            usuario = self.instance.usuario
-            self.fields["correo"].initial = usuario.email
-            self.fields["nombre"].initial = usuario.first_name
-            self.fields["apellido"].initial = usuario.last_name
+            self.fields["nombre"].initial = self.instance.first_name
+            self.fields["apellido"].initial = self.instance.last_name
         else:
             # Al crear hay que definir la contraseña.
             self.fields["clave"].required = True
 
-    def clean_correo(self):
-        correo = self.cleaned_data["correo"]
-        repetidos = User.objects.filter(username=correo)
-        if self.instance.pk:
-            repetidos = repetidos.exclude(pk=self.instance.usuario_id)
-        if repetidos.exists():
-            raise forms.ValidationError("Ya hay un usuario con ese correo.")
-        return correo
+    def clean_email(self):
+        # Dos cadenas vacías chocan contra el índice único; None no.
+        return self.cleaned_data.get("email") or None
 
     def save(self, commit=True):
-        perfil = super().save(commit=False)
-        datos = self.cleaned_data
-
-        # En un perfil nuevo, perfil.usuario todavía no existe.
-        usuario = perfil.usuario if perfil.pk else User()
-        usuario.username = datos["correo"]
-        usuario.email = datos["correo"]
-        usuario.first_name = datos["nombre"]
-        usuario.last_name = datos["apellido"]
-        if datos["clave"]:
-            usuario.set_password(datos["clave"])
-        usuario.save()
-
-        if not perfil.pk:
-            # El signal post_save ya creó el perfil: se reusa, no se crea otro.
-            perfil = PerfilUsuario.objects.get(usuario=usuario)
-            perfil.rol = datos["rol"]
-            perfil.delegacion = datos["delegacion"]
-            perfil.estado = datos["estado"]
-
+        usuario = super().save(commit=False)
+        usuario.first_name = self.cleaned_data["nombre"]
+        usuario.last_name = self.cleaned_data["apellido"]
+        clave = self.cleaned_data["clave"]
+        if clave:
+            usuario.set_password(clave)
         if commit:
-            perfil.save()
-        return perfil
+            usuario.save()
+        return usuario
 
 
 # --------------------------------------------------- Recuperar la contraseña

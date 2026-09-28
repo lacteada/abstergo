@@ -6,7 +6,7 @@ from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
 class MetaForm(forms.ModelForm):
     class Meta:
         model = Meta
-        fields = ("nombre", "descripcion")
+        fields = ("nombre", "descripcion", "delegacion")
 
 
 class TipoAtencionForm(forms.ModelForm):

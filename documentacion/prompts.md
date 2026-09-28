@@ -5699,3 +5699,71 @@ quiero que documentes todo el chat, sigue desde la documentacion anterior, tambi
 ## assistant
 
 Se agregó esta sesión a `prompts.md` y se crearon dos guías de estudio: `07_Frontend.md` y `08_Backend.md`.
+
+## user
+
+cómo configuro la confirmación por código por correo en /abstergo en mi EC2
+
+## assistant
+
+El OTP ya estaba implementado (`apps/cuentas/views.py::_guardar_otp`): código de 6 dígitos con `secrets`, guardado en la sesión con vencimiento según `OTP_EXPIRY_MINUTES` y sin reutilización. Lo único que faltaba era apuntar Django a un SMTP real, porque el `.env` traía `MAILER_BACKEND=...console.EmailBackend`.
+
+Se verificó contra el código del framework instalado que Django 6.1.1 sí lee el ajuste `MAILERS` (`django/core/mail/handler.py`, `deprecation.py`) y que el backend SMTP acepta las `OPTIONS` `host/port/username/password/use_tls`, así que el bloque que ya tenía el `settings.py` era correcto y bastaba con cambiar el `.env`.
+
+## user
+
+no tengo número para verificación
+
+## assistant
+
+Se descartaron las vías que piden teléfono: Gmail (los App Passwords exigen 2-Step Verification, y activarla pide un número), y SES, descartado por el usuario. Mailpit quedó descartado por otro motivo: no entrega correo de verdad, es una bandeja de captura, y el usuario lo notó. Se comparó SMTP2GO y Brevo; como el usuario ya tenía cuenta en **Brevo**, se quedó con ese:
+
+- `smtp-relay.brevo.com`, puerto 587, usuario = SMTP login, contraseña = SMTP key (no la v3 API key).
+- Puerto 587 y no 465, porque el bloque `MAILERS` del `settings.py` sólo pasa `use_tls`; el 465 exige `use_ssl`.
+- La verificación de remitente se hace por correo, y en el plan gratuito son 300 envíos diarios.
+
+## user
+
+antes de importar usuarios, necesito que no tengan correo, sólo el mantenedor tendrá mi correo
+
+## assistant
+
+Se levantó el problema de fondo: el login era por correo porque `cargar_usuarios` hacía `username=fila["email"]`, así que quitar el correo obligaba a decidir qué pasa a ser la identidad. El usuario resolvió editar los correos a mano antes de importar, de modo que ese punto quedó cerrado sin tocar el cargador.
+
+Quedó anotado que `Recuperar` busca por `email__iexact`, así que los usuarios sin correo no pueden recuperar contraseña por diseño, sin código extra.
+
+## user
+
+ayúdame a reestructurar la base de datos primero, hay demasiado
+
+## assistant
+
+Diagnóstico sobre los modelos reales:
+
+- `Delegacion.activo` decía lo mismo que su borrado lógico.
+- `PerfilUsuario.estado` duplicaba `auth.User.is_active`, que además no consultaba nadie.
+- `Meta` era la única tabla sin ninguna relación, y nada apuntaba a ella.
+- El borrado lógico existía en 3 tablas y en las otras 4 el borrado era real, así que "Eliminar" significaba dos cosas distintas según el módulo.
+
+El usuario pidió una representación simple de las tablas, y después fijó las cuatro decisiones: `meta` cuelga de `delegacion`; fuera `username`, con PK `id` propia y el correo como campo editable; borrado lógico en las 7 tablas; y Activo/Inactivo sólo en `Vecino` y en usuario.
+
+Se escribió y aprobó el plan `~/.commandcode/plans/abstergo-reestructura-bd.md`. Lo implementado:
+
+- `apps/common/soft_delete.py` partido en `Eliminado` (campo `eliminado` + método `eliminar()`) y `BorradoLogico` (que además cambia los gestores `objects`/`todos`).
+- `Usuario` propio en `apps/cuentas/models.py` (`AbstractUser` + `Eliminado`), sin `username`, con `email` único y nulable como `USERNAME_FIELD`, y `rol` y `delegacion` en el propio usuario. `AUTH_USER_MODEL = "cuentas.Usuario"`. Se eliminaron `PerfilUsuario` y la señal `post_save`.
+- Cuatro detalles que rompen si se omiten: `objects` tiene que seguir siendo un `UserManager`; el correo en blanco se guarda como `NULL` y no como `""`, porque dos cadenas vacías chocan contra el índice único; `AbstractBaseUser.clean()` revienta al normalizar `None`, así que `Usuario.clean()` se salta ese paso; y los usuarios sin correo llevan contraseña inutilizable.
+- `Meta` con FK a `Delegacion`; `Delegacion` sin `activo`; `Meta`, `SubAtencion` y `Vecino` sumados al borrado lógico.
+- Migraciones rehechas: Django exige fijar `AUTH_USER_MODEL` antes de la primera migración. La base se recreó, y no hubo pérdida porque los 46 registros se regeneran desde `datos_nuevos/`.
+- `cargar_datos` actualizado: los usuarios se buscan por nombre y apellido, porque un correo nulo no sirve como llave de `update_or_create`.
+- Documentación actualizada: `documento_tecnico.md`, `traslado_de_datos.md`, `08_Backend.md`, `06_Step_by_Step.md`, `07_Frontend.md` y `README.md`.
+
+Verificado sobre un SQLite temporal en el scratchpad, sin tocar MariaDB:
+
+- Primera corrida de `cargar_datos`: 46 creados. Segunda: 0 creados, 46 actualizados.
+- `username` no aparece en la migración generada.
+- Dos usuarios sin correo conviven en la misma tabla, con contraseña inutilizable.
+- El formulario del mantenedor guarda el correo en blanco como `NULL`.
+- `authenticate` con correo vacío o nulo no encuentra a nadie.
+- Las 7 pantallas de listado responden 200, y el flujo completo recuperar → validar → nueva contraseña → login funciona de punta a punta.
+
+Un tropiezo útil de la verificación: el flujo fallaba al final con `OtraClave123`, y no era un fallo del cambio sino `RequisitosInstitucionalesValidator`, que exige un carácter especial. Con `Nueva#Clave2026` pasó.

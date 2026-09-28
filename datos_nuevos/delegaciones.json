@@ -3,42 +3,36 @@
     "codigo": "avenida-del-mar",
     "nombre": "Avenida del Mar",
     "direccion": "Av. del Mar 2400",
-    "comuna": "La Serena",
-    "activo": true
+    "comuna": "La Serena"
   },
   {
     "codigo": "centro",
     "nombre": "Centro",
     "direccion": "Cienfuegos 550",
-    "comuna": "La Serena",
-    "activo": true
+    "comuna": "La Serena"
   },
   {
     "codigo": "la-antena",
     "nombre": "La Antena",
     "direccion": "Regimiento Coquimbo 1655",
-    "comuna": "La Serena",
-    "activo": true
+    "comuna": "La Serena"
   },
   {
     "codigo": "las-companias",
     "nombre": "Las Compañías",
     "direccion": "Ruta 5 Norte 1200",
-    "comuna": "La Serena",
-    "activo": true
+    "comuna": "La Serena"
   },
   {
     "codigo": "la-pampa",
     "nombre": "La Pampa",
     "direccion": "Los Clarines 340",
-    "comuna": "La Serena",
-    "activo": true
+    "comuna": "La Serena"
   },
   {
     "codigo": "rural",
     "nombre": "Rural",
     "direccion": "Camino a Vicuña Km 12",
-    "comuna": "La Serena",
-    "activo": true
+    "comuna": "La Serena"
   }
 ]

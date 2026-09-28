@@ -28,7 +28,7 @@ abstergo/
 ├── config/           settings, urls, wsgi
 ├── apps/
 │   ├── common/       vistas base, Admin en solo lectura, borrado lógico
-│   ├── cuentas/      Rol, PerfilUsuario, autenticación
+│   ├── cuentas/      Rol, Usuario, autenticación
 │   ├── organizacion/ Delegacion
 │   ├── catalogos/    Meta, TipoAtencion, SubAtencion
 │   ├── ciudadanos/   Vecino

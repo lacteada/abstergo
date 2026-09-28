@@ -3,17 +3,23 @@ from django.db import models
 from apps.common.soft_delete import BorradoLogico
 
 
-class Meta(models.Model):
+class Meta(BorradoLogico):
     nombre = models.CharField("nombre", max_length=120)
     descripcion = models.CharField("descripción", max_length=200, blank=True)
+    delegacion = models.ForeignKey(
+        "organizacion.Delegacion",
+        on_delete=models.PROTECT,
+        related_name="metas",
+        verbose_name="delegación",
+    )
 
     class Meta:
         verbose_name = "meta"
         verbose_name_plural = "metas"
-        ordering = ["nombre"]
+        ordering = ["delegacion", "nombre"]
 
     def __str__(self):
-        return self.nombre
+        return f"{self.nombre} ({self.delegacion})"
 
 
 class TipoAtencion(BorradoLogico):
@@ -29,7 +35,7 @@ class TipoAtencion(BorradoLogico):
         return self.nombre
 
 
-class SubAtencion(models.Model):
+class SubAtencion(BorradoLogico):
     nombre = models.CharField("nombre", max_length=120)
     tipo_atencion = models.ForeignKey(
         TipoAtencion,
