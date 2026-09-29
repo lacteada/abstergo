@@ -1,20 +1,20 @@
 from django.contrib import admin
+from django.utils import timezone
 
 
-class SoloLecturaAdmin(admin.ModelAdmin):
-    """Admin sin alta, edición ni borrado.
+class AdminBase(admin.ModelAdmin):
+    """Admin con CRUD y borrado lógico.
 
-    Decisión consciente: el Admin queda para consulta y navegación. Para volver
-    a habilitarlo, quitar los tres métodos de abajo.
+    Las 7 entidades heredan de aquí, así que el alta, la edición y el borrado
+    se habilitan una sola vez. El borrado respeta la regla del proyecto: no se
+    emite DELETE, la fila se marca con `eliminado` para que quien la referencie
+    conserve el vínculo.
     """
 
     list_per_page = 25
 
-    def has_add_permission(self, request):
-        return False
+    def delete_model(self, request, obj):
+        obj.eliminar()
 
-    def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+    def delete_queryset(self, request, queryset):
+        queryset.update(eliminado=timezone.now())

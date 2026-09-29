@@ -26,7 +26,7 @@ abstergo/
 ├── apps/
 │   ├── common/              compartido, no es una app de Django
 │   │   ├── vistas_base.py   las 4 vistas genéricas de los mantenedores
-│   │   ├── admin_base.py    el Admin en solo lectura
+│   │   ├── admin_base.py    el Admin base: CRUD y borrado lógico
 │   │   └── soft_delete.py   el borrado lógico
 │   ├── cuentas/             Rol, Usuario, autenticación
 │   ├── organizacion/        Delegacion
@@ -173,9 +173,9 @@ El mapeo campo por campo desde los JSON de origen, con lo descartado y su justif
 
 Las 7 entidades están registradas, con `list_display`, `search_fields` y `list_filter`. Se navega entre entidades relacionadas con `autocomplete_fields` en las llaves foráneas.
 
-El Admin está en **solo lectura**: ve, busca y navega, pero no permite crear, modificar ni eliminar. Las tres restricciones se escriben una sola vez, en una clase base `SoloLecturaAdmin`, de la que heredan las 7 clases. Para revertirlo basta con quitar esos tres métodos.
+El Admin ofrece el **CRUD completo**: alta, edición y borrado en las 7 entidades. El comportamiento se escribe una sola vez en una clase base `AdminBase`, de la que heredan las 7 clases.
 
-Es una decisión consciente y asumida: el Admin queda para consulta y navegación, sin alta, modificación ni borrado.
+El borrado respeta la regla del proyecto: no emite `DELETE`, marca la fila con `eliminado` igual que el front-end, para que quien la referencie conserve el vínculo. `Usuario` se administra con `UserAdmin` de Django y formularios con `password1`/`password2`, para cifrar la contraseña al crear o al cambiarla.
 
 ## 6. Front-end
 

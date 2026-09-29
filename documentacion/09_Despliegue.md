@@ -66,6 +66,7 @@ cp .env.example .env && nano .env
 Dejar así:
 
 ```bash
+SECRET_KEY=<cadena larga y aleatoria>
 DEBUG=False
 ALLOWED_HOSTS=<dominio-o-ip>
 DB_NAME=abstergo
@@ -85,6 +86,7 @@ DEFAULT_FROM_EMAIL=<correo remitente verificado>
 USUARIOS_PASSWORD_INICIAL=<contraseña para los usuarios migrados>
 ```
 
+- `SECRET_KEY` llega vacía en el `.env.example`, y sin valor Django levanta un 500 en todas las páginas. Se genera con `python -c "import secrets; print(secrets.token_urlsafe(64))"`.
 - Puerto 587 y no 465: el bloque `MAILERS` de `settings.py` solo pasa `use_tls`.
 - `USUARIOS_PASSWORD_INICIAL` sin valor deja a los usuarios migrados con contraseña vacía.
 

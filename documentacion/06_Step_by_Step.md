@@ -12,7 +12,7 @@ Regla: `Abstergo2` solo se lee. De ahí salen los datos de origen y nada más.
 - Vistas genéricas de Django para los 7 módulos, sin lógica escrita a mano.
 - Un parcial de tabla y un parcial de formulario compartidos por los 7 módulos.
 - Sin Bootstrap: el framework de laserena.cl más un CSS propio para el armazón.
-- Un solo `ModelAdmin` base en solo lectura para las 7 entidades.
+- Un solo `ModelAdmin` base con CRUD y borrado lógico para las 7 entidades.
 - Un solo comando que importa el JSON nuevo.
 - `prompts.md` se extrae del historial de sesión, no se copia a mano.
 - OTP guardado en la sesión: sin tabla extra y sin migración.
@@ -315,7 +315,7 @@ python manage.py cargar_datos
 python manage.py collectstatic --noinput
 ```
 
-- Editar el `.env` de la instancia: `DEBUG=False`, `ALLOWED_HOSTS` con el dominio de la instancia, credenciales de MariaDB y SMTP real.
+- Editar el `.env` de la instancia: `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS` con el dominio de la instancia, credenciales de MariaDB y SMTP real.
 - gunicorn como servicio: unidad en `/etc/systemd/system/abstergo.service`, con `WorkingDirectory` y `ExecStart` apuntando a `venv/bin/gunicorn config.wsgi:application`.
 - Apache hace reverse proxy: Django en `/` y phpMyAdmin en `/phpmyadmin`, con `mod_proxy` ya habilitado.
 - Restringir el acceso a phpMyAdmin: no dejarlo abierto a internet.

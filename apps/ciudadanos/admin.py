@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from apps.common.admin_base import SoloLecturaAdmin
+from apps.common.admin_base import AdminBase
 from apps.ciudadanos.models import Vecino
 
 
 @admin.register(Vecino)
-class VecinoAdmin(SoloLecturaAdmin):
+class VecinoAdmin(AdminBase):
     list_display = (
         "nombre",
         "rut",

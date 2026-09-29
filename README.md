@@ -11,7 +11,7 @@ Repo: https://github.com/lacteada/abstergo
 
 - 7 entidades con ORM y migraciones.
 - Comando de carga de datos desde JSON, idempotente.
-- Django Admin con las 7 entidades, en solo lectura.
+- Django Admin con las 7 entidades, con CRUD y borrado lógico.
 - Front-end: los 7 listados con alta, edición y borrado, más búsqueda en vivo.
 - Autenticación: login, recuperar contraseña, código OTP y nueva contraseña.
 
@@ -27,7 +27,7 @@ Repo: https://github.com/lacteada/abstergo
 abstergo/
 ├── config/           settings, urls, wsgi
 ├── apps/
-│   ├── common/       vistas base, Admin en solo lectura, borrado lógico
+│   ├── common/       vistas base, Admin base (CRUD), borrado lógico
 │   ├── cuentas/      Rol, Usuario, autenticación
 │   ├── organizacion/ Delegacion
 │   ├── catalogos/    Meta, TipoAtencion, SubAtencion

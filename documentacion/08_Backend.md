@@ -7,8 +7,8 @@ en `07_Frontend.md`.
 ## 1. En una frase
 
 Django 6.1 con 5 apps y 7 modelos, vistas genéricas que heredan de una base
-común, un comando de carga idempotente y un Admin en solo lectura. Los datos se
-leen siempre por el ORM y la configuración sale del `.env`.
+común, un comando de carga idempotente y un Admin con CRUD. Los datos se leen
+siempre por el ORM y la configuración sale del `.env`.
 
 ## 2. Stack
 
@@ -29,7 +29,7 @@ abstergo/
 ├── apps/
 │   ├── common/              compartido; NO es una app de Django
 │   │   ├── vistas_base.py   las 4 vistas genéricas de los mantenedores
-│   │   ├── admin_base.py    el Admin en solo lectura
+│   │   ├── admin_base.py    el Admin base: CRUD y borrado lógico
 │   │   └── soft_delete.py   el borrado lógico
 │   ├── cuentas/             Rol, Usuario, autenticación
 │   ├── organizacion/        Delegacion
@@ -335,21 +335,28 @@ Claves:
 - Los usuarios se buscan por nombre y apellido, no por correo: un correo nulo no
   sirve como llave de `update_or_create`.
 
-## 11. Admin en solo lectura
+## 11. El Admin
 
 `apps/common/admin_base.py`:
 
 ```python
-class SoloLecturaAdmin(admin.ModelAdmin):
+class AdminBase(admin.ModelAdmin):
     list_per_page = 25
-    def has_add_permission(self, request): return False
-    def has_change_permission(self, request, obj=None): return False
-    def has_delete_permission(self, request, obj=None): return False
+
+    def delete_model(self, request, obj):
+        obj.eliminar()
+
+    def delete_queryset(self, request, queryset):
+        queryset.update(eliminado=timezone.now())
 ```
 
-Las 7 clases del Admin heredan de esta base, así que las tres restricciones se
-escriben una sola vez. Es una decisión consciente: revertirlo es quitar esos
-tres métodos.
+Las 7 clases del Admin heredan de esta base, así que el CRUD y el borrado lógico
+se escriben una sola vez. El borrado respeta la regla del proyecto: en vez de un
+`DELETE` real, la fila se marca con `eliminado`.
+
+`Usuario` tiene un caso propio: es un `AbstractUser` sin `username`, con el
+correo como acceso. Se administra con el `UserAdmin` de Django y formularios con
+`password1`/`password2`, para que la contraseña se cifre al crear o al cambiarla.
 
 ## 12. Autenticación
 
