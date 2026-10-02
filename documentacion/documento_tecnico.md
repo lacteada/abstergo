@@ -1,262 +1,571 @@
-# Documento técnico — Sistema Municipal de Gestión de Atención Ciudadana
+# Documento técnico — Abstergo
 
-El código está en `https://github.com/lacteada/abstergo`.
+Sistema Municipal de Gestión de Atención Ciudadana.
 
-## 1. Descripción del proyecto
+Este documento describe el proyecto tal como está implementado en el código. Cada
+afirmación se puede verificar en el archivo citado.
 
-Los datos viven en una base de datos relacional y el sistema se administra desde Django Admin, con un front-end de listados construido sobre plantillas Django.
+---
 
-Temática: gestión de atención ciudadana de las delegaciones municipales de La Serena.
+## 1. Descripción
 
-Funcionalidades implementadas hasta ahora:
+**Qué es.** Una aplicación web Django para gestionar la atención ciudadana de
+las delegaciones municipales de La Serena. Los datos viven en una base de datos
+relacional (MariaDB) y se administran desde Django Admin y desde un front-end
+propio con CRUD.
 
-- Modelo de datos propio de 7 entidades, con migraciones aplicadas.
-- Carga de los datos desde JSON a la base, por comando de gestión y con el ORM.
-- Django Admin con las 7 entidades registradas, navegables y buscables.
+**Temática.** Atención ciudadana municipal: delegaciones, usuarios y roles,
+metas por territorio, catálogos de tipos de atención y vecinos.
 
-También están implementados el front-end con los 7 listados y su CRUD completo, y la autenticación con código OTP.
+**Repositorio:** https://github.com/lacteada/abstergo
 
-## 2. Arquitectura
+**Funcionalidades implementadas**
 
+- 7 entidades modeladas con el ORM de Django, con llaves foráneas y borrado lógico.
+- Carga de datos desde JSON con un comando de management idempotente.
+- Django Admin con CRUD completo y borrado lógico.
+- Front-end con un listado por entidad, buscador en vivo y CRUD (alta, edición,
+  baja).
+- Autenticación: login por correo, recuperar contraseña con código OTP de 6
+  dígitos y cambio de contraseña.
+
+---
+
+## 2. Stack
+
+Fuente: `requirements.txt`, `config/settings.py`.
+
+| Componente | Versión / detalle |
+|---|---|
+| Python | 3.14 |
+| Django | 6.1.1 |
+| Base de datos | MariaDB, vía `django.db.backends.mysql` |
+| Adaptador | `mysqlclient` (se instala aparte; compila contra MariaDB) |
+| `gunicorn` | 26.2.0 (servidor en producción) |
+| `python-dotenv` | 1.2.3 (lectura del `.env`) |
+| `asgiref` | 3.12.1 |
+| `sqlparse` | 0.6.0 |
+
+Dependencias declaradas en `requirements.txt`:
+
+```text
+asgiref==3.12.1
+Django==6.1.1
+gunicorn==26.2.0
+python-dotenv==1.2.3
+sqlparse==0.6.0
 ```
+
+---
+
+## 3. Arquitectura y estructura
+
+Configuración del proyecto (fuente: `config/settings.py`).
+
+- `ROOT_URLCONF = "config.urls"`
+- `WSGI_APPLICATION = "config.wsgi.application"`
+- `AUTH_USER_MODEL = "cuentas.Usuario"` — modelo de usuario propio.
+- Plantillas: `TEMPLATES[0]["DIRS"] = [BASE_DIR / "templates"]` y `APP_DIRS = True`.
+- Estáticos: `STATIC_URL = "static/"`, `STATICFILES_DIRS = [BASE_DIR / "static"]`,
+  `STATIC_ROOT = BASE_DIR / "staticfiles"`.
+
+Aplicaciones propias instaladas (`INSTALLED_APPS`): `apps.organizacion`,
+`apps.cuentas`, `apps.catalogos`, `apps.ciudadanos`, `apps.panel`.
+
+Estructura de carpetas:
+
+```text
 abstergo/
 ├── manage.py
-├── .env, .env.example, requirements.txt
-├── config/                  settings, urls, wsgi
+├── .env / .env.example / requirements.txt
+├── config/                    # settings, urls, wsgi, asgi
 ├── apps/
-│   ├── common/              compartido, no es una app de Django
-│   │   ├── vistas_base.py   las 4 vistas genéricas de los mantenedores
-│   │   ├── admin_base.py    el Admin base: CRUD y borrado lógico
-│   │   └── soft_delete.py   el borrado lógico
-│   ├── cuentas/             Rol, Usuario, autenticación
-│   ├── organizacion/        Delegacion
-│   ├── catalogos/           Meta, TipoAtencion, SubAtencion
-│   ├── ciudadanos/          Vecino
-│   └── panel/               Inicio y comando de carga
-├── datos_nuevos/            el JSON de importación, un archivo por entidad
-├── templates/               armazón, listados y las pantallas de acceso
-├── static/                  css, js, img
-└── documentacion/           planificación, traslado, prompts y documento técnico
+│   ├── common/                # vistas base, Admin base, borrado lógico
+│   │   ├── soft_delete.py
+│   │   ├── admin_base.py
+│   │   └── vistas_base.py
+│   ├── cuentas/               # Rol, Usuario, autenticación (OTP)
+│   ├── organizacion/          # Delegacion
+│   ├── catalogos/             # Meta, TipoAtencion, SubAtencion
+│   ├── ciudadanos/            # Vecino
+│   └── panel/                 # Inicio y comando cargar_datos
+│       └── management/commands/cargar_datos.py
+├── datos_nuevos/              # JSON de importación, uno por entidad
+├── templates/                 # base.html, listado.html, por app
+├── static/                    # css, js, img
+└── documentacion/
 ```
 
-Decisiones de estructura:
+`apps/panel` no tiene modelos ni migraciones: solo aporta la vista de inicio y el
+comando de carga (`apps/panel/models.py` está vacío).
 
-- Las 5 apps viven bajo `apps/`, y cada una se registra por su ruta completa (`apps.cuentas`), no por el nombre suelto.
-- `apps/common/` no es una app de Django: no está en `INSTALLED_APPS` y no tiene modelos. Es solo el paquete donde viven las tres piezas compartidas, para que se lean como lo que son y no como una app más.
-- `config/` guarda la configuración del proyecto, separada de los módulos.
-- La app `panel` no tiene modelos: aloja el comando de carga y, más adelante, la vista de Inicio.
+---
 
-## 3. Base de datos y ORM
+## 4. Modelo de datos
 
-Motor: MariaDB. Driver: `mysqlclient`. Las credenciales salen del `.env`, nunca del código.
+Siete entidades. Todas heredan, directa o indirectamente, del borrado lógico
+(`apps/common/soft_delete.py`). Ninguna relación borra en cascada: **todas usan
+`models.PROTECT`.**
 
-`AUTH_USER_MODEL` apunta a `cuentas.Usuario`: el usuario del sistema es un modelo propio.
+| # | Entidad | App | Tabla | Campos propios |
+|---|---|---|---|---|
+| 1 | `Delegacion` | organizacion | `organizacion_delegacion` | `codigo` (único), `nombre`, `direccion`, `comuna` |
+| 2 | `Rol` | cuentas | `cuentas_rol` | `nombre` (único), `descripcion` |
+| 3 | `Usuario` | cuentas | `cuentas_usuario` | `email` (único, nulo), `rol`, `delegacion` + campos de `AbstractUser` |
+| 4 | `Meta` | catalogos | `catalogos_meta` | `nombre`, `descripcion`, `delegacion` |
+| 5 | `TipoAtencion` | catalogos | `catalogos_tipoatencion` | `nombre`, `descripcion` |
+| 6 | `SubAtencion` | catalogos | `catalogos_subatencion` | `nombre`, `tipo_atencion` |
+| 7 | `Vecino` | ciudadanos | `ciudadanos_vecino` | `nombre`, `rut` (único), `direccion`, `telefono`, `territorio`, `tipo_gestion`, `estado` |
 
-### Entidades y relaciones
+Toda entidad lleva además la columna `eliminado` (`DateTimeField`, nulo) que
+aporta el borrado lógico.
 
-| Tabla | Campos | Relación |
-|---|---|---|
-| `organizacion_delegacion` | codigo, nombre, direccion, comuna, eliminado | — |
-| `cuentas_rol` | nombre, descripcion, eliminado | — |
-| `cuentas_usuario` | email, first_name, last_name, password, is_active, rol, delegacion, eliminado | → Rol, → Delegacion |
-| `catalogos_meta` | nombre, descripcion, delegacion, eliminado | → Delegacion |
-| `catalogos_tipoatencion` | nombre, descripcion, eliminado | — |
-| `catalogos_subatencion` | nombre, tipo_atencion, eliminado | → TipoAtencion |
-| `ciudadanos_vecino` | nombre, rut, direccion, telefono, territorio, tipo_gestion, estado, eliminado | → Delegacion |
+### Relaciones (llaves foráneas)
 
-Cinco relaciones en total:
+Todas con `on_delete=models.PROTECT`:
 
-- `Usuario` → `Rol`
-- `Usuario` → `Delegacion`
-- `Meta` → `Delegacion`
-- `SubAtencion` → `TipoAtencion`
-- `Vecino` → `Delegacion`
+| Desde | Hacia | Nulo | `related_name` |
+|---|---|---|---|
+| `Usuario.rol` | `Rol` | sí | `usuarios` |
+| `Usuario.delegacion` | `Delegacion` | sí | `usuarios` |
+| `Meta.delegacion` | `Delegacion` | no | `metas` |
+| `SubAtencion.tipo_atencion` | `TipoAtencion` | no | `sub_atenciones` |
+| `Vecino.territorio` | `Delegacion` | no | `vecinos` |
 
-Las siete tablas llevan la columna `eliminado`. `Delegacion` ya no lleva `activo`: el borrado lógico cumple ese papel. La única bandera Activo/Inactivo que queda es la de `Vecino` (el estado del vecino) y la de `Usuario` (`is_active`, que es lo que Django consulta al iniciar sesión).
+### El usuario propio
 
-### El usuario
+`apps/cuentas/models.py`.
 
-El `Usuario` es un modelo propio, no el `auth.User`:
+- `Usuario(AbstractUser, Eliminado)` con `username = None`. La identidad es el
+  `id`; el correo es un campo editable (`email`, único, admite `NULL`).
+- Hereda de `Eliminado` y **no** de `BorradoLogico` a propósito: `objects` debe
+  seguir siendo un `UserManager` para que funcionen `createsuperuser` y
+  `authenticate`.
+- `UsuarioManager(UserManager)` adapta la creación al correo
+  (`create_user(email, ...)`), porque el `UserManager` de Django exige
+  `username`.
+- `USERNAME_FIELD = "email"` y `REQUIRED_FIELDS = []`.
+- Varios usuarios sin correo conviven en la tabla: en MySQL el índice único deja
+  coexistir varios `NULL`. Un usuario sin correo no puede iniciar sesión.
 
-- No tiene `username`. La llave primaria es un `id` propio, y así el correo se puede editar sin tocar la identidad del usuario.
-- El correo es el campo de acceso (`USERNAME_FIELD`), único y editable.
-- El rol y la delegación viven en el propio usuario. Ya no hay tabla de perfil ni señal `post_save`.
-- El correo admite nulos: varios usuarios sin correo conviven sin chocar contra el índice único, porque en la base los `NULL` no se comparan entre sí.
+### El borrado lógico
 
-De ahí salen dos efectos deliberados:
+`apps/common/soft_delete.py`. Es la pieza que explica el resto del diseño: nada
+se borra con `DELETE`, la fila se marca con la fecha en `eliminado`.
 
-- Un usuario sin correo **no puede iniciar sesión**. Su contraseña queda inutilizable, que es la forma que tiene Django de decir que la cuenta existe pero no entra.
-- El `objects` del modelo sigue siendo un `UserManager`. Es obligatorio: `createsuperuser`, `authenticate` y las sesiones dependen de él.
+- `Eliminado` (abstracto): aporta el campo `eliminado` y el método
+  `eliminar()`, que hace `save(update_fields=["eliminado"])`.
+- `BorradoLogico(Eliminado)` (abstracto): añade dos gestores,
+  - `objects = ActivosManager()` → filtra `eliminado__isnull=True` (oculta lo dado de baja);
+  - `todos = TodosManager()` → ve todo, incluidos los eliminados.
+- Lo usan las entidades que otras referencian, para poder sacarlas de
+  circulación sin romper las referencias de quien apuntaba a ellas.
 
-### Integridad
+`estado` (en `Vecino`) y `eliminado` son cosas distintas: `estado` es el estado
+del vecino (Activo/Inactivo); `eliminado` es la fila retirada del sistema.
 
-Ninguna llave foránea borra en cascada: las cinco relaciones usan `PROTECT`. Ya no queda ninguna en cascada, porque desapareció el perfil que colgaba de `auth.User`.
+---
 
-`PROTECT` por sí solo dejaba el mantenedor inservible: no se podía dar de baja una Delegación o un Rol que estuviera en uso. La solución no fue cambiar el borrado a cascada ni a `SET_NULL`, porque `SET_NULL` habría dejado al vecino sin el dato de su territorio.
+## 5. Migraciones
 
-La solución fue el **borrado lógico**, aplicado a las siete entidades:
+Cuatro archivos `0001_initial.py`, uno por app con modelos (`panel` no tiene).
+Cada uno traduce el modelo a la creación de su tabla.
 
-| Entidad | Por qué |
+Fuente: `apps/*/migrations/0001_initial.py`. Dependencias entre migraciones:
+
+| Migración | Depende de |
 |---|---|
-| `Delegacion` | la referencian `Vecino`, `Usuario` y `Meta` |
-| `Rol` | lo referencia `Usuario` |
-| `TipoAtencion` | lo referencia `SubAtencion` |
-| `Usuario`, `Meta`, `SubAtencion`, `Vecino` | para que "Eliminar" signifique lo mismo en los siete módulos |
+| `organizacion.0001_initial` | — |
+| `cuentas.0001_initial` | `auth.0012`, `organizacion.0001_initial` |
+| `catalogos.0001_initial` | `organizacion.0001_initial` |
+| `ciudadanos.0001_initial` | `organizacion.0001_initial` |
 
-`apps/common/soft_delete.py` está partido en dos clases:
+`cuentas` depende de `auth` porque `Usuario` hereda de `AbstractUser`. El orden
+importa: `Delegacion` debe existir antes que las tablas que la referencian.
 
-- `Eliminado`: aporta la columna `eliminado` y un método `eliminar()` que escribe la fecha en vez de borrar.
-- `BorradoLogico`: hereda de `Eliminado` y además cambia los gestores. `objects` esconde las dadas de baja; `todos` las ve todas.
+Comandos:
 
-Seis entidades heredan de `BorradoLogico`. `Usuario` hereda solo de `Eliminado`, porque no puede cambiar su gestor. Por eso su listado filtra el borrado a mano.
+```bash
+python manage.py makemigrations   # modelos → archivos de migración
+python manage.py migrate          # archivos de migración → tablas en MariaDB
+```
 
-El botón de eliminar del mantenedor llama a `eliminar()` en las siete. La fila sale del listado y nadie pierde la referencia: el vecino sigue mostrando su territorio y el usuario su rol. `PROTECT` queda como red de seguridad ante un `DELETE` directo desde phpMyAdmin.
+---
 
-Efectos asumidos, todos conscientes:
+## 6. El ORM en acción
 
-- Una Delegación dada de baja sigue ocupando su `codigo`, y un Rol su `nombre`. No se puede crear otro con el mismo valor mientras la fila esté marcada.
-- Recargar el JSON con `cargar_datos` restaura lo dado de baja: el comando usa el gestor sin filtro y limpia la fecha, para seguir siendo idempotente.
-- `Vecino.territorio` es obligatorio, así que un vecino siempre tiene territorio.
-- Un usuario sin correo existe, no puede entrar, y no arrastra a nadie: su contraseña es inutilizable.
-
-Django no delega el borrado a la base: no emite cláusulas `ON DELETE` al crear las tablas. Resuelve las referencias desde Python, así que el comportamiento es el mismo en SQLite y en MariaDB.
-
-### Migraciones
-
-Cuatro archivos `0001_initial.py`, uno por app con modelos: `cuentas`, `organizacion`, `catalogos` y `ciudadanos`.
-
-Se rehicieron al introducir el usuario propio, porque Django exige fijar `AUTH_USER_MODEL` antes de la primera migración. La base se recreó en el mismo paso; no hubo pérdida de información, porque los 46 registros se regeneran desde `datos_nuevos/` con `cargar_datos`.
-
-### Consultas ORM
-
-Los datos nunca se leen de JSON en tiempo de ejecución: todo pasa por el ORM. Ejemplo real, tomado de la verificación:
+El ORM traduce objetos Python a SQL. Ejemplos tomados de los listados
+(`apps/common/vistas_base.py`) y del comando de carga
+(`apps/panel/management/commands/cargar_datos.py`).
 
 ```python
-Vecino.objects.filter(territorio__nombre="Centro")
+# Listado por gestor: objects ya excluye los eliminados (ActivosManager).
+queryset = super().get_queryset()
+
+# JOIN para las llaves foráneas que la plantilla recorre (evita N+1 consultas).
+queryset = queryset.select_related("territorio")
+
+# Búsqueda: un OR sobre varios campos con icontains.
+condicion = Q()
+for campo in ("nombre", "rut", "territorio__nombre"):
+    condicion |= Q(**{f"{campo}__icontains": q})
+queryset = queryset.filter(condicion)
+
+# Alta/actualización idempotente (usada por cargar_datos).
+modelo.todos.update_or_create(codigo=fila["codigo"], defaults=valores)
+
+# Escritura por atributo: el objeto se edita y se guarda.
+usuario.set_password(clave)
+usuario.save()
+
+# Borrado lógico: en vez de DELETE, se marca la fila.
+self.object.eliminar()
 ```
 
-Django genera el SQL solo, con su `JOIN`:
+---
 
-```sql
-SELECT "ciudadanos_vecino"."id", "ciudadanos_vecino"."nombre", ...
-FROM "ciudadanos_vecino"
-INNER JOIN "organizacion_delegacion"
-  ON ("ciudadanos_vecino"."territorio_id" = "organizacion_delegacion"."id")
-WHERE "organizacion_delegacion"."nombre" = Centro
-ORDER BY "ciudadanos_vecino"."nombre" ASC
+## 7. Rutas (URLs)
+
+Raíz: `config/urls.py`.
+
+```python
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("", include("apps.cuentas.urls")),
+    path("", include("apps.panel.urls")),
+    path("", include("apps.organizacion.urls")),
+    path("", include("apps.catalogos.urls")),
+    path("", include("apps.ciudadanos.urls")),
+]
 ```
 
-No hay SQL escrito a mano en el proyecto, ni uso de `cursor()` o `raw()`.
+Cada app define su `app_name` (namespace). Cada mantenedor expone cuatro rutas:
+listado, alta, edición y borrado. Fuente: `apps/*/urls.py`.
 
-## 4. Carga de datos
+| Namespace | Rutas |
+|---|---|
+| `panel` | `` → Inicio |
+| `organizacion` | `delegaciones/`, `.../nueva/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
+| `cuentas` | `roles/...`, `usuarios/...`, `login/`, `logout/`, `recuperar/`, `validar/`, `reenviar/`, `nueva-password/` |
+| `catalogos` | `metas/...`, `tipos-atencion/...`, `sub-atenciones/...` |
+| `ciudadanos` | `vecinos/...` |
 
-El JSON nuevo vive en `datos_nuevos/`, un archivo por entidad, con los mismos nombres de campo que las columnas. El comando lo recorre y escribe con el ORM:
+---
+
+## 8. Vistas
+
+Las vistas se apoyan en un tronco compartido, `apps/common/vistas_base.py`, para
+no repetir el CRUD siete veces.
+
+- `Comun`: mixin con los datos que cada módulo declara (`titulo`, `subtitulo`,
+  `seccion`, `etiqueta_nueva`, `url_listado`, `url_nueva`) y los inyecta al
+  contexto.
+- `ListadoBase(Comun, LoginRequiredMixin, ListView)`: plantilla `listado.html`;
+  `busqueda` (tupla de campos) arma el `OR` con `icontains`; `relacionadas`
+  aplica `select_related`.
+- `AltaBase(CreateView)` y `EdicionBase(UpdateView)`, ambos sobre
+  `_FormularioBase` (plantilla `formulario.html`).
+- `BorradoBase(Comun, LoginRequiredMixin, DeleteView)`: plantilla `confirmar.html`;
+  su `form_valid` llama a `self.object.eliminar()` en vez de borrar.
+
+Cada mantenedor declara solo sus datos. Ejemplo real
+(`apps/ciudadanos/views.py`):
+
+```python
+class Listado(ListadoBase):
+    model = Vecino
+    template_name = "ciudadanos/vecinos_lista.html"
+    titulo = "Vecinos"
+    seccion = "vecinos"
+    etiqueta_nueva = "Nuevo vecino"
+    busqueda = ("nombre", "rut", "direccion", "telefono", "territorio__nombre", "tipo_gestion")
+    relacionadas = ("territorio",)
+    url_nueva = "ciudadanos:vecinos_nueva"
+    url_listado = "ciudadanos:vecinos"
+```
+
+Nota de implementación: `Usuario` conserva el `UserManager` (no filtra por
+borrado lógico), así que `UsuariosListado.get_queryset()` filtra a mano con
+`.filter(eliminado__isnull=True)`. Lo mismo hace `UsuarioAdmin.get_queryset`.
+
+Las pantallas de autenticación son `FormView`/`View` en
+`apps/cuentas/views.py` (ver §10).
+
+---
+
+## 9. Formularios
+
+`apps/*/forms.py`.
+
+- `DelegacionForm`, `MetaForm`, `TipoAtencionForm`, `SubAtencionForm`,
+  `VecinoForm`, `RolForm`: `ModelForm` con la lista de `fields` igual a las
+  columnas editables del modelo.
+- `UsuarioForm`: el mantenedor propio de usuarios. El correo puede quedar vacío
+  (`clean_email` lo guarda como `None`, no como cadena vacía, para no chocar con
+  el índice único). Recibe `nombre`, `apellido` y `clave` (contraseña); `save()`
+  los aplica y usa `set_password` si se escribió una clave.
+- `FormularioLogin(AuthenticationForm)`: solo reetiqueta el campo interno
+  `username` como "Correo electrónico" (porque `USERNAME_FIELD` es el correo).
+- Formularios del flujo OTP: `RecuperarForm`, `CodigoForm` (valida 6 dígitos) y
+  `NuevaPasswordForm` (confirma y aplica `validate_password`).
+
+---
+
+## 10. Autenticación
+
+Fuente: `config/settings.py`, `apps/cuentas/views.py`, `apps/cuentas/validators.py`.
+
+Configuración:
+
+```python
+LOGIN_URL = "cuentas:login"
+LOGIN_REDIRECT_URL = "panel:inicio"
+LOGOUT_REDIRECT_URL = "cuentas:login"
+OTP_EXPIRY_MINUTES = 10
+```
+
+Validadores de contraseña activos: `UserAttributeSimilarityValidator`,
+`MinimumLengthValidator` (`PASSWORD_MIN_LENGTH`, por defecto 8),
+`CommonPasswordValidator`, `NumericPasswordValidator` y
+`RequisitosInstitucionalesValidator` (exige mayúscula, minúscula y un carácter
+especial).
+
+Flujo de recuperación en cuatro pasos (`apps/cuentas/views.py`):
+
+1. **Recuperar** (`FormView`): busca el usuario por correo; si existe, genera el
+   código y lo envía. La respuesta es la misma exista o no el correo, para no
+   revelar qué cuentas hay.
+2. **Validar** (`FormView`): si no hay código en sesión, redirige a recuperar.
+   Comprueba expiración y coincidencia; al acertar borra el código de la sesión
+   (sirve una sola vez) y marca `otp_validado`.
+3. **Reenviar** (`View`, POST): genera un código nuevo.
+4. **NuevaPassword** (`FormView`): exige `otp_validado`; cambia la contraseña con
+   `set_password` y limpia la sesión.
+
+Detalle de implementación del OTP (`_guardar_otp`): el código se genera con
+`secrets.randbelow(1000000)` formateado a 6 dígitos y se guarda **en la sesión**
+(`otp_codigo`, `otp_usuario`, `otp_expira`), sin tabla propia. El envío usa
+`send_mail`.
+
+---
+
+## 11. Django Admin
+
+Fuente: `apps/common/admin_base.py` y los `admin.py` de cada app.
+
+- `AdminBase(admin.ModelAdmin)`: base común con `list_per_page = 25` y borrado
+  lógico —
+  - `delete_model(obj)` → `obj.eliminar()`;
+  - `delete_queryset(qs)` → `qs.update(eliminado=timezone.now())`.
+
+Las 7 entidades están registradas, con `list_display`, `search_fields` y
+`list_filter`:
+
+| Admin | Registra | Notas |
+|---|---|---|
+| `RolAdmin` | `Rol` | busca por nombre y descripción |
+| `UsuarioAdmin` | `Usuario` | hereda de `BaseUserAdmin`; formularios propios de alta y edición; `autocomplete_fields = ("rol", "delegacion")`; oculta los eliminados |
+| `DelegacionAdmin` | `Delegacion` | filtro por comuna |
+| `MetaAdmin` | `Meta` | `autocomplete` de delegación |
+| `TipoAtencionAdmin` | `TipoAtencion` | — |
+| `SubAtencionAdmin` | `SubAtencion` | filtro por tipo de atención |
+| `VecinoAdmin` | `Vecino` | filtros por territorio y estado |
+
+`UsuarioAdmin` usa dos formularios propios (definidos en `apps/cuentas/admin.py`):
+`UsuarioCrearForm` (basado en `BaseUserCreationForm`) y `UsuarioEditarForm`
+(basado en `UserChangeForm`). Ambos comparten el mixin `CorreoNulo`, que guarda
+el correo vacío como `NULL`.
+
+---
+
+## 12. Carga de datos
+
+### 12.1 Los JSON
+
+Viven en `datos_nuevos/`, un archivo por entidad, con un arreglo de objetos cuyas
+claves coinciden con los campos del modelo.
+
+| Archivo | Filas |
+|---|---|
+| `delegaciones.json` | 6 |
+| `roles.json` | 6 |
+| `usuarios.json` | 6 |
+| `metas.json` | 6 |
+| `tipos_atencion.json` | 4 |
+| `sub_atenciones.json` | 8 |
+| `vecinos.json` | 10 |
+| **Total** | **46** |
+
+### 12.2 El comando `cargar_datos`
+
+Fuente: `apps/panel/management/commands/cargar_datos.py`.
+
+- Lee cada archivo con `json.load` desde `settings.BASE_DIR / "datos_nuevos"`.
+- Escribe con `update_or_create`, así que **es idempotente**: correrlo dos veces
+  deja los mismos conteos y no duplica.
+- Usa el gestor `todos` y limpia `eliminado = None`: recargar el JSON **restaura**
+  lo que estaba dado de baja.
+- Todo el `handle` corre dentro de `@transaction.atomic`.
+- Recorre las entidades en orden de dependencia: delegaciones y roles → usuarios
+  → metas, tipos y sub atenciones → vecinos.
+- Informa `N creados, M actualizados`.
+
+El caso de `Usuario` es propio (`cargar_usuarios`): la llave de idempotencia es
+el nombre y apellido (no el correo, que puede ser nulo), y a cada usuario creado
+se le aplica `set_password(settings.USUARIOS_PASSWORD_INICIAL)` solo si tiene
+correo (sin correo la contraseña queda inutilizable).
+
+Ejecución:
 
 ```bash
 python manage.py cargar_datos
+# Listo: 46 creados, 0 actualizados.
 ```
 
-- Usa `update_or_create`, así que es reejecutable sin duplicar.
-- Recorre en orden de dependencia: delegaciones y roles, después usuarios, luego los catálogos y al final vecinos.
-- Informa cuántos registros creó y cuántos actualizó.
-- A los usuarios migrados les asigna la contraseña del `.env` (`USUARIOS_PASSWORD_INICIAL`). Si el usuario no trae correo, la contraseña queda inutilizable.
+### 12.3 Por qué un comando y no `loaddata`
 
-Los usuarios se buscan por nombre y apellido, no por correo: si el correo es nulo no sirve como llave de idempotencia, y `update_or_create` no puede comparar contra un `NULL`.
+`loaddata` (fixtures de Django) no transforma datos, no respeta orden de
+dependencias por sí solo y no hashea contraseñas. El comando propio existe para
+cubrir esas tres cosas y mantener la carga idempotente.
 
-Resultado verificado: 46 registros creados en la primera ejecución, y en la segunda, 0 creados y 46 actualizados.
+---
 
-Conteos finales: 6 delegaciones, 6 roles, 6 usuarios, 6 metas, 4 tipos de atención, 8 sub atenciones y 10 vecinos.
+## 13. Front-end
 
-El mapeo campo por campo desde los JSON de origen, con lo descartado y su justificación, está en `traslado_de_datos.md`.
+### 13.1 Plantillas
 
-## 5. Django Admin
+Fuente: `templates/`.
 
-Las 7 entidades están registradas, con `list_display`, `search_fields` y `list_filter`. Se navega entre entidades relacionadas con `autocomplete_fields` en las llaves foráneas.
+- `base.html`: armazón con sidebar (Inicio + grupo "Mantenedores" con los 7
+  ítems), header con el usuario y su menú. El menú del usuario se resuelve sin
+  JavaScript, con `<details>`. El cierre de sesión va por `POST` (Django 5+).
+  Marca el ítem activo comparando la variable `seccion`.
+- `listado.html`: el patrón de los 7 mantenedores. Cabecera con título y botón
+  "+ Nuevo"; buscador; tabla; contador. Define los bloques `encabezado` y `fila`
+  que cada lista concreta sobrescribe.
+- `formulario.html`: render de un `ModelForm` campo por campo, con ayuda y
+  errores, y botonera Guardar / Cancelar.
+- `confirmar.html`: confirmación de baja lógica ("¿Confirmas dar de baja …?").
+- `inicio.html`: página de bienvenida.
+- `cuentas/base_auth.html` + `login.html`, `recuperar.html`, `validar.html`,
+  `nueva_password.html`: las pantallas de acceso.
+- Una lista por entidad en `templates/<app>/…_lista.html`, todas extendiendo
+  `listado.html`.
 
-El Admin ofrece el **CRUD completo**: alta, edición y borrado en las 7 entidades. El comportamiento se escribe una sola vez en una clase base `AdminBase`, de la que heredan las 7 clases.
+### 13.2 Estáticos
 
-El borrado respeta la regla del proyecto: no emite `DELETE`, marca la fila con `eliminado` igual que el front-end, para que quien la referencie conserve el vínculo. `Usuario` se administra con `UserAdmin` de Django y formularios con `password1`/`password2`, para cifrar la contraseña al crear o al cambiarla.
+Fuente: `static/`.
 
-## 6. Front-end
+- `css/frameworkV1.css` y `css/institucional.css` (paleta institucional).
+- `img/logolaserena.png`.
+- `js/busqueda.js`: buscador en vivo. Escucha `input`, aplica un *debounce* de
+  250 ms, pide la misma URL del listado con `?q=`, y reemplaza las filas y el
+  contador (`[data-filas]`, `[data-pie]`) sin recargar, conservando el foco. Si
+  JavaScript falla o no corre, el formulario sigue funcionando con Enter.
 
-Los 7 mantenedores tienen listado, alta, edición y borrado sobre plantillas Django y datos del ORM. Son 28 vistas, todas genéricas: `ListView`, `CreateView`, `UpdateView` y `DeleteView`.
+---
 
-### Cómo se evita repetir código
+## 14. Variables de entorno
 
-- `apps/common/vistas_base.py` define lo común: el título, la sección del sidebar, el buscador sobre los campos que cada módulo declara y el `select_related` de las llaves foráneas que la plantilla recorre.
-- Cada `views.py` declara solo sus datos: modelo, formulario, título, plantilla y nombres de ruta.
-- `templates/listado.html` tiene el armazón del listado una sola vez: título, buscador, botón Nuevo, tabla y columna de acciones.
-- Cada módulo aporta un template de unas 20 líneas con sus columnas, que hereda de `listado.html` y llena los bloques `encabezado` y `fila`.
-- `templates/formulario.html` y `templates/confirmar.html` sirven a los 7 módulos para el alta, la edición y la confirmación del borrado.
-- El sidebar está en `templates/base.html` y marca la sección activa según el módulo.
+Fuente: `.env.example` y `config/settings.py`. La configuración se lee con
+`python-dotenv`; no hay credenciales en el código.
 
-### El buscador
+```text
+# Django
+SECRET_KEY=
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
 
-Vive en la vista, no en la plantilla: `get_queryset` filtra con `icontains` sobre los campos declarados. Los datos llegan al template ya resueltos. Buscar `rural` en Vecinos devuelve los vecinos cuyo **territorio** se llama así, porque el filtro cruza la llave foránea y el ORM arma el `JOIN`.
+# Base de datos MariaDB
+DB_NAME=abstergo
+DB_USER=abstergo
+DB_PASSWORD=
+DB_HOST=127.0.0.1
+DB_PORT=3306
 
-### Borrado
+# Localización
+LANGUAGE_CODE=es
+TIME_ZONE=America/Santiago
 
-El botón de eliminar llama a `eliminar()` en los siete módulos: el borrado es lógico en todas las entidades.
+# Correo
+MAILER_BACKEND=django.core.mail.backends.console.EmailBackend
+EMAIL_HOST=
+EMAIL_PORT=587
+EMAIL_HOST_USER=
+EMAIL_HOST_PASSWORD=
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=no-reply@muniserena.cl
 
-### Diseño
+# Autenticación
+OTP_EXPIRY_MINUTES=10
+PASSWORD_MIN_LENGTH=8
+USUARIOS_PASSWORD_INICIAL=
+```
 
-Sin Bootstrap. El framework institucional de laserena.cl aporta la tipografía, los botones, la escala de texto y la paleta; `static/css/institucional.css` aporta lo que ese framework no trae: la grilla, el sidebar del mockup, el header, la tabla y los badges de estado. La tipografía la declara el framework, y en Linux resuelve a la del sistema.
+En `settings.py`, el backend de correo se declara en `MAILERS` (reemplaza a
+`EMAIL_BACKEND` en Django 6): en desarrollo usa la consola y en el servidor el
+backend SMTP, cuyas `OPTIONS` solo se añaden cuando corresponde.
 
-## 7. Autenticación
+El `.gitignore` deja fuera `venv/`, `.env*` (salvo `.env.example`), llaves
+`*.pem`/`*.key`, `__pycache__/`, `*.sqlite3`, `staticfiles/` y `media/`.
 
-Cuatro pantallas, siguiendo el mockup §1 a §4:
+---
 
-- **Login** por correo y contraseña contra `cuentas.Usuario`. El correo es el `USERNAME_FIELD` del modelo, así que se usa el formulario estándar de Django con las etiquetas cambiadas.
-- **Recuperar**: pide el correo y genera un código de 6 dígitos.
-- **Validar**: los 6 dígitos, con la barra decorativa del mockup.
-- **Nueva contraseña**: valida contra `AUTH_PASSWORD_VALIDATORS` y guarda con `set_password()`.
+## 15. Puesta en marcha
 
-Detalles:
+Fuente: `README.md`.
 
-- El código vive en la sesión: no necesita tabla propia, y no se puede reutilizar porque se borra al usarlo.
-- Vence a los 10 minutos, valor que sale de `OTP_EXPIRY_MINUTES` en el `.env`.
-- Hay un reenvío: `POST /reenviar/` regenera el código desde la sesión, sin volver a pedir el correo.
-- La respuesta al pedir el código es la misma exista o no el correo, para no revelar qué cuentas hay.
-- La búsqueda del correo es por `email__iexact`, así que los usuarios sin correo nunca entran en el flujo de recuperación. Recuperar la contraseña es, en la práctica, cosa de las cuentas con correo.
-- El envío sale del `.env`: consola en desarrollo, SMTP en el EC2.
-- El Admin conserva su propio login y su propio superusuario, aparte del login del sistema.
+1. Requisitos del sistema: MariaDB y sus librerías de desarrollo (el orden
+   importa, porque `mysqlclient` compila contra sus headers).
 
-## 8. Variables de entorno
+   ```bash
+   sudo pacman -S mariadb        # o el gestor de paquetes de tu distro
+   ```
 
-Ninguna configuración sensible está escrita en el código. `settings.py` lee el `.env` con `python-dotenv`.
+2. Entorno virtual y dependencias:
 
-Llaves del `.env`:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   pip install mysqlclient        # después de instalar MariaDB
+   ```
 
-- Django: `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`.
-- Base de datos: `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`.
-- Localización: `LANGUAGE_CODE`, `TIME_ZONE`.
-- Correo: `MAILER_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `DEFAULT_FROM_EMAIL`.
-- Autenticación: `OTP_EXPIRY_MINUTES`, `PASSWORD_MIN_LENGTH`, `USUARIOS_PASSWORD_INICIAL`.
+3. Variables de entorno: copiar `.env.example` a `.env` y completarlo.
 
-`.env.example` se versiona con las mismas llaves y sin valores; el `.env` está excluido por `.gitignore`.
+4. Base de datos y datos:
 
-Nota técnica: Django 6.1 reemplazó `EMAIL_BACKEND` por `MAILERS`. Las `OPTIONS` de cada correo se pasan como argumentos al backend, y cada backend rechaza las que no conoce, así que solo se declaran cuando el backend configurado es el de SMTP. En desarrollo se usa el de consola.
+   ```bash
+   python manage.py migrate
+   python manage.py cargar_datos   # lee datos_nuevos/; reejecutable sin duplicar
+   python manage.py runserver
+   ```
 
-## 9. Uso de herramientas de IA
+En producción, el servidor WSGI es `gunicorn` (`gunicorn` está en
+`requirements.txt`) y los estáticos se sirven desde `STATIC_ROOT`
+(`staticfiles/`, poblado con `collectstatic`).
 
-El registro completo de prompts y respuestas, extraído del historial de sesiones, está en `prompts.md`.
+---
 
-Aplicación concreta:
+## 16. Mapa de archivos citado
 
-- La estructura de apps bajo `apps/` y los settings alimentados por `.env`.
-- El modelo de datos y las relaciones entre las 7 entidades.
-- El comando de carga idempotente con `update_or_create`.
-- El borrado lógico en las siete entidades, para que dar de baja signifique lo mismo en todos los módulos y nadie pierda la referencia.
-- Las vistas base compartidas, para que los 7 módulos no repitan el mismo código.
-- La detección de que `EMAIL_BACKEND` ya no es la vía en Django 6.1, y de que el loader de plantillas cachea siempre, ambas verificadas contra el código fuente del framework instalado.
-- La reestructura del esquema: usuario propio sin `username`, `Meta` colgando de `Delegacion`, borrado lógico en las siete tablas y Activo/Inactivo reducido a `Vecino` y `Usuario`.
-
-## 10. Evidencias pendientes
-
-Esta sección se completa cuando el sistema esté desplegado en el EC2.
-
-- **AWS:** capturas de la instancia, de la terminal y del proyecto en ejecución.
-- **GitHub:** capturas del repositorio, del historial de commits y de la clonación en la instancia.
-- **phpMyAdmin:** capturas de las 7 tablas, de sus relaciones y de los registros almacenados.
-- **Front-end:** capturas de Inicio, de los 7 listados y de un alta.
-- **Autenticación:** capturas de las cuatro pantallas.
+| Archivo | Contenido |
+|---|---|
+| `manage.py` | Entrada de los comandos de Django |
+| `config/settings.py` | Configuración desde `.env`, apps, BD, correo, auth |
+| `config/urls.py` | Rutas raíz |
+| `apps/common/soft_delete.py` | `Eliminado`, `BorradoLogico`, gestores |
+| `apps/common/admin_base.py` | `AdminBase` (CRUD + borrado lógico) |
+| `apps/common/vistas_base.py` | Tronco de las vistas CRUD |
+| `apps/cuentas/models.py` | `Rol`, `Usuario`, `UsuarioManager` |
+| `apps/cuentas/views.py` | Mantenedores + flujo OTP |
+| `apps/cuentas/forms.py` | Formularios de login, mantenedor y OTP |
+| `apps/cuentas/validators.py` | `RequisitosInstitucionalesValidator` |
+| `apps/cuentas/admin.py` | `RolAdmin`, `UsuarioAdmin` |
+| `apps/organizacion/models.py` | `Delegacion` |
+| `apps/catalogos/models.py` | `Meta`, `TipoAtencion`, `SubAtencion` |
+| `apps/ciudadanos/models.py` | `Vecino` |
+| `apps/panel/management/commands/cargar_datos.py` | Comando de carga |
+| `datos_nuevos/*.json` | Datos de importación (46 filas) |
+| `templates/` | Armazón, listados, formularios y acceso |
+| `static/js/busqueda.js` | Buscador en vivo |
