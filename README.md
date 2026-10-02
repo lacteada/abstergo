@@ -11,8 +11,8 @@ Repo: https://github.com/lacteada/abstergo
 
 - 7 entidades con ORM y migraciones.
 - Comando de carga de datos desde JSON, idempotente.
-- Django Admin con las 7 entidades, con CRUD y borrado lógico.
-- Front-end: los 7 listados con alta, edición y borrado, más búsqueda en vivo.
+- Django Admin con las 7 entidades, con CRUD y borrado normal.
+- Front-end: los 7 listados con alta, edición y borrado lógico, más búsqueda en vivo.
 - Autenticación: login, recuperar contraseña, código OTP y nueva contraseña.
 
 ## Stack
@@ -75,4 +75,3 @@ En `documentacion/`:
 - `documento_tecnico.md` — documento técnico (se exporta a PDF).
 - `prompts.md` — evidencia de uso de IA.
 - `traslado_de_datos.md` — mapeo del JSON de origen a las tablas.
-- `07_Frontend.md` y `08_Backend.md` — guías de estudio.

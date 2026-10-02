@@ -353,10 +353,11 @@ Detalle de implementación del OTP (`_guardar_otp`): el código se genera con
 
 Fuente: `apps/common/admin_base.py` y los `admin.py` de cada app.
 
-- `AdminBase(admin.ModelAdmin)`: base común con `list_per_page = 25` y borrado
-  lógico —
-  - `delete_model(obj)` → `obj.eliminar()`;
-  - `delete_queryset(qs)` → `qs.update(eliminado=timezone.now())`.
+- `AdminBase(admin.ModelAdmin)`: base común con `list_per_page = 25`. El Admin
+  usa el **borrado normal** de Django (emite `DELETE`), a diferencia del front,
+  que usa borrado lógico. Como las llaves foráneas están en `PROTECT`, intentar
+  borrar una fila que otra referencia muestra un error en vez de arrastrar a las
+  dependientes.
 
 Las 7 entidades están registradas, con `list_display`, `search_fields` y
 `list_filter`:
@@ -555,7 +556,7 @@ En producción, el servidor WSGI es `gunicorn` (`gunicorn` está en
 | `config/settings.py` | Configuración desde `.env`, apps, BD, correo, auth |
 | `config/urls.py` | Rutas raíz |
 | `apps/common/soft_delete.py` | `Eliminado`, `BorradoLogico`, gestores |
-| `apps/common/admin_base.py` | `AdminBase` (CRUD + borrado lógico) |
+| `apps/common/admin_base.py` | `AdminBase` (CRUD; borrado normal en el Admin) |
 | `apps/common/vistas_base.py` | Tronco de las vistas CRUD |
 | `apps/cuentas/models.py` | `Rol`, `Usuario`, `UsuarioManager` |
 | `apps/cuentas/views.py` | Mantenedores + flujo OTP |

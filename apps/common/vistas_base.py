@@ -12,13 +12,31 @@ from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 
 class Comun:
-    """Datos que cada módulo define y que las plantillas necesitan."""
+    """Datos que cada módulo define y que las plantillas necesitan.
+
+    Arma el contexto una sola vez: los listados usan `url_nueva`, las otras
+    vistas la ignoran (queda vacía), así que no hace falta repetir esto en cada
+    clase.
+    """
 
     titulo = ""
     subtitulo = ""
     seccion = ""
     etiqueta_nueva = ""
     url_listado = ""
+    url_nueva = None  # solo el listado la define
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto.update(
+            titulo=self.titulo,
+            subtitulo=self.subtitulo,
+            seccion=self.seccion,
+            etiqueta_nueva=self.etiqueta_nueva,
+            url_listado=self.url_listado,
+            url_nueva=reverse(self.url_nueva) if self.url_nueva else "",
+        )
+        return contexto
 
 
 class ListadoBase(Comun, LoginRequiredMixin, ListView):
@@ -40,31 +58,9 @@ class ListadoBase(Comun, LoginRequiredMixin, ListView):
             queryset = queryset.filter(condicion)
         return queryset
 
-    def get_context_data(self, **kwargs):
-        contexto = super().get_context_data(**kwargs)
-        contexto.update(
-            titulo=self.titulo,
-            subtitulo=self.subtitulo,
-            seccion=self.seccion,
-            etiqueta_nueva=self.etiqueta_nueva,
-            url_nueva=reverse(self.url_nueva),
-            url_listado=self.url_listado,
-        )
-        return contexto
-
 
 class _FormularioBase(Comun, LoginRequiredMixin):
     template_name = "formulario.html"
-
-    def get_context_data(self, **kwargs):
-        contexto = super().get_context_data(**kwargs)
-        contexto.update(
-            titulo=self.titulo,
-            subtitulo=self.subtitulo,
-            seccion=self.seccion,
-            url_listado=self.url_listado,
-        )
-        return contexto
 
     def get_success_url(self):
         return reverse(self.url_listado)
@@ -81,20 +77,9 @@ class EdicionBase(_FormularioBase, UpdateView):
 class BorradoBase(Comun, LoginRequiredMixin, DeleteView):
     template_name = "confirmar.html"
 
-    def get_context_data(self, **kwargs):
-        contexto = super().get_context_data(**kwargs)
-        contexto.update(
-            titulo=self.titulo,
-            seccion=self.seccion,
-            url_listado=self.url_listado,
-        )
-        return contexto
-
     def form_valid(self, form):
-        # Las entidades con borrado lógico se marcan, no se borran. Así el
-        # vecino no pierde su territorio ni el usuario su rol.
-        if hasattr(self.object, "eliminar"):
-            self.object.eliminar()
-        else:
-            self.object.delete()
+        # Las 7 entidades tienen borrado lógico: se marca la fila en vez de
+        # borrarla, así nadie pierde sus referencias (el vecino su territorio,
+        # el usuario su rol).
+        self.object.eliminar()
         return redirect(self.url_listado)

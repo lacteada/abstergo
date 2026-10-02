@@ -41,17 +41,14 @@ class Command(BaseCommand):
     def cargar(self, archivo, modelo, clave, armar):
         """Recorre un archivo y escribe con update_or_create.
 
-        En las entidades con borrado lógico se usa el gestor sin filtro, para
-        que recargar el JSON restaure lo que se dio de baja en vez de chocar
-        contra el campo único.
+        Las 7 entidades tienen borrado lógico, así que usa el gestor sin filtro
+        (`todos`) y limpia `eliminado`: recargar el JSON restaura lo dado de
+        baja en vez de chocar contra el campo único.
         """
-        con_baja = hasattr(modelo, "eliminado")
-        gestor = modelo.todos if con_baja else modelo.objects
         for fila in leer(archivo):
             valores = armar(fila)
-            if con_baja:
-                valores["eliminado"] = None
-            _, creado = gestor.update_or_create(
+            valores["eliminado"] = None
+            _, creado = modelo.todos.update_or_create(
                 **{clave: fila[clave]},
                 defaults=valores,
             )
