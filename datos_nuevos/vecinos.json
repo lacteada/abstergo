@@ -1,7 +1,7 @@
 [
   {
     "nombre": "Rosa Alvarado Pérez",
-    "rut": "20345678-6",
+    "rut": "11111111-1",
     "direccion": "Los Aromos 145",
     "telefono": "+56 9 1111 1111",
     "territorio": "centro",
@@ -10,7 +10,7 @@
   },
   {
     "nombre": "Manuel Contreras Rojas",
-    "rut": "19456789-8",
+    "rut": "12222222-5",
     "direccion": "Balmaceda 908",
     "telefono": "+56 9 2222 2222",
     "territorio": "centro",
@@ -19,7 +19,7 @@
   },
   {
     "nombre": "Julia Fuentes Naranjo",
-    "rut": "18234512-1",
+    "rut": "13333333-9",
     "direccion": "Av. del Mar 3120",
     "telefono": "+56 9 3333 3333",
     "territorio": "avenida-del-mar",
@@ -28,7 +28,7 @@
   },
   {
     "nombre": "Héctor Pizarro Leiva",
-    "rut": "17567834-4",
+    "rut": "14444444-2",
     "direccion": "Los Nogales 67",
     "telefono": "+56 9 4444 4444",
     "territorio": "avenida-del-mar",
@@ -37,7 +37,7 @@
   },
   {
     "nombre": "Carmen Sepúlveda Díaz",
-    "rut": "16901234-2",
+    "rut": "15555555-6",
     "direccion": "Pasaje El Roble 21",
     "telefono": "+56 9 5555 5555",
     "territorio": "la-antena",
@@ -46,7 +46,7 @@
   },
   {
     "nombre": "Luis Miranda Tapia",
-    "rut": "15456780-1",
+    "rut": "16666666-K",
     "direccion": "Regimiento Coquimbo 1890",
     "telefono": "+56 9 6666 6666",
     "territorio": "la-antena",
@@ -55,7 +55,7 @@
   },
   {
     "nombre": "Patricia Vergara Soto",
-    "rut": "14890123-6",
+    "rut": "17777777-3",
     "direccion": "Ruta 5 Norte 1450",
     "telefono": "+56 9 7777 7777",
     "territorio": "las-companias",
@@ -64,7 +64,7 @@
   },
   {
     "nombre": "Jorge Cáceres Bravo",
-    "rut": "13789012-7",
+    "rut": "18888888-7",
     "direccion": "Los Clarines 389",
     "telefono": "+56 9 8888 8888",
     "territorio": "la-pampa",
@@ -73,7 +73,7 @@
   },
   {
     "nombre": "Silvia Rojas Alcaíno",
-    "rut": "12678901-7",
+    "rut": "19999999-0",
     "direccion": "Camino a Vicuña Km 8",
     "telefono": "+56 9 9999 9999",
     "territorio": "rural",
@@ -82,7 +82,7 @@
   },
   {
     "nombre": "Ramón Olivares Muñoz",
-    "rut": "21567890-3",
+    "rut": "20000000-5",
     "direccion": "Camino a Vicuña Km 15",
     "telefono": "+56 9 1010 1010",
     "territorio": "rural",
