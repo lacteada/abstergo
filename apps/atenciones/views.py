@@ -1,3 +1,5 @@
+import re
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -7,23 +9,22 @@ from django.views import View
 from apps.atenciones.forms import AtencionForm
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
-from apps.common.validators import normalizar_rut
 from apps.common.vistas_base import BorradoBase, EdicionBase, ListadoBase
 from apps.cumplimiento.auditoria import registrar
 
 
-def buscar_vecinos(rut="", nombre="", apellido=""):
-    """Busca por RUT (normalizado) o por nombre y apellido."""
-    if rut:
-        return Vecino.objects.filter(rut__iexact=normalizar_rut(rut))
-    condiciones = Q()
-    if nombre:
-        condiciones &= Q(nombre__icontains=nombre)
-    if apellido:
-        condiciones &= Q(nombre__icontains=apellido)
-    if not condiciones:
+def limpiar_rut(valor):
+    return re.sub(r"[.\s]", "", valor or "").upper()
+
+
+def buscar_vecinos(consulta):
+    """Un solo campo: busca por RUT (normalizado) o por nombre y apellido."""
+    consulta = (consulta or "").strip()
+    if not consulta:
         return Vecino.objects.none()
-    return Vecino.objects.filter(condiciones)
+    return Vecino.objects.filter(
+        Q(nombre__icontains=consulta) | Q(rut__icontains=limpiar_rut(consulta))
+    ).distinct()
 
 
 class Listado(ListadoBase):
@@ -60,8 +61,9 @@ class Listado(ListadoBase):
 class CrearAtencion(LoginRequiredMixin, View):
     """El flujo del rol Funcionario: buscar al vecino y registrar la atención.
 
-    La búsqueda es por GET (funciona sin JavaScript); el alta por POST. Si el
-    vecino no existe, la plantilla ofrece agregarlo.
+    Un solo campo busca por RUT, nombre o apellido. Si el vecino existe, se
+    muestra su historial y el formulario para la nueva atención. Si no existe,
+    se ofrece crearlo y, al guardarlo, se vuelve acá con el vecino ya elegido.
     """
 
     template_name = "atenciones/crear.html"
@@ -88,23 +90,22 @@ class CrearAtencion(LoginRequiredMixin, View):
         )
 
     def _contexto(self, request, form=None, vecino=None):
-        busqueda = {
-            "rut": request.GET.get("rut", "").strip(),
-            "nombre": request.GET.get("nombre", "").strip(),
-            "apellido": request.GET.get("apellido", "").strip(),
-        }
-        buscado = any(busqueda.values())
+        consulta = request.GET.get("q", "").strip()
+        if vecino is None:
+            pk = request.GET.get("vecino")
+            if pk:
+                vecino = Vecino.objects.filter(pk=pk).first()
         encontrados = Vecino.objects.none()
-        if buscado:
-            encontrados = buscar_vecinos(**busqueda)
+        if consulta:
+            encontrados = buscar_vecinos(consulta)
             if vecino is None and encontrados.count() == 1:
                 vecino = encontrados.first()
         if vecino is not None:
             registrar(request, "ver", vecino, "Acceso al historial del vecino")
         return {
             "seccion": "atenciones",
-            "busqueda": busqueda,
-            "buscado": buscado,
+            "consulta": consulta,
+            "buscado": bool(consulta),
             "encontrados": encontrados,
             "vecino": vecino,
             "historial": vecino.atenciones.all() if vecino else [],

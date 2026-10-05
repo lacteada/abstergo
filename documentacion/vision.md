@@ -231,22 +231,22 @@ OTP            ^\d{6}$
 
 ### 6.5 Búsqueda de vecino
 
-- Por RUT (normalizado y validado) o por nombre y apellido.
-- Coincidencia parcial e insensible a mayúsculas para nombre y apellido.
-- El resultado muestra los datos del vecino y su historial de atenciones.
+- Un solo campo: por RUT (normalizado) o por nombre y apellido.
+- El resultado muestra los datos del vecino y su historial; si no existe, se
+  ofrece crearlo y se vuelve a Crear Atención con el vecino ya elegido.
 
 ---
 
 ## 7. Flujo "Crear Atención" (rol Funcionario)
 
-1. El funcionario entra a "Crear Atención" desde su dashboard.
-2. Se abre una ventana que pide solo RUT, nombre y apellido.
-3. El sistema busca al vecino con esos datos.
-4. Si existe, muestra sus datos y su historial de atenciones: dónde y cuándo fue
-   atendido antes.
-5. El funcionario completa tipo, subatención, motivo y detalle, y crea la atención.
-6. Si no existe, se ofrece agregar al vecino; al guardarlo se crea la atención.
-7. El vecino queda asociado a la delegación del funcionario como territorio.
+1. El funcionario entra a "Crear Atención".
+2. Un solo campo busca por RUT, nombre o apellido.
+3. Si el vecino existe, se muestran sus datos y su historial de atenciones.
+4. Con el vecino a la vista, el funcionario completa tipo, subatención, motivo y
+   detalle, y registra la atención.
+5. Si no existe, se ofrece agregarlo; al guardarlo se vuelve a Crear Atención con
+   el vecino ya elegido.
+6. El vecino queda asociado a la delegación del funcionario como territorio.
 
 ---
 

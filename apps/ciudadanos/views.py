@@ -1,6 +1,10 @@
+import re
+from urllib.parse import urlencode
+
+from django.urls import reverse
+
 from apps.ciudadanos.forms import VecinoForm
 from apps.ciudadanos.models import Vecino
-from apps.common.validators import normalizar_rut
 from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
 
 
@@ -43,15 +47,21 @@ class Alta(AltaBase):
     url_listado = "ciudadanos:vecinos"
 
     def get_initial(self):
-        # Permite llegar desde "Crear Atención" con el RUT y el nombre puestos.
+        # Permite llegar desde "Crear Atención" con el dato buscado puesto.
         inicial = super().get_initial()
-        rut = self.request.GET.get("rut")
-        nombre = self.request.GET.get("nombre")
-        if rut:
-            inicial["rut"] = normalizar_rut(rut)
-        if nombre:
-            inicial["nombre"] = nombre
+        consulta = self.request.GET.get("q")
+        if consulta:
+            if re.search(r"\d", consulta):
+                inicial["rut"] = consulta
+            else:
+                inicial["nombre"] = consulta
         return inicial
+
+    def get_success_url(self):
+        # Desde "Crear Atención" vuelve allá con el vecino recién creado.
+        if self.request.GET.get("origen") == "atencion":
+            return reverse("atenciones:crear") + "?" + urlencode({"vecino": self.object.pk})
+        return super().get_success_url()
 
 
 class Edicion(EdicionBase):

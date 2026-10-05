@@ -18,7 +18,9 @@
   <td>{{ fila.comuna }}</td>
   <td>{{ fila.responsable|default:"—" }}</td>
   <td class="acciones">
-    <a class="accion" href="{% url 'organizacion:delegaciones_editar' fila.pk %}">Editar</a>
-    <a class="accion peligro" href="{% url 'organizacion:delegaciones_eliminar' fila.pk %}">Eliminar</a>
+    <ul class="acciones-lista">
+      <li><a class="accion" href="{% url 'organizacion:delegaciones_editar' fila.pk %}">Editar</a></li>
+      <li><a class="accion peligro" href="{% url 'organizacion:delegaciones_eliminar' fila.pk %}">Eliminar</a></li>
+    </ul>
   </td>
 {% endblock %}

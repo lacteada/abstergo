@@ -26,18 +26,14 @@
     <nav class="nav">
       <a class="nav-item{% if seccion == 'inicio' %} activo{% endif %}"
          href="{% url 'panel:inicio' %}">Inicio</a>
-
-      <div class="grupo">
-        <span class="grupo-titulo">Operación</span>
-        <a class="nav-sub{% if request.resolver_match.url_name == 'crear' %} activo{% endif %}"
-           href="{% url 'atenciones:crear' %}">Crear Atención</a>
-        <a class="nav-sub{% if request.resolver_match.url_name == 'listado' %} activo{% endif %}"
-           href="{% url 'atenciones:listado' %}">Atenciones</a>
-      </div>
+      <a class="nav-item{% if request.resolver_match.url_name == 'crear' %} activo{% endif %}"
+         href="{% url 'atenciones:crear' %}">Crear Atención</a>
 
       <div class="grupo">
         <span class="grupo-titulo">Mantenedores</span>
 
+        <a class="nav-sub{% if request.resolver_match.url_name == 'listado' %} activo{% endif %}"
+           href="{% url 'atenciones:listado' %}">Atenciones</a>
         <a class="nav-sub{% if seccion == 'delegaciones' %} activo{% endif %}"
            href="{% url 'organizacion:delegaciones' %}">Delegaciones Municipales</a>
         <a class="nav-sub{% if seccion == 'usuarios' %} activo{% endif %}"

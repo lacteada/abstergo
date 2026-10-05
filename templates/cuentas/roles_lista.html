@@ -12,7 +12,9 @@
   <td>{{ fila.nombre }}</td>
   <td>{{ fila.descripcion }}</td>
   <td class="acciones">
-    <a class="accion" href="{% url 'cuentas:roles_editar' fila.pk %}">Editar</a>
-    <a class="accion peligro" href="{% url 'cuentas:roles_eliminar' fila.pk %}">Eliminar</a>
+    <ul class="acciones-lista">
+      <li><a class="accion" href="{% url 'cuentas:roles_editar' fila.pk %}">Editar</a></li>
+      <li><a class="accion peligro" href="{% url 'cuentas:roles_eliminar' fila.pk %}">Eliminar</a></li>
+    </ul>
   </td>
 {% endblock %}

@@ -8,16 +8,9 @@
   <form class="ficha" method="get">
     <div class="busqueda-atencion">
       <div class="campo">
-        <label for="rut">RUT</label>
-        <input id="rut" name="rut" value="{{ busqueda.rut }}" placeholder="12345678-9">
-      </div>
-      <div class="campo">
-        <label for="nombre">Nombre</label>
-        <input id="nombre" name="nombre" value="{{ busqueda.nombre }}">
-      </div>
-      <div class="campo">
-        <label for="apellido">Apellido</label>
-        <input id="apellido" name="apellido" value="{{ busqueda.apellido }}">
+        <label for="q">RUT, nombre o apellido</label>
+        <input id="q" name="q" value="{{ consulta }}" autocomplete="off" autofocus
+               placeholder="11111111-1 o Rosa Alvarado">
       </div>
       <button class="btn-muni" type="submit">Buscar vecino</button>
     </div>
@@ -78,11 +71,12 @@
     {% if encontrados %}
       <div class="ficha">
         <h2>Se encontraron {{ encontrados|length }} vecinos</h2>
-        <ul>
+        <ul class="lista-vecinos">
           {% for encontrado in encontrados %}
             <li>
-              <a class="accion" href="?rut={{ encontrado.rut|urlencode }}">
-                {{ encontrado.nombre }} · {{ encontrado.rut }}
+              <a href="?vecino={{ encontrado.pk }}">
+                <strong>{{ encontrado.nombre }}</strong>
+                <span>{{ encontrado.rut }} · {{ encontrado.territorio }}</span>
               </a>
             </li>
           {% endfor %}
@@ -92,7 +86,7 @@
       <div class="aviso">
         <p>No se encontró un vecino con esos datos.</p>
         <a class="btn-muni"
-           href="{% url 'ciudadanos:vecinos_nueva' %}?rut={{ busqueda.rut|urlencode }}&nombre={{ busqueda.nombre|urlencode }}">
+           href="{% url 'ciudadanos:vecinos_nueva' %}?q={{ consulta|urlencode }}&origen=atencion">
           Agregar vecino
         </a>
       </div>
