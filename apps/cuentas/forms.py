@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
+from apps.common.validators import validar_nombre
 from apps.cuentas.models import Rol, Usuario
 
 
@@ -34,8 +35,12 @@ class UsuarioForm(forms.ModelForm):
     porque el campo es único en el modelo.
     """
 
-    nombre = forms.CharField(label="Nombre", max_length=150)
-    apellido = forms.CharField(label="Apellido", max_length=150, required=False)
+    nombre = forms.CharField(
+        label="Nombre", max_length=150, validators=[validar_nombre]
+    )
+    apellido = forms.CharField(
+        label="Apellido", max_length=150, required=False, validators=[validar_nombre]
+    )
     clave = forms.CharField(
         label="Contraseña",
         required=False,

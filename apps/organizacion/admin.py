@@ -6,6 +6,7 @@ from apps.organizacion.models import Delegacion
 
 @admin.register(Delegacion)
 class DelegacionAdmin(AdminBase):
-    list_display = ("codigo", "nombre", "comuna")
-    search_fields = ("codigo", "nombre", "comuna")
+    list_display = ("codigo", "nombre", "comuna", "responsable")
+    search_fields = ("codigo", "nombre", "comuna", "responsable__first_name")
     list_filter = ("comuna",)
+    autocomplete_fields = ("responsable",)

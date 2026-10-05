@@ -3,8 +3,45 @@
 {% block titulo %}Inicio{% endblock %}
 
 {% block contenido %}
+
   <h1 class="titulo">Bienvenido</h1>
   <p class="subtitulo">
     {{ user.get_full_name|default:user.email }} · {{ user.rol|default:"sin rol" }}
   </p>
+
+  <div class="tarjetas">
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ total_atenciones }}</span>
+      <span class="tarjeta-texto">Atenciones</span>
+    </div>
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ atenciones_hoy }}</span>
+      <span class="tarjeta-texto">Atenciones de hoy</span>
+    </div>
+    {% if codigo_rol == "funcionario" %}
+      <div class="tarjeta">
+        <span class="tarjeta-numero">{{ mis_atenciones }}</span>
+        <span class="tarjeta-texto">Mis atenciones</span>
+      </div>
+    {% endif %}
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ total_vecinos }}</span>
+      <span class="tarjeta-texto">Vecinos</span>
+    </div>
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ total_delegaciones }}</span>
+      <span class="tarjeta-texto">Delegaciones</span>
+    </div>
+  </div>
+
+  <h2 class="titulo">Acciones</h2>
+  <div class="acciones-cuadricula">
+    {% for accion in acciones %}
+      <a class="accion-cuadro" href="{{ accion.url }}">
+        <strong>{{ accion.titulo }}</strong>
+        <span>{{ accion.descripcion }}</span>
+      </a>
+    {% endfor %}
+  </div>
+
 {% endblock %}

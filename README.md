@@ -36,7 +36,7 @@ abstergo/
 ├── datos_nuevos/     JSON de importación, uno por entidad
 ├── templates/        armazón, listados y pantallas de acceso
 ├── static/           css, js, img
-└── documentacion/    planificación, traslado, prompts y documento técnico
+└── documentacion/    visión, traslado, prompts y documento técnico
 ```
 
 ## Puesta en marcha
@@ -72,6 +72,7 @@ abstergo/
 
 En `documentacion/`:
 
+- `vision.md` — visión y especificación: modelo v2, reglas transversales y Ley 21.719.
 - `documento_tecnico.md` — documento técnico (se exporta a PDF).
 - `prompts.md` — evidencia de uso de IA.
 - `traslado_de_datos.md` — mapeo del JSON de origen a las tablas.

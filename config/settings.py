@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "apps.cuentas",
     "apps.catalogos",
     "apps.ciudadanos",
+    "apps.atenciones",
+    "apps.cumplimiento",
     "apps.panel",
 ]
 

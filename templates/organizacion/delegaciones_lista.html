@@ -6,6 +6,7 @@
   <th>Nombre</th>
   <th>Dirección</th>
   <th>Comuna</th>
+  <th>Responsable</th>
   <th>Acciones</th>
 {% endblock %}
 
@@ -15,6 +16,7 @@
   <td>{{ fila.nombre }}</td>
   <td>{{ fila.direccion }}</td>
   <td>{{ fila.comuna }}</td>
+  <td>{{ fila.responsable|default:"—" }}</td>
   <td class="acciones">
     <a class="accion" href="{% url 'organizacion:delegaciones_editar' fila.pk %}">Editar</a>
     <a class="accion peligro" href="{% url 'organizacion:delegaciones_eliminar' fila.pk %}">Eliminar</a>

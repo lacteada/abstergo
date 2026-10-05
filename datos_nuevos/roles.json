@@ -1,25 +1,31 @@
 [
   {
+    "codigo": "admin",
     "nombre": "ADMIN",
     "descripcion": "Configura el sistema, administra usuarios y define metas."
   },
   {
+    "codigo": "coordinador",
     "nombre": "COORDINADOR",
     "descripcion": "Supervisa la operación y resuelve criterios entre delegaciones."
   },
   {
+    "codigo": "delegado",
     "nombre": "DELEGADO",
     "descripcion": "Gestiona los requerimientos de su delegación."
   },
   {
+    "codigo": "funcionario",
     "nombre": "FUNCIONARIO",
     "descripcion": "Registra la atención entregada a los vecinos."
   },
   {
+    "codigo": "verificador",
     "nombre": "VERIFICADOR",
     "descripcion": "Revisa y valida los registros de atención."
   },
   {
+    "codigo": "consulta",
     "nombre": "CONSULTA",
     "descripcion": "Solo lectura sobre los listados del sistema."
   }

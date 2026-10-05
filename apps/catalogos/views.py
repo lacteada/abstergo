@@ -12,6 +12,12 @@ class MetasListado(ListadoBase):
     etiqueta_nueva = "Nueva meta"
     busqueda = ("nombre", "descripcion", "delegacion__nombre")
     relacionadas = ("delegacion",)
+    exportar_nombre = "metas"
+    exportar_columnas = (
+        ("Nombre", "nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Descripción", "descripcion"),
+    )
     url_nueva = "catalogos:metas_nueva"
     url_listado = "catalogos:metas"
 
@@ -47,6 +53,11 @@ class TiposListado(ListadoBase):
     seccion = "tipos"
     etiqueta_nueva = "Nuevo tipo de atención"
     busqueda = ("nombre", "descripcion")
+    exportar_nombre = "tipos_atencion"
+    exportar_columnas = (
+        ("Nombre", "nombre"),
+        ("Descripción", "descripcion"),
+    )
     url_nueva = "catalogos:tipos_nueva"
     url_listado = "catalogos:tipos"
 
@@ -83,6 +94,11 @@ class SubAtencionesListado(ListadoBase):
     etiqueta_nueva = "Nueva sub atención"
     busqueda = ("nombre", "tipo_atencion__nombre")
     relacionadas = ("tipo_atencion",)
+    exportar_nombre = "sub_atenciones"
+    exportar_columnas = (
+        ("Nombre", "nombre"),
+        ("Tipo de Atención", "tipo_atencion.nombre"),
+    )
     url_nueva = "catalogos:subatenciones_nueva"
     url_listado = "catalogos:subatenciones"
 

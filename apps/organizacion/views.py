@@ -9,7 +9,16 @@ class Listado(ListadoBase):
     titulo = "Delegaciones Municipales"
     seccion = "delegaciones"
     etiqueta_nueva = "Nueva delegación"
-    busqueda = ("codigo", "nombre", "comuna")
+    busqueda = ("codigo", "nombre", "comuna", "responsable__first_name")
+    relacionadas = ("responsable",)
+    exportar_nombre = "delegaciones"
+    exportar_columnas = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Dirección", "direccion"),
+        ("Comuna", "comuna"),
+        ("Responsable", "responsable.get_full_name"),
+    )
     url_nueva = "organizacion:delegaciones_nueva"
     url_listado = "organizacion:delegaciones"
 

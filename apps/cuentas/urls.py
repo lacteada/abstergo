@@ -21,6 +21,7 @@ urlpatterns = [
     path("validar/", views.Validar.as_view(), name="validar"),
     path("reenviar/", views.Reenviar.as_view(), name="reenviar"),
     path("nueva-password/", views.NuevaPassword.as_view(), name="nueva_password"),
+    path("privacidad/", views.Privacidad.as_view(), name="privacidad"),
     # Roles
     path("roles/", views.RolesListado.as_view(), name="roles"),
     path("roles/nuevo/", views.RolesAlta.as_view(), name="roles_nueva"),

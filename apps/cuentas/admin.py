@@ -49,8 +49,8 @@ class UsuarioEditarForm(CorreoNulo, UserChangeForm):
 
 @admin.register(Rol)
 class RolAdmin(AdminBase):
-    list_display = ("nombre", "descripcion")
-    search_fields = ("nombre", "descripcion")
+    list_display = ("codigo", "nombre", "descripcion")
+    search_fields = ("codigo", "nombre", "descripcion")
 
 
 @admin.register(Usuario)

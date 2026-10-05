@@ -2,11 +2,24 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 from apps.common.soft_delete import BorradoLogico, Eliminado
+from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
 
 
 class Rol(BorradoLogico):
-    nombre = models.CharField("nombre", max_length=60, unique=True)
-    descripcion = models.CharField("descripción", max_length=200, blank=True)
+    codigo = models.SlugField(
+        "código",
+        max_length=40,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[validar_codigo],
+    )
+    nombre = models.CharField(
+        "nombre", max_length=60, unique=True, validators=[validar_nombre]
+    )
+    descripcion = models.CharField(
+        "descripción", max_length=200, blank=True, validators=[validar_catalogo]
+    )
 
     class Meta:
         verbose_name = "rol"

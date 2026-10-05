@@ -1,0 +1,24 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>#</th>
+  <th>Fecha</th>
+  <th>Vecino</th>
+  <th>Tipo</th>
+  <th>Estado</th>
+  <th>Funcionario</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.id }}</td>
+  <td>{{ fila.fecha|date:"d-m-Y H:i" }}</td>
+  <td>{{ fila.vecino }}</td>
+  <td>{{ fila.tipo_atencion }}</td>
+  <td><span class="estado">{{ fila.get_estado_display }}</span></td>
+  <td>{{ fila.funcionario }}</td>
+  <td class="acciones">
+    <a class="accion" href="{% url 'atenciones:editar' fila.pk %}">Editar</a>
+    <a class="accion peligro" href="{% url 'atenciones:eliminar' fila.pk %}">Eliminar</a>
+  </td>
+{% endblock %}

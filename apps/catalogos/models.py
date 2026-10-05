@@ -1,11 +1,14 @@
 from django.db import models
 
 from apps.common.soft_delete import BorradoLogico
+from apps.common.validators import validar_catalogo, validar_nombre
 
 
 class Meta(BorradoLogico):
-    nombre = models.CharField("nombre", max_length=120)
-    descripcion = models.CharField("descripción", max_length=200, blank=True)
+    nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
+    descripcion = models.CharField(
+        "descripción", max_length=200, blank=True, validators=[validar_catalogo]
+    )
     delegacion = models.ForeignKey(
         "organizacion.Delegacion",
         on_delete=models.PROTECT,
@@ -23,8 +26,10 @@ class Meta(BorradoLogico):
 
 
 class TipoAtencion(BorradoLogico):
-    nombre = models.CharField("nombre", max_length=120)
-    descripcion = models.CharField("descripción", max_length=200, blank=True)
+    nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
+    descripcion = models.CharField(
+        "descripción", max_length=200, blank=True, validators=[validar_catalogo]
+    )
 
     class Meta:
         verbose_name = "tipo de atención"
@@ -36,7 +41,7 @@ class TipoAtencion(BorradoLogico):
 
 
 class SubAtencion(BorradoLogico):
-    nombre = models.CharField("nombre", max_length=120)
+    nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
     tipo_atencion = models.ForeignKey(
         TipoAtencion,
         on_delete=models.PROTECT,

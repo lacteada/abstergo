@@ -13,6 +13,7 @@ from django.db import transaction
 
 from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
+from apps.common.validators import normalizar_rut
 from apps.cuentas.models import Rol, Usuario
 from apps.organizacion.models import Delegacion
 
@@ -41,7 +42,7 @@ class Command(BaseCommand):
     def cargar(self, archivo, modelo, clave, armar):
         """Recorre un archivo y escribe con update_or_create.
 
-        Las 7 entidades tienen borrado lógico, así que usa el gestor sin filtro
+        Las entidades tienen borrado lógico, así que usa el gestor sin filtro
         (`todos`) y limpia `eliminado`: recargar el JSON restaura lo dado de
         baja en vez de chocar contra el campo único.
         """
@@ -69,8 +70,8 @@ class Command(BaseCommand):
         self.cargar(
             "roles",
             Rol,
-            "nombre",
-            lambda f: {"descripcion": f["descripcion"]},
+            "codigo",
+            lambda f: {"nombre": f["nombre"], "descripcion": f["descripcion"]},
         )
         self.cargar_usuarios()
         self.cargar(
@@ -100,6 +101,7 @@ class Command(BaseCommand):
             "rut",
             lambda f: {
                 "nombre": f["nombre"],
+                "rut": normalizar_rut(f["rut"]),
                 "direccion": f["direccion"],
                 "telefono": f["telefono"],
                 "territorio": Delegacion.objects.get(codigo=f["territorio"]),

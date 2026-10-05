@@ -23,6 +23,13 @@
         </svg>
       </span>
     </form>
+
+    {% if permite_exportar %}
+      <a class="btn-muni"
+         href="?exportar=1{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">
+        Exportar Excel
+      </a>
+    {% endif %}
   </div>
 
   <div class="tabla-envoltura">
@@ -40,8 +47,21 @@
     </table>
   </div>
 
-  {# El contador sale del propio QuerySet que ya trajo la vista. #}
-  <p class="pie" data-pie>{{ object_list|length }} registro{{ object_list|length|pluralize }}.</p>
+  <p class="pie" data-pie>
+    {{ paginator.count }} registro{{ paginator.count|pluralize }}.
+  </p>
+
+  <nav class="paginacion" data-paginacion>
+    {% if is_paginated %}
+      {% if page_obj.has_previous %}
+        <a class="accion" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">Anterior</a>
+      {% endif %}
+      <span class="pie">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a class="accion" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">Siguiente</a>
+      {% endif %}
+    {% endif %}
+  </nav>
 
   <script src="{% static 'js/busqueda.js' %}"></script>
 

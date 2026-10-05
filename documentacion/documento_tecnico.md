@@ -3,7 +3,8 @@
 Sistema Municipal de Gestión de Atención Ciudadana.
 
 Este documento describe el proyecto tal como está implementado en el código. Cada
-afirmación se puede verificar en el archivo citado.
+afirmación se puede verificar en el archivo citado. La sección 17 describe el
+diseño que sigue, todavía no implementado.
 
 ---
 
@@ -570,3 +571,30 @@ En producción, el servidor WSGI es `gunicorn` (`gunicorn` está en
 | `datos_nuevos/*.json` | Datos de importación (46 filas) |
 | `templates/` | Armazón, listados, formularios y acceso |
 | `static/js/busqueda.js` | Buscador en vivo |
+
+---
+
+## 17. Modelo v2 y Ley 21.719 (en diseño)
+
+Describe el destino del proyecto. Aún no está implementado; el detalle vive en
+`documentacion/vision.md`.
+
+Tablas nuevas:
+
+- `Atencion`: vecino, tipo y sub atención, delegación, funcionario, fecha,
+  motivo, detalle, estado y canal. El historial de un vecino es la consulta de sus
+  atenciones.
+- `Delegacion.responsable`: FK a `Usuario`, un solo delegado.
+- `ActividadTratamiento`: registro de actividades (finalidad, base de licitud,
+  plazo de conservación).
+- `SolicitudTitular`: derechos ARCOP más bloqueo, con plazo de 30 días.
+- `IncidenteSeguridad`: vulneraciones y su notificación.
+- `RegistroAuditoria`: accesos y cambios.
+- `Consentimiento`: solo si un tratamiento se funda en consentimiento.
+
+Reglas transversales, definidas una sola vez en `apps/common`:
+
+- Validación por expresión regular, con el RUT validado por dígito verificador.
+- Confirmación y avisos con SweetAlert.
+- Listados con paginación de 7 filas.
+- Exportación a `.xlsx` con `openpyxl`, respetando el filtro y todas las páginas.

@@ -1,6 +1,13 @@
 from django.db import models
 
 from apps.common.soft_delete import BorradoLogico
+from apps.common.validators import (
+    validar_catalogo,
+    validar_direccion,
+    validar_nombre,
+    validar_rut,
+    validar_telefono,
+)
 
 
 class Vecino(BorradoLogico):
@@ -8,17 +15,23 @@ class Vecino(BorradoLogico):
     INACTIVO = "Inactivo"
     ESTADOS = [(ACTIVO, "Activo"), (INACTIVO, "Inactivo")]
 
-    nombre = models.CharField("nombre", max_length=120)
-    rut = models.CharField("RUT", max_length=15, unique=True)
-    direccion = models.CharField("dirección", max_length=200, blank=True)
-    telefono = models.CharField("teléfono", max_length=30, blank=True)
+    nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
+    rut = models.CharField("RUT", max_length=15, unique=True, validators=[validar_rut])
+    direccion = models.CharField(
+        "dirección", max_length=200, blank=True, validators=[validar_direccion]
+    )
+    telefono = models.CharField(
+        "teléfono", max_length=30, blank=True, validators=[validar_telefono]
+    )
     territorio = models.ForeignKey(
         "organizacion.Delegacion",
         on_delete=models.PROTECT,
         related_name="vecinos",
         verbose_name="territorio",
     )
-    tipo_gestion = models.CharField("tipo de gestión", max_length=80, blank=True)
+    tipo_gestion = models.CharField(
+        "tipo de gestión", max_length=80, blank=True, validators=[validar_catalogo]
+    )
     estado = models.CharField(
         "estado", max_length=10, choices=ESTADOS, default=ACTIVO
     )

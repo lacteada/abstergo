@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views.generic import FormView, View
+from django.views.generic import FormView, TemplateView, View
 
 from apps.cuentas.forms import (
     CodigoForm,
@@ -26,7 +26,13 @@ class RolesListado(ListadoBase):
     titulo = "Roles"
     seccion = "roles"
     etiqueta_nueva = "Nuevo rol"
-    busqueda = ("nombre", "descripcion")
+    busqueda = ("codigo", "nombre", "descripcion")
+    exportar_nombre = "roles"
+    exportar_columnas = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Descripción", "descripcion"),
+    )
     url_nueva = "cuentas:roles_nueva"
     url_listado = "cuentas:roles"
 
@@ -63,6 +69,15 @@ class UsuariosListado(ListadoBase):
     etiqueta_nueva = "Nuevo usuario"
     busqueda = ("first_name", "last_name", "email")
     relacionadas = ("rol", "delegacion")
+    auditar_lectura = True
+    exportar_nombre = "usuarios"
+    exportar_columnas = (
+        ("Nombre", "get_full_name"),
+        ("Correo", "email"),
+        ("Rol", "rol.nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Activo", lambda u: "Sí" if u.is_active else "No"),
+    )
     url_nueva = "cuentas:usuarios_nueva"
     url_listado = "cuentas:usuarios"
 
@@ -193,3 +208,9 @@ class NuevaPassword(FormView):
         for llave in ("otp_usuario", "otp_validado", "otp_expira"):
             self.request.session.pop(llave, None)
         return super().form_valid(form)
+
+
+class Privacidad(TemplateView):
+    """Política de privacidad, pública y enlazada desde el login."""
+
+    template_name = "privacidad.html"
