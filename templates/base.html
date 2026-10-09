@@ -26,8 +26,6 @@
     <nav class="nav">
       <a class="nav-item{% if seccion == 'inicio' %} activo{% endif %}"
          href="{% url 'panel:inicio' %}">Inicio</a>
-      <a class="nav-item{% if request.resolver_match.url_name == 'crear' %} activo{% endif %}"
-         href="{% url 'atenciones:crear' %}">Crear Atención</a>
 
       <div class="grupo">
         <span class="grupo-titulo">Mantenedores</span>

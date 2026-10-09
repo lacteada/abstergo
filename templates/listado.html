@@ -5,18 +5,10 @@
 
   <div class="cabecera">
     <h1 class="titulo">{{ titulo }}</h1>
-    {% if modal_nueva %}
-      <button type="button" class="btn-muni btn-icono" data-modal="{{ url_nueva }}"
-              title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
-        {% include 'iconos/nuevo.html' %}
-      </button>
-    {% else %}
-      {# Alta con flujo propio (Crear Atención): sigue siendo una página. #}
-      <a class="btn-muni btn-icono" href="{{ url_nueva }}"
-         title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
-        {% include 'iconos/nuevo.html' %}
-      </a>
-    {% endif %}
+    <button type="button" class="btn-muni btn-icono" data-modal="{{ url_nueva }}"
+            title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
+      {% include 'iconos/nuevo.html' %}
+    </button>
   </div>
   {% if subtitulo %}<p class="subtitulo">{{ subtitulo }}</p>{% endif %}
 
