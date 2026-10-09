@@ -220,7 +220,8 @@ OTP            ^\d{6}$
   del listado, y el aviso se muestra como toast.
 - Los botones de las tablas y del CRUD son iconos SVG (partials en
   `templates/iconos/`), con `title` y `aria-label`.
-- Excepción: "Crear Atención" mantiene su página con búsqueda de vecino e historial.
+- "Crear Atención" (buscar vecino, ver su historial y el formulario) también vive
+  en el modal: su buscador y la elección del vecino recargan el diálogo, no la página.
 - La librería se vendoriza en `static/js` para no depender de un CDN.
 
 ### 6.3 Paginación

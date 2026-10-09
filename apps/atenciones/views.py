@@ -43,9 +43,6 @@ class Listado(ListadoBase):
     )
     url_nueva = "atenciones:crear"
     url_listado = "atenciones:listado"
-    # El alta de Atención es un flujo con búsqueda de vecino e historial:
-    # se queda como página, no en modal.
-    modal_nueva = False
     auditar_lectura = True
     exportar_nombre = "atenciones"
     exportar_columnas = (
@@ -71,8 +68,15 @@ class CrearAtencion(LoginRequiredMixin, View):
 
     template_name = "atenciones/crear.html"
 
+    def _plantilla(self):
+        # En el modal se devuelve solo el fragmento del flujo (búsqueda,
+        # historial y formulario); sin el encabezado, la página completa.
+        if self.request.headers.get("X-Modal") == "1":
+            return "modal/crear_atencion.html"
+        return self.template_name
+
     def get(self, request):
-        return render(request, self.template_name, self._contexto(request))
+        return render(request, self._plantilla(), self._contexto(request))
 
     def post(self, request):
         vecino = get_object_or_404(Vecino, pk=request.POST.get("vecino"))
@@ -88,7 +92,7 @@ class CrearAtencion(LoginRequiredMixin, View):
             return redirect("atenciones:listado")
         return render(
             request,
-            self.template_name,
+            self._plantilla(),
             self._contexto(request, form=form, vecino=vecino),
         )
 

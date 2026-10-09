@@ -1,10 +1,15 @@
 /* CRUD en un modal nativo <dialog>.
 
    Los disparadores [data-modal] piden la vista del formulario como fragmento
-   (encabezado X-Modal) y lo inyectan en el diálogo. El envío también va por
-   fetch: si la vista responde con redirección (éxito), se cierra el modal y se
-   refrescan las filas, el contador y el paginador del listado sin recargar; si
-   vuelve con 200 (errores de validación), se reemplaza el contenido del modal.
+   (encabezado X-Modal) y lo inyectan en el diálogo. Dentro del modal:
+
+   - Un formulario GET (el buscador de "Crear Atención") y los enlaces internos
+     (los resultados de vecinos, que son `?vecino=`) recargan el diálogo, no la
+     página.
+   - El formulario POST se envía por fetch: si la vista responde con
+     redirección (éxito), se cierra el modal y se refrescan las filas, el
+     contador y el paginador del listado; si vuelve con 200 (errores de
+     validación), se reemplaza el contenido del modal.
 
    Sin este script, los enlaces [data-modal] abren las páginas completas de
    siempre: la degradación es automática.
@@ -14,10 +19,12 @@
   if (!dialogo || typeof dialogo.showModal !== "function") return;
 
   const SELECTORES = ["[data-filas]", "[data-pie]", "[data-paginacion]"];
+  let urlActual = ""; // dirección del fragmento que hay en el diálogo
 
   function cerrar() {
     if (dialogo.open) dialogo.close();
     dialogo.innerHTML = "";
+    urlActual = "";
   }
 
   function extraerAvisos(documento) {
@@ -47,9 +54,9 @@
       });
   }
 
-  function abrir(url) {
-    dialogo.innerHTML = '<p class="modal-cargando">Cargando…</p>';
-    dialogo.showModal();
+  // Navegación interna del modal: pide otro fragmento y reemplaza el diálogo.
+  function cargar(url) {
+    urlActual = url;
     fetch(url, { headers: { "X-Modal": "1" } })
       .then(function (respuesta) {
         return respuesta.text();
@@ -60,6 +67,12 @@
       .catch(function () {
         cerrar();
       });
+  }
+
+  function abrir(url) {
+    dialogo.innerHTML = '<p class="modal-cargando">Cargando…</p>';
+    dialogo.showModal();
+    cargar(url);
   }
 
   document.addEventListener("click", function (evento) {
@@ -75,10 +88,34 @@
     }
   });
 
+  dialogo.addEventListener("click", function (evento) {
+    // Un clic en el fondo (fuera de la tarjeta) cierra el modal.
+    if (evento.target === dialogo) {
+      cerrar();
+      return;
+    }
+    // Enlaces internos del flujo (por ejemplo `?vecino=3`): se quedan en el modal.
+    const enlace = evento.target.closest("a[href]");
+    const href = enlace ? enlace.getAttribute("href") : "";
+    if (href.charAt(0) === "?") {
+      evento.preventDefault();
+      cargar(urlActual.split("?")[0] + href);
+    }
+  });
+
   dialogo.addEventListener("submit", function (evento) {
-    if (!(evento.target instanceof HTMLFormElement)) return;
-    evento.preventDefault();
     const formulario = evento.target;
+    if (!(formulario instanceof HTMLFormElement)) return;
+    evento.preventDefault();
+
+    const metodo = (formulario.getAttribute("method") || "get").toLowerCase();
+    if (metodo === "get") {
+      const consulta = new URLSearchParams(new FormData(formulario)).toString();
+      const accion = formulario.getAttribute("action") || urlActual.split("?")[0];
+      cargar(accion + (consulta ? "?" + consulta : ""));
+      return;
+    }
+
     const accion = formulario.getAttribute("action") || window.location.href;
     fetch(accion, {
       method: "POST",
@@ -105,10 +142,5 @@
       .catch(function () {
         cerrar();
       });
-  });
-
-  // Un clic en el fondo (fuera de la tarjeta) cierra el modal.
-  dialogo.addEventListener("click", function (evento) {
-    if (evento.target === dialogo) cerrar();
   });
 })();

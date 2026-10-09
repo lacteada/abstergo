@@ -364,7 +364,7 @@ body {
 /* ---------- Modal (diálogo nativo) ---------- */
 .modal {
   border: 0; border-radius: 10px; padding: 0;
-  width: min(560px, 92vw); max-height: 90vh; overflow: auto;
+  width: min(680px, 94vw); max-height: 90vh; overflow: auto;
   box-shadow: 0 18px 50px rgba(15, 23, 42, .28);
 }
 .modal::backdrop { background: rgba(15, 23, 42, .45); }
@@ -380,6 +380,8 @@ body {
 }
 .modal-cerrar:hover { background: var(--gris-fondo); }
 .modal-cuerpo { padding: 20px; }
-/* Dentro del diálogo el formulario ya no lleva su propia tarjeta. */
-.modal .formulario { border: 0; padding: 0; max-width: none; background: transparent; }
+/* Dentro del diálogo las tarjetas del flujo no repiten borde ni fondo. */
+.modal .formulario,
+.modal .ficha,
+.modal .aviso { border: 0; padding: 0; max-width: none; background: transparent; }
 .modal-cargando { padding: 28px; text-align: center; color: #8a9099; font-size: 14px; }

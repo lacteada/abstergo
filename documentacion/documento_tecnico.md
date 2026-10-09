@@ -452,6 +452,8 @@ Fuente: `templates/`.
   ayuda y errores, y botonera Guardar / Cancelar. Lo comparten la página y el modal.
 - `modal/formulario.html`: fragmento que la vista devuelve cuando la petición
   trae `X-Modal: 1`; se inyecta en el `<dialog>` de `base.html`.
+- `partials/crear_atencion.html` + `modal/crear_atencion.html`: el flujo de
+  Crear Atención (buscar vecino, historial, formulario), en página y en modal.
 - `iconos/*.html`: iconos SVG (nuevo, exportar, editar, eliminar, guardar,
   cancelar, cerrar, anterior, siguiente, buscar).
 - `confirmar.html`: confirmación de baja lógica ("¿Confirmas dar de baja …?").

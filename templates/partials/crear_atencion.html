@@ -1,0 +1,107 @@
+{% comment %}
+Flujo completo de Crear Atención: buscar al vecino, ver su historial y el
+formulario de la nueva atención.
+
+Lo comparten la página (atenciones/crear.html) y el fragmento del modal
+(modal/crear_atencion.html). Los `action="{{ request.path }}"` hacen que el
+mismo HTML funcione embebido: el fetch del modal apunta a la vista que lo
+renderizó, no al listado.
+{% endcomment %}
+
+<form class="ficha" method="get" action="{{ request.path }}">
+  <div class="busqueda-atencion">
+    <div class="campo">
+      <label for="q">RUT, nombre o apellido</label>
+      <input id="q" name="q" value="{{ consulta }}" autocomplete="off"
+             placeholder="11111111-1 o Rosa Alvarado">
+    </div>
+    <button class="btn-muni btn-icono" type="submit"
+            title="Buscar vecino" aria-label="Buscar vecino">
+      {% include 'iconos/buscar.html' %}
+    </button>
+  </div>
+</form>
+
+{% if vecino %}
+  <div class="ficha">
+    <h2>{{ vecino.nombre }}</h2>
+    <p>{{ vecino.rut }} · {{ vecino.territorio }}</p>
+    <p>{{ vecino.direccion }}{% if vecino.telefono %} · {{ vecino.telefono }}{% endif %}</p>
+    <p>Estado: {{ vecino.get_estado_display }}</p>
+  </div>
+
+  <h2 class="titulo">Historial de atenciones</h2>
+  <div class="tabla-envoltura">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Fecha</th><th>Tipo</th><th>Motivo</th>
+          <th>Funcionario</th><th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for atencion in historial %}
+          <tr>
+            <td>{{ atencion.fecha|date:"d-m-Y H:i" }}</td>
+            <td>{{ atencion.tipo_atencion }}</td>
+            <td>{{ atencion.motivo }}</td>
+            <td>{{ atencion.funcionario }}</td>
+            <td>{{ atencion.get_estado_display }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="vacio">Sin atenciones previas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="titulo">Nueva atención</h2>
+  <form class="formulario" method="post" action="{{ request.path }}">
+    {% csrf_token %}
+    <input type="hidden" name="vecino" value="{{ vecino.pk }}">
+    {% for campo in form %}
+      <div class="campo">
+        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+        {{ campo }}
+        {% for error in campo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+      </div>
+    {% endfor %}
+    {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+    <div class="botonera">
+      <button class="btn-muni btn-icono" type="submit"
+              title="Registrar atención" aria-label="Registrar atención">
+        {% include 'iconos/guardar.html' %}
+      </button>
+      <a class="btn-icono" href="{% url 'atenciones:listado' %}" data-modal-cerrar
+         title="Cancelar" aria-label="Cancelar">
+        {% include 'iconos/cancelar.html' %}
+      </a>
+    </div>
+  </form>
+
+{% elif buscado %}
+  {% if encontrados %}
+    <div class="ficha">
+      <h2>Se encontraron {{ encontrados|length }} vecinos</h2>
+      <ul class="lista-vecinos">
+        {% for encontrado in encontrados %}
+          <li>
+            <a href="?vecino={{ encontrado.pk }}" data-modal-vecino>
+              <strong>{{ encontrado.nombre }}</strong>
+              <span>{{ encontrado.rut }} · {{ encontrado.territorio }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    <div class="aviso">
+      <p>No se encontró un vecino con esos datos.</p>
+      <a class="btn-muni btn-icono"
+         href="{% url 'ciudadanos:vecinos_nueva' %}?q={{ consulta|urlencode }}&origen=atencion"
+         title="Agregar vecino" aria-label="Agregar vecino">
+        {% include 'iconos/nuevo.html' %}
+      </a>
+    </div>
+  {% endif %}
+{% endif %}

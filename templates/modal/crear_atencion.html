@@ -1,0 +1,14 @@
+{% comment %}
+Fragmento de "Crear Atención" para el modal (X-Modal: 1). Incluye el flujo
+completo: buscar vecino, historial y el formulario de la nueva atención.
+{% endcomment %}
+<div class="modal-cabecera">
+  <h2 class="modal-titulo">Crear Atención</h2>
+  <button class="modal-cerrar" type="button" data-modal-cerrar
+          title="Cerrar" aria-label="Cerrar">
+    {% include 'iconos/cerrar.html' %}
+  </button>
+</div>
+<div class="modal-cuerpo">
+  {% include "partials/crear_atencion.html" %}
+</div>
