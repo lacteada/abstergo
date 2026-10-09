@@ -1,8 +1,10 @@
-{# Campos y botonera de un formulario del CRUD.
+{% comment %}
+Campos y botonera de un formulario del CRUD.
 
-   Lo usan la página completa (formulario.html) y el fragmento del modal
-   (modal/formulario.html). El `action` apunta a la vista que lo renderizó, así
-   el mismo POST funciona en los dos contextos. #}
+Lo usan la página completa (formulario.html) y el fragmento del modal
+(modal/formulario.html). El `action` apunta a la vista que lo renderizó, así
+el mismo POST funciona en los dos contextos.
+{% endcomment %}
 <form class="formulario" method="post" action="{{ request.path }}">
   {% csrf_token %}
 

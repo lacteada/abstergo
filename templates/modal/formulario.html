@@ -1,5 +1,7 @@
-{# Fragmento que devuelven AltaBase/EdicionBase cuando la petición trae
-   `X-Modal: 1`. Se inyecta dentro del <dialog> de base.html. #}
+{% comment %}
+Fragmento que devuelven AltaBase/EdicionBase cuando la petición trae
+`X-Modal: 1`. Se inyecta dentro del <dialog> de base.html.
+{% endcomment %}
 <div class="modal-cabecera">
   <h2 class="modal-titulo">{{ titulo }}</h2>
   <button class="modal-cerrar" type="button" data-modal-cerrar
