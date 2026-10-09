@@ -22,8 +22,8 @@
   </td>
   <td class="acciones">
     <ul class="acciones-lista">
-      <li><a class="accion" href="{% url 'cuentas:usuarios_editar' fila.pk %}">Editar</a></li>
-      <li><a class="accion peligro" href="{% url 'cuentas:usuarios_eliminar' fila.pk %}">Eliminar</a></li>
+      <li><a class="accion accion-icono" href="{% url 'cuentas:usuarios_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+      <li><a class="accion accion-icono peligro" href="{% url 'cuentas:usuarios_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
     </ul>
   </td>
 {% endblock %}

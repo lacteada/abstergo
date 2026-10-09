@@ -24,8 +24,8 @@
   <td><span class="estado {{ fila.estado|lower }}">{{ fila.get_estado_display }}</span></td>
   <td class="acciones">
     <ul class="acciones-lista">
-      <li><a class="accion" href="{% url 'ciudadanos:vecinos_editar' fila.pk %}">Editar</a></li>
-      <li><a class="accion peligro" href="{% url 'ciudadanos:vecinos_eliminar' fila.pk %}">Eliminar</a></li>
+      <li><a class="accion accion-icono" href="{% url 'ciudadanos:vecinos_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+      <li><a class="accion accion-icono peligro" href="{% url 'ciudadanos:vecinos_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
     </ul>
   </td>
 {% endblock %}

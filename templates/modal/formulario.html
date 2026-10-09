@@ -1,0 +1,12 @@
+{# Fragmento que devuelven AltaBase/EdicionBase cuando la petición trae
+   `X-Modal: 1`. Se inyecta dentro del <dialog> de base.html. #}
+<div class="modal-cabecera">
+  <h2 class="modal-titulo">{{ titulo }}</h2>
+  <button class="modal-cerrar" type="button" data-modal-cerrar
+          title="Cerrar" aria-label="Cerrar">
+    {% include 'iconos/cerrar.html' %}
+  </button>
+</div>
+<div class="modal-cuerpo">
+  {% include "partials/formulario.html" %}
+</div>

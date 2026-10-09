@@ -265,7 +265,8 @@ no repetir el CRUD siete veces.
   `busqueda` (tupla de campos) arma el `OR` con `icontains`; `relacionadas`
   aplica `select_related`.
 - `AltaBase(CreateView)` y `EdicionBase(UpdateView)`, ambos sobre
-  `_FormularioBase` (plantilla `formulario.html`).
+  `_FormularioBase` (plantilla `formulario.html`; con `X-Modal: 1` devuelve
+  `modal/formulario.html`).
 - `BorradoBase(Comun, LoginRequiredMixin, DeleteView)`: plantilla `confirmar.html`;
   su `form_valid` llama a `self.object.eliminar()` en vez de borrar.
 
@@ -445,8 +446,14 @@ Fuente: `templates/`.
 - `listado.html`: el patrón de los 7 mantenedores. Cabecera con título y botón
   "+ Nuevo"; buscador; tabla; contador. Define los bloques `encabezado` y `fila`
   que cada lista concreta sobrescribe.
-- `formulario.html`: render de un `ModelForm` campo por campo, con ayuda y
-  errores, y botonera Guardar / Cancelar.
+- `formulario.html`: página completa del formulario, respaldo sin JavaScript;
+  incluye `partials/formulario.html`.
+- `partials/formulario.html`: render de un `ModelForm` campo por campo, con
+  ayuda y errores, y botonera Guardar / Cancelar. Lo comparten la página y el modal.
+- `modal/formulario.html`: fragmento que la vista devuelve cuando la petición
+  trae `X-Modal: 1`; se inyecta en el `<dialog>` de `base.html`.
+- `iconos/*.html`: iconos SVG (nuevo, exportar, editar, eliminar, guardar,
+  cancelar, cerrar, anterior, siguiente, buscar).
 - `confirmar.html`: confirmación de baja lógica ("¿Confirmas dar de baja …?").
 - `inicio.html`: página de bienvenida.
 - `cuentas/base_auth.html` + `login.html`, `recuperar.html`, `validar.html`,
@@ -464,6 +471,11 @@ Fuente: `static/`.
   250 ms, pide la misma URL del listado con `?q=`, y reemplaza las filas y el
   contador (`[data-filas]`, `[data-pie]`) sin recargar, conservando el foco. Si
   JavaScript falla o no corre, el formulario sigue funcionando con Enter.
+- `js/modal.js`: abre el CRUD en el `<dialog>` nativo. Pide el formulario como
+  fragmento (`X-Modal: 1`) y lo envía por `fetch`; tras guardar refresca el
+  listado sin recargar. Sin JavaScript, los enlaces abren las páginas completas.
+- `js/mensajes.js`: avisos (toast) y confirmación de baja con SweetAlert2. Los
+  eventos van por delegación y expone `window.Mensajes.avisar` para el modal.
 
 ---
 
@@ -596,5 +608,6 @@ Reglas transversales, definidas una sola vez en `apps/common`:
 
 - Validación por expresión regular, con el RUT validado por dígito verificador.
 - Confirmación y avisos con SweetAlert.
+- Alta y edición del CRUD en modal (`<dialog>`), con botones de icono SVG.
 - Listados con paginación de 7 filas.
 - Exportación a `.xlsx` con `openpyxl`, respetando el filtro y todas las páginas.

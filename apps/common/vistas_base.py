@@ -25,6 +25,8 @@ class Comun:
     etiqueta_nueva = ""
     url_listado = ""
     url_nueva = None  # solo el listado la define
+    # False cuando el alta tiene página propia (por ejemplo, Crear Atención).
+    modal_nueva = True
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
@@ -35,6 +37,7 @@ class Comun:
             etiqueta_nueva=self.etiqueta_nueva,
             url_listado=self.url_listado,
             url_nueva=reverse(self.url_nueva) if self.url_nueva else "",
+            modal_nueva=self.modal_nueva,
             permite_exportar=bool(getattr(self, "exportar_columnas", ())),
         )
         return contexto
@@ -114,6 +117,13 @@ class ListadoBase(Comun, LoginRequiredMixin, ListView):
 
 class _FormularioBase(Comun, LoginRequiredMixin):
     template_name = "formulario.html"
+
+    def get_template_names(self):
+        # El modal pide el fragmento (X-Modal); sin ese encabezado se sirve la
+        # página completa de siempre, que es la que ve quien no tiene JavaScript.
+        if self.request.headers.get("X-Modal") == "1":
+            return ["modal/formulario.html"]
+        return [self.template_name]
 
     def get_success_url(self):
         return reverse(self.url_listado)

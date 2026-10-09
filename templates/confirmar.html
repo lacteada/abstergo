@@ -11,8 +11,12 @@
   <form method="post">
     {% csrf_token %}
     <div class="botonera">
-      <button class="btn-muni" type="submit">Eliminar</button>
-      <a class="accion" href="{% url url_listado %}">Cancelar</a>
+      <button class="btn-muni btn-icono" type="submit" title="Eliminar" aria-label="Eliminar">
+        {% include 'iconos/eliminar.html' %}
+      </button>
+      <a class="btn-icono" href="{% url url_listado %}" title="Cancelar" aria-label="Cancelar">
+        {% include 'iconos/cancelar.html' %}
+      </a>
     </div>
   </form>
 

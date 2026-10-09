@@ -5,7 +5,18 @@
 
   <div class="cabecera">
     <h1 class="titulo">{{ titulo }}</h1>
-    <a class="btn-muni" href="{{ url_nueva }}">+ {{ etiqueta_nueva }}</a>
+    {% if modal_nueva %}
+      <button type="button" class="btn-muni btn-icono" data-modal="{{ url_nueva }}"
+              title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
+        {% include 'iconos/nuevo.html' %}
+      </button>
+    {% else %}
+      {# Alta con flujo propio (Crear Atención): sigue siendo una página. #}
+      <a class="btn-muni btn-icono" href="{{ url_nueva }}"
+         title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
+        {% include 'iconos/nuevo.html' %}
+      </a>
+    {% endif %}
   </div>
   {% if subtitulo %}<p class="subtitulo">{{ subtitulo }}</p>{% endif %}
 
@@ -15,19 +26,15 @@
         <input type="search" name="q" value="{{ request.GET.q|default:'' }}"
                placeholder="Buscar..." autocomplete="off"
                data-busqueda data-url="{% url url_listado %}">
-        <svg class="buscador-lupa" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             aria-hidden="true">
-          <circle cx="11" cy="11" r="7"></circle>
-          <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
-        </svg>
+        <span class="buscador-lupa">{% include 'iconos/buscar.html' %}</span>
       </span>
     </form>
 
     {% if permite_exportar %}
-      <a class="btn-muni"
-         href="?exportar=1{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">
-        Exportar Excel
+      <a class="btn-muni btn-icono"
+         href="?exportar=1{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}"
+         title="Exportar Excel" aria-label="Exportar Excel">
+        {% include 'iconos/exportar.html' %}
       </a>
     {% endif %}
   </div>
@@ -54,11 +61,13 @@
   <nav class="paginacion" data-paginacion>
     {% if is_paginated %}
       {% if page_obj.has_previous %}
-        <a class="accion" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">Anterior</a>
+        <a class="accion accion-icono" title="Anterior" aria-label="Anterior"
+           href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">{% include 'iconos/anterior.html' %}</a>
       {% endif %}
       <span class="pie">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
       {% if page_obj.has_next %}
-        <a class="accion" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">Siguiente</a>
+        <a class="accion accion-icono" title="Siguiente" aria-label="Siguiente"
+           href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">{% include 'iconos/siguiente.html' %}</a>
       {% endif %}
     {% endif %}
   </nav>

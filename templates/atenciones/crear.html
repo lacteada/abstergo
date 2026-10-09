@@ -12,7 +12,10 @@
         <input id="q" name="q" value="{{ consulta }}" autocomplete="off" autofocus
                placeholder="11111111-1 o Rosa Alvarado">
       </div>
-      <button class="btn-muni" type="submit">Buscar vecino</button>
+      <button class="btn-muni btn-icono" type="submit"
+              title="Buscar vecino" aria-label="Buscar vecino">
+        {% include 'iconos/buscar.html' %}
+      </button>
     </div>
   </form>
 
@@ -62,8 +65,14 @@
       {% endfor %}
       {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
       <div class="botonera">
-        <button class="btn-muni" type="submit">Registrar atención</button>
-        <a class="accion" href="{% url 'atenciones:listado' %}">Cancelar</a>
+        <button class="btn-muni btn-icono" type="submit"
+                title="Registrar atención" aria-label="Registrar atención">
+          {% include 'iconos/guardar.html' %}
+        </button>
+        <a class="btn-icono" href="{% url 'atenciones:listado' %}"
+           title="Cancelar" aria-label="Cancelar">
+          {% include 'iconos/cancelar.html' %}
+        </a>
       </div>
     </form>
 
@@ -85,9 +94,11 @@
     {% else %}
       <div class="aviso">
         <p>No se encontró un vecino con esos datos.</p>
-        <a class="btn-muni"
-           href="{% url 'ciudadanos:vecinos_nueva' %}?q={{ consulta|urlencode }}&origen=atencion">
-          Agregar vecino
+        {# Sigue siendo una página: al crear el vecino se vuelve acá con él elegido. #}
+        <a class="btn-muni btn-icono"
+           href="{% url 'ciudadanos:vecinos_nueva' %}?q={{ consulta|urlencode }}&origen=atencion"
+           title="Agregar vecino" aria-label="Agregar vecino">
+          {% include 'iconos/nuevo.html' %}
         </a>
       </div>
     {% endif %}

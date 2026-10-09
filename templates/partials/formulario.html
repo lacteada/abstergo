@@ -1,0 +1,29 @@
+{# Campos y botonera de un formulario del CRUD.
+
+   Lo usan la página completa (formulario.html) y el fragmento del modal
+   (modal/formulario.html). El `action` apunta a la vista que lo renderizó, así
+   el mismo POST funciona en los dos contextos. #}
+<form class="formulario" method="post" action="{{ request.path }}">
+  {% csrf_token %}
+
+  {% for campo in form %}
+    <div class="campo">
+      <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+      {{ campo }}
+      {% if campo.help_text %}<p class="ayuda">{{ campo.help_text }}</p>{% endif %}
+      {% for error in campo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+    </div>
+  {% endfor %}
+
+  {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+
+  <div class="botonera">
+    <button class="btn-muni btn-icono" type="submit" title="Guardar" aria-label="Guardar">
+      {% include 'iconos/guardar.html' %}
+    </button>
+    <a class="btn-icono" href="{% url url_listado %}" data-modal-cerrar
+       title="Cancelar" aria-label="Cancelar">
+      {% include 'iconos/cancelar.html' %}
+    </a>
+  </div>
+</form>

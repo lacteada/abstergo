@@ -19,8 +19,8 @@
   <td>{{ fila.funcionario }}</td>
   <td class="acciones">
     <ul class="acciones-lista">
-      <li><a class="accion" href="{% url 'atenciones:editar' fila.pk %}">Editar</a></li>
-      <li><a class="accion peligro" href="{% url 'atenciones:eliminar' fila.pk %}">Eliminar</a></li>
+      <li><a class="accion accion-icono" href="{% url 'atenciones:editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+      <li><a class="accion accion-icono peligro" href="{% url 'atenciones:eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
     </ul>
   </td>
 {% endblock %}

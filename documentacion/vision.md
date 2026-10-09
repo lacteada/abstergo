@@ -206,12 +206,21 @@ OTP            ^\d{6}$
 - El RUT se normaliza (sin puntos, con guion) antes de validar y de buscar.
 - El dígito verificador se calcula por módulo 11; un RUT con DV inválido se rechaza.
 
-### 6.2 SweetAlert
+### 6.2 SweetAlert, modales e iconos
 
 - Confirmación antes de eliminar cualquier registro.
 - Aviso de éxito o de error tras crear, editar o eliminar.
 - Los errores de validación se muestran en el formulario y, si son generales,
   también con SweetAlert.
+- Alta y edición de los mantenedores se abren en un modal (`<dialog>` nativo),
+  no en una página aparte: el formulario se pide por `fetch` con el encabezado
+  `X-Modal: 1` y la vista devuelve el fragmento (`modal/formulario.html`); sin
+  ese encabezado sirve la página completa, que es el respaldo sin JavaScript.
+- Al guardar no se recarga: se refrescan las filas, el contador y el paginador
+  del listado, y el aviso se muestra como toast.
+- Los botones de las tablas y del CRUD son iconos SVG (partials en
+  `templates/iconos/`), con `title` y `aria-label`.
+- Excepción: "Crear Atención" mantiene su página con búsqueda de vecino e historial.
 - La librería se vendoriza en `static/js` para no depender de un CDN.
 
 ### 6.3 Paginación

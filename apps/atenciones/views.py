@@ -43,6 +43,9 @@ class Listado(ListadoBase):
     )
     url_nueva = "atenciones:crear"
     url_listado = "atenciones:listado"
+    # El alta de Atención es un flujo con búsqueda de vecino e historial:
+    # se queda como página, no en modal.
+    modal_nueva = False
     auditar_lectura = True
     exportar_nombre = "atenciones"
     exportar_columnas = (
