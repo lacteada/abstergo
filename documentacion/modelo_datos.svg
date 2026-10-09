@@ -1,0 +1,528 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1565" height="1515" viewBox="0 0 1565 1515" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="1565" height="1515" fill="#fbfcfd"/>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker></defs>
+<text x="40" y="44" font-size="26" font-weight="bold" fill="#0f172a">Modelo de datos — abstergo (MariaDB)</text>
+<text x="40" y="70" font-size="14" fill="#64748b">22 tablas · 6 apps de dominio + framework Django · líneas = claves foráneas · esquema en vivo</text>
+<path d="M 340.0,233.5 C 370.0,233.5 310.0,475.5 340.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 340.0,679.5 C 370.0,679.5 310.0,320.5 340.0,320.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 340.0,662.5 C 370.0,662.5 310.0,131.5 340.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 735.0,267.5 C 1026.9,267.5 -251.9,131.5 40.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 735.0,543.5 C 765.0,543.5 705.0,354.5 735.0,354.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 735.0,698.5 C 1026.9,698.5 -251.9,131.5 40.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,267.5 C 1587.8,267.5 -417.8,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,250.5 C 1587.8,250.5 -417.8,131.5 40.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,318.5 C 1421.9,318.5 143.1,131.5 435.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,301.5 C 1421.9,301.5 143.1,354.5 435.0,354.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,284.5 C 1421.9,284.5 143.1,492.5 435.0,492.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,558.5 C 1587.8,558.5 -417.8,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,764.5 C 1421.9,764.5 143.1,131.5 435.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,747.5 C 1160.0,747.5 1100.0,405.5 1130.0,405.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,1004.5 C 1421.9,1004.5 143.1,131.5 435.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,987.5 C 1587.8,987.5 -417.8,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1130.0,1210.5 C 1587.8,1210.5 -417.8,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,390.5 C 1555.0,390.5 1495.0,131.5 1525.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,976.5 C 1555.0,976.5 1495.0,252.5 1525.0,252.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,993.5 C 1555.0,993.5 1495.0,356.5 1525.0,356.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,613.5 C 2148.7,613.5 -583.7,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,596.5 C 1555.0,596.5 1495.0,131.5 1525.0,131.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,1097.5 C 2148.7,1097.5 -583.7,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,1114.5 C 1555.0,1114.5 1495.0,252.5 1525.0,252.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,1218.5 C 2148.7,1218.5 -583.7,475.5 40.0,475.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<path d="M 1525.0,1235.5 C 1555.0,1235.5 1495.0,356.5 1525.0,356.5" fill="none" stroke="#94a3b8" stroke-width="1.4" opacity="0.85" marker-end="url(#ar)"/>
+<rect x="40" y="82" width="16" height="12" rx="3" fill="#dbeafe" stroke="#1d4ed8"/>
+<text x="62" y="93" font-size="13" fill="#475569">Organización</text>
+<rect x="161.2" y="82" width="16" height="12" rx="3" fill="#ccfbf1" stroke="#0f766e"/>
+<text x="183.2" y="93" font-size="13" fill="#475569">Cuentas y roles</text>
+<rect x="305.2" y="82" width="16" height="12" rx="3" fill="#dcfce7" stroke="#15803d"/>
+<text x="327.2" y="93" font-size="13" fill="#475569">Ciudadanos</text>
+<rect x="411.2" y="82" width="16" height="12" rx="3" fill="#fef3c7" stroke="#b45309"/>
+<text x="433.2" y="93" font-size="13" fill="#475569">Catálogos</text>
+<rect x="509.59999999999997" y="82" width="16" height="12" rx="3" fill="#ffe4e6" stroke="#be123c"/>
+<text x="531.5999999999999" y="93" font-size="13" fill="#475569">Atenciones</text>
+<rect x="615.5999999999999" y="82" width="16" height="12" rx="3" fill="#ede9fe" stroke="#6d28d9"/>
+<text x="637.5999999999999" y="93" font-size="13" fill="#475569">Cumplimiento Ley 21.719</text>
+<rect x="820.3999999999999" y="82" width="16" height="12" rx="3" fill="#eef2f6" stroke="#64748b"/>
+<text x="842.3999999999999" y="93" font-size="13" fill="#475569">Django (framework)</text>
+<clipPath id="clip_organizacion_delegacion"><rect x="40" y="96" width="300" height="155" rx="7"/></clipPath>
+<g>
+<rect x="40" y="96" width="300" height="155" rx="7" fill="#ffffff"/>
+<rect x="40" y="96" width="300" height="27" fill="#dbeafe" clip-path="url(#clip_organizacion_delegacion)"/>
+<rect x="40" y="96" width="300" height="155" rx="7" fill="none" stroke="#1d4ed8" stroke-width="1.6"/>
+<text x="50" y="114" font-size="12" font-weight="bold" fill="#1d4ed8">organizacion_delegacion</text>
+<text x="50" y="135" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="330" y="135" font-size="10.5" text-anchor="end" font-weight="bold" fill="#1d4ed8">PK</text>
+<line x1="40" y1="140" x2="340" y2="140" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="152" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="40" y1="157" x2="340" y2="157" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="169" font-size="12.5" font-weight="normal" fill="#334155">codigo</text>
+<text x="330" y="169" font-size="10.5" text-anchor="end" font-weight="bold" fill="#1d4ed8">UQ</text>
+<line x1="40" y1="174" x2="340" y2="174" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="186" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<line x1="40" y1="191" x2="340" y2="191" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="203" font-size="12.5" font-weight="normal" fill="#334155">direccion</text>
+<line x1="40" y1="208" x2="340" y2="208" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="220" font-size="12.5" font-weight="normal" fill="#334155">comuna</text>
+<line x1="40" y1="225" x2="340" y2="225" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="237" font-size="12.5" font-weight="normal" fill="#0f172a">responsable_id</text>
+<text x="330" y="237" font-size="10.5" text-anchor="end" font-weight="bold" fill="#1d4ed8">FK</text>
+<line x1="40" y1="242" x2="340" y2="242" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cuentas_rol"><rect x="40" y="285" width="300" height="121" rx="7"/></clipPath>
+<g>
+<rect x="40" y="285" width="300" height="121" rx="7" fill="#ffffff"/>
+<rect x="40" y="285" width="300" height="27" fill="#ccfbf1" clip-path="url(#clip_cuentas_rol)"/>
+<rect x="40" y="285" width="300" height="121" rx="7" fill="none" stroke="#0f766e" stroke-width="1.6"/>
+<text x="50" y="303" font-size="12" font-weight="bold" fill="#0f766e">cuentas_rol</text>
+<text x="50" y="324" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="330" y="324" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">PK</text>
+<line x1="40" y1="329" x2="340" y2="329" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="341" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="40" y1="346" x2="340" y2="346" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="358" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<text x="330" y="358" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">UQ</text>
+<line x1="40" y1="363" x2="340" y2="363" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="375" font-size="12.5" font-weight="normal" fill="#334155">descripcion</text>
+<line x1="40" y1="380" x2="340" y2="380" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="392" font-size="12.5" font-weight="normal" fill="#334155">codigo</text>
+<text x="330" y="392" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">UQ</text>
+<line x1="40" y1="397" x2="340" y2="397" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cuentas_usuario"><rect x="40" y="440" width="300" height="257" rx="7"/></clipPath>
+<g>
+<rect x="40" y="440" width="300" height="257" rx="7" fill="#ffffff"/>
+<rect x="40" y="440" width="300" height="27" fill="#ccfbf1" clip-path="url(#clip_cuentas_usuario)"/>
+<rect x="40" y="440" width="300" height="257" rx="7" fill="none" stroke="#0f766e" stroke-width="1.6"/>
+<text x="50" y="458" font-size="12" font-weight="bold" fill="#0f766e">cuentas_usuario</text>
+<text x="50" y="479" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="330" y="479" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">PK</text>
+<line x1="40" y1="484" x2="340" y2="484" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="496" font-size="12.5" font-weight="normal" fill="#334155">password</text>
+<line x1="40" y1="501" x2="340" y2="501" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="513" font-size="12.5" font-weight="normal" fill="#334155">last_login</text>
+<line x1="40" y1="518" x2="340" y2="518" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="530" font-size="12.5" font-weight="normal" fill="#334155">is_superuser</text>
+<line x1="40" y1="535" x2="340" y2="535" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="547" font-size="12.5" font-weight="normal" fill="#334155">first_name</text>
+<line x1="40" y1="552" x2="340" y2="552" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="564" font-size="12.5" font-weight="normal" fill="#334155">last_name</text>
+<line x1="40" y1="569" x2="340" y2="569" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="581" font-size="12.5" font-weight="normal" fill="#334155">is_staff</text>
+<line x1="40" y1="586" x2="340" y2="586" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="598" font-size="12.5" font-weight="normal" fill="#334155">is_active</text>
+<line x1="40" y1="603" x2="340" y2="603" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="615" font-size="12.5" font-weight="normal" fill="#334155">date_joined</text>
+<line x1="40" y1="620" x2="340" y2="620" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="632" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="40" y1="637" x2="340" y2="637" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="649" font-size="12.5" font-weight="normal" fill="#334155">email</text>
+<text x="330" y="649" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">UQ</text>
+<line x1="40" y1="654" x2="340" y2="654" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="666" font-size="12.5" font-weight="normal" fill="#0f172a">delegacion_id</text>
+<text x="330" y="666" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">FK</text>
+<line x1="40" y1="671" x2="340" y2="671" stroke="#eef2f6" stroke-width="1"/>
+<text x="50" y="683" font-size="12.5" font-weight="normal" fill="#0f172a">rol_id</text>
+<text x="330" y="683" font-size="10.5" text-anchor="end" font-weight="bold" fill="#0f766e">FK</text>
+<line x1="40" y1="688" x2="340" y2="688" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_ciudadanos_vecino"><rect x="435" y="96" width="300" height="189" rx="7"/></clipPath>
+<g>
+<rect x="435" y="96" width="300" height="189" rx="7" fill="#ffffff"/>
+<rect x="435" y="96" width="300" height="27" fill="#dcfce7" clip-path="url(#clip_ciudadanos_vecino)"/>
+<rect x="435" y="96" width="300" height="189" rx="7" fill="none" stroke="#15803d" stroke-width="1.6"/>
+<text x="445" y="114" font-size="12" font-weight="bold" fill="#15803d">ciudadanos_vecino</text>
+<text x="445" y="135" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="725" y="135" font-size="10.5" text-anchor="end" font-weight="bold" fill="#15803d">PK</text>
+<line x1="435" y1="140" x2="735" y2="140" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="152" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="435" y1="157" x2="735" y2="157" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="169" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<line x1="435" y1="174" x2="735" y2="174" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="186" font-size="12.5" font-weight="normal" fill="#334155">rut</text>
+<text x="725" y="186" font-size="10.5" text-anchor="end" font-weight="bold" fill="#15803d">UQ</text>
+<line x1="435" y1="191" x2="735" y2="191" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="203" font-size="12.5" font-weight="normal" fill="#334155">direccion</text>
+<line x1="435" y1="208" x2="735" y2="208" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="220" font-size="12.5" font-weight="normal" fill="#334155">telefono</text>
+<line x1="435" y1="225" x2="735" y2="225" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="237" font-size="12.5" font-weight="normal" fill="#334155">tipo_gestion</text>
+<line x1="435" y1="242" x2="735" y2="242" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="254" font-size="12.5" font-weight="normal" fill="#334155">estado</text>
+<line x1="435" y1="259" x2="735" y2="259" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="271" font-size="12.5" font-weight="normal" fill="#0f172a">territorio_id</text>
+<text x="725" y="271" font-size="10.5" text-anchor="end" font-weight="bold" fill="#15803d">FK</text>
+<line x1="435" y1="276" x2="735" y2="276" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_catalogos_tipoatencion"><rect x="435" y="319" width="300" height="104" rx="7"/></clipPath>
+<g>
+<rect x="435" y="319" width="300" height="104" rx="7" fill="#ffffff"/>
+<rect x="435" y="319" width="300" height="27" fill="#fef3c7" clip-path="url(#clip_catalogos_tipoatencion)"/>
+<rect x="435" y="319" width="300" height="104" rx="7" fill="none" stroke="#b45309" stroke-width="1.6"/>
+<text x="445" y="337" font-size="12" font-weight="bold" fill="#b45309">catalogos_tipoatencion</text>
+<text x="445" y="358" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="725" y="358" font-size="10.5" text-anchor="end" font-weight="bold" fill="#b45309">PK</text>
+<line x1="435" y1="363" x2="735" y2="363" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="375" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="435" y1="380" x2="735" y2="380" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="392" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<line x1="435" y1="397" x2="735" y2="397" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="409" font-size="12.5" font-weight="normal" fill="#334155">descripcion</text>
+<line x1="435" y1="414" x2="735" y2="414" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_catalogos_subatencion"><rect x="435" y="457" width="300" height="104" rx="7"/></clipPath>
+<g>
+<rect x="435" y="457" width="300" height="104" rx="7" fill="#ffffff"/>
+<rect x="435" y="457" width="300" height="27" fill="#fef3c7" clip-path="url(#clip_catalogos_subatencion)"/>
+<rect x="435" y="457" width="300" height="104" rx="7" fill="none" stroke="#b45309" stroke-width="1.6"/>
+<text x="445" y="475" font-size="12" font-weight="bold" fill="#b45309">catalogos_subatencion</text>
+<text x="445" y="496" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="725" y="496" font-size="10.5" text-anchor="end" font-weight="bold" fill="#b45309">PK</text>
+<line x1="435" y1="501" x2="735" y2="501" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="513" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="435" y1="518" x2="735" y2="518" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="530" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<line x1="435" y1="535" x2="735" y2="535" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="547" font-size="12.5" font-weight="normal" fill="#0f172a">tipo_atencion_id</text>
+<text x="725" y="547" font-size="10.5" text-anchor="end" font-weight="bold" fill="#b45309">FK</text>
+<line x1="435" y1="552" x2="735" y2="552" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_catalogos_meta"><rect x="435" y="595" width="300" height="121" rx="7"/></clipPath>
+<g>
+<rect x="435" y="595" width="300" height="121" rx="7" fill="#ffffff"/>
+<rect x="435" y="595" width="300" height="27" fill="#fef3c7" clip-path="url(#clip_catalogos_meta)"/>
+<rect x="435" y="595" width="300" height="121" rx="7" fill="none" stroke="#b45309" stroke-width="1.6"/>
+<text x="445" y="613" font-size="12" font-weight="bold" fill="#b45309">catalogos_meta</text>
+<text x="445" y="634" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="725" y="634" font-size="10.5" text-anchor="end" font-weight="bold" fill="#b45309">PK</text>
+<line x1="435" y1="639" x2="735" y2="639" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="651" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="435" y1="656" x2="735" y2="656" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="668" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<line x1="435" y1="673" x2="735" y2="673" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="685" font-size="12.5" font-weight="normal" fill="#334155">descripcion</text>
+<line x1="435" y1="690" x2="735" y2="690" stroke="#eef2f6" stroke-width="1"/>
+<text x="445" y="702" font-size="12.5" font-weight="normal" fill="#0f172a">delegacion_id</text>
+<text x="725" y="702" font-size="10.5" text-anchor="end" font-weight="bold" fill="#b45309">FK</text>
+<line x1="435" y1="707" x2="735" y2="707" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_atenciones_atencion"><rect x="830" y="96" width="300" height="240" rx="7"/></clipPath>
+<g>
+<rect x="830" y="96" width="300" height="240" rx="7" fill="#ffffff"/>
+<rect x="830" y="96" width="300" height="27" fill="#ffe4e6" clip-path="url(#clip_atenciones_atencion)"/>
+<rect x="830" y="96" width="300" height="240" rx="7" fill="none" stroke="#be123c" stroke-width="1.6"/>
+<text x="840" y="114" font-size="12" font-weight="bold" fill="#be123c">atenciones_atencion</text>
+<text x="840" y="135" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1120" y="135" font-size="10.5" text-anchor="end" font-weight="bold" fill="#be123c">PK</text>
+<line x1="830" y1="140" x2="1130" y2="140" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="152" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="830" y1="157" x2="1130" y2="157" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="169" font-size="12.5" font-weight="normal" fill="#334155">fecha</text>
+<line x1="830" y1="174" x2="1130" y2="174" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="186" font-size="12.5" font-weight="normal" fill="#334155">motivo</text>
+<line x1="830" y1="191" x2="1130" y2="191" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="203" font-size="12.5" font-weight="normal" fill="#334155">detalle</text>
+<line x1="830" y1="208" x2="1130" y2="208" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="220" font-size="12.5" font-weight="normal" fill="#334155">estado</text>
+<line x1="830" y1="225" x2="1130" y2="225" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="237" font-size="12.5" font-weight="normal" fill="#334155">canal</text>
+<line x1="830" y1="242" x2="1130" y2="242" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="254" font-size="12.5" font-weight="normal" fill="#0f172a">delegacion_id</text>
+<text x="1120" y="254" font-size="10.5" text-anchor="end" font-weight="bold" fill="#be123c">FK</text>
+<line x1="830" y1="259" x2="1130" y2="259" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="271" font-size="12.5" font-weight="normal" fill="#0f172a">funcionario_id</text>
+<text x="1120" y="271" font-size="10.5" text-anchor="end" font-weight="bold" fill="#be123c">FK</text>
+<line x1="830" y1="276" x2="1130" y2="276" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="288" font-size="12.5" font-weight="normal" fill="#0f172a">sub_atencion_id</text>
+<text x="1120" y="288" font-size="10.5" text-anchor="end" font-weight="bold" fill="#be123c">FK</text>
+<line x1="830" y1="293" x2="1130" y2="293" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="305" font-size="12.5" font-weight="normal" fill="#0f172a">tipo_atencion_id</text>
+<text x="1120" y="305" font-size="10.5" text-anchor="end" font-weight="bold" fill="#be123c">FK</text>
+<line x1="830" y1="310" x2="1130" y2="310" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="322" font-size="12.5" font-weight="normal" fill="#0f172a">vecino_id</text>
+<text x="1120" y="322" font-size="10.5" text-anchor="end" font-weight="bold" fill="#be123c">FK</text>
+<line x1="830" y1="327" x2="1130" y2="327" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cumplimiento_actividadtratamiento"><rect x="830" y="370" width="300" height="206" rx="7"/></clipPath>
+<g>
+<rect x="830" y="370" width="300" height="206" rx="7" fill="#ffffff"/>
+<rect x="830" y="370" width="300" height="27" fill="#ede9fe" clip-path="url(#clip_cumplimiento_actividadtratamiento)"/>
+<rect x="830" y="370" width="300" height="206" rx="7" fill="none" stroke="#6d28d9" stroke-width="1.6"/>
+<text x="840" y="388" font-size="12" font-weight="bold" fill="#6d28d9">cumplimiento_actividadtratamiento</text>
+<text x="840" y="409" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1120" y="409" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">PK</text>
+<line x1="830" y1="414" x2="1130" y2="414" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="426" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="830" y1="431" x2="1130" y2="431" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="443" font-size="12.5" font-weight="normal" fill="#334155">nombre</text>
+<line x1="830" y1="448" x2="1130" y2="448" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="460" font-size="12.5" font-weight="normal" fill="#334155">finalidad</text>
+<line x1="830" y1="465" x2="1130" y2="465" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="477" font-size="12.5" font-weight="normal" fill="#334155">base_licitud</text>
+<line x1="830" y1="482" x2="1130" y2="482" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="494" font-size="12.5" font-weight="normal" fill="#334155">categorias_datos</text>
+<line x1="830" y1="499" x2="1130" y2="499" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="511" font-size="12.5" font-weight="normal" fill="#334155">destinatarios</text>
+<line x1="830" y1="516" x2="1130" y2="516" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="528" font-size="12.5" font-weight="normal" fill="#334155">plazo_conservacion_dias</text>
+<line x1="830" y1="533" x2="1130" y2="533" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="545" font-size="12.5" font-weight="normal" fill="#334155">medidas_seguridad</text>
+<line x1="830" y1="550" x2="1130" y2="550" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="562" font-size="12.5" font-weight="normal" fill="#0f172a">responsable_id</text>
+<text x="1120" y="562" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">FK</text>
+<line x1="830" y1="567" x2="1130" y2="567" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cumplimiento_consentimiento"><rect x="830" y="610" width="300" height="172" rx="7"/></clipPath>
+<g>
+<rect x="830" y="610" width="300" height="172" rx="7" fill="#ffffff"/>
+<rect x="830" y="610" width="300" height="27" fill="#ede9fe" clip-path="url(#clip_cumplimiento_consentimiento)"/>
+<rect x="830" y="610" width="300" height="172" rx="7" fill="none" stroke="#6d28d9" stroke-width="1.6"/>
+<text x="840" y="628" font-size="12" font-weight="bold" fill="#6d28d9">cumplimiento_consentimiento</text>
+<text x="840" y="649" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1120" y="649" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">PK</text>
+<line x1="830" y1="654" x2="1130" y2="654" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="666" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="830" y1="671" x2="1130" y2="671" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="683" font-size="12.5" font-weight="normal" fill="#334155">otorgado</text>
+<line x1="830" y1="688" x2="1130" y2="688" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="700" font-size="12.5" font-weight="normal" fill="#334155">fecha</text>
+<line x1="830" y1="705" x2="1130" y2="705" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="717" font-size="12.5" font-weight="normal" fill="#334155">version_politica</text>
+<line x1="830" y1="722" x2="1130" y2="722" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="734" font-size="12.5" font-weight="normal" fill="#334155">revocado</text>
+<line x1="830" y1="739" x2="1130" y2="739" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="751" font-size="12.5" font-weight="normal" fill="#0f172a">actividad_id</text>
+<text x="1120" y="751" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">FK</text>
+<line x1="830" y1="756" x2="1130" y2="756" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="768" font-size="12.5" font-weight="normal" fill="#0f172a">vecino_id</text>
+<text x="1120" y="768" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">FK</text>
+<line x1="830" y1="773" x2="1130" y2="773" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cumplimiento_solicitudtitular"><rect x="830" y="816" width="300" height="206" rx="7"/></clipPath>
+<g>
+<rect x="830" y="816" width="300" height="206" rx="7" fill="#ffffff"/>
+<rect x="830" y="816" width="300" height="27" fill="#ede9fe" clip-path="url(#clip_cumplimiento_solicitudtitular)"/>
+<rect x="830" y="816" width="300" height="206" rx="7" fill="none" stroke="#6d28d9" stroke-width="1.6"/>
+<text x="840" y="834" font-size="12" font-weight="bold" fill="#6d28d9">cumplimiento_solicitudtitular</text>
+<text x="840" y="855" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1120" y="855" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">PK</text>
+<line x1="830" y1="860" x2="1130" y2="860" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="872" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="830" y1="877" x2="1130" y2="877" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="889" font-size="12.5" font-weight="normal" fill="#334155">tipo</text>
+<line x1="830" y1="894" x2="1130" y2="894" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="906" font-size="12.5" font-weight="normal" fill="#334155">estado</text>
+<line x1="830" y1="911" x2="1130" y2="911" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="923" font-size="12.5" font-weight="normal" fill="#334155">fecha_solicitud</text>
+<line x1="830" y1="928" x2="1130" y2="928" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="940" font-size="12.5" font-weight="normal" fill="#334155">fecha_limite</text>
+<line x1="830" y1="945" x2="1130" y2="945" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="957" font-size="12.5" font-weight="normal" fill="#334155">fecha_respuesta</text>
+<line x1="830" y1="962" x2="1130" y2="962" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="974" font-size="12.5" font-weight="normal" fill="#334155">detalle</text>
+<line x1="830" y1="979" x2="1130" y2="979" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="991" font-size="12.5" font-weight="normal" fill="#0f172a">respondido_por_id</text>
+<text x="1120" y="991" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">FK</text>
+<line x1="830" y1="996" x2="1130" y2="996" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1008" font-size="12.5" font-weight="normal" fill="#0f172a">vecino_id</text>
+<text x="1120" y="1008" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">FK</text>
+<line x1="830" y1="1013" x2="1130" y2="1013" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cumplimiento_registroauditoria"><rect x="830" y="1056" width="300" height="172" rx="7"/></clipPath>
+<g>
+<rect x="830" y="1056" width="300" height="172" rx="7" fill="#ffffff"/>
+<rect x="830" y="1056" width="300" height="27" fill="#ede9fe" clip-path="url(#clip_cumplimiento_registroauditoria)"/>
+<rect x="830" y="1056" width="300" height="172" rx="7" fill="none" stroke="#6d28d9" stroke-width="1.6"/>
+<text x="840" y="1074" font-size="12" font-weight="bold" fill="#6d28d9">cumplimiento_registroauditoria</text>
+<text x="840" y="1095" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1120" y="1095" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">PK</text>
+<line x1="830" y1="1100" x2="1130" y2="1100" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1112" font-size="12.5" font-weight="normal" fill="#334155">accion</text>
+<line x1="830" y1="1117" x2="1130" y2="1117" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1129" font-size="12.5" font-weight="normal" fill="#334155">tabla</text>
+<line x1="830" y1="1134" x2="1130" y2="1134" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1146" font-size="12.5" font-weight="normal" fill="#334155">objeto_id</text>
+<line x1="830" y1="1151" x2="1130" y2="1151" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1163" font-size="12.5" font-weight="normal" fill="#334155">fecha</text>
+<line x1="830" y1="1168" x2="1130" y2="1168" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1180" font-size="12.5" font-weight="normal" fill="#334155">ip</text>
+<line x1="830" y1="1185" x2="1130" y2="1185" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1197" font-size="12.5" font-weight="normal" fill="#334155">detalle</text>
+<line x1="830" y1="1202" x2="1130" y2="1202" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1214" font-size="12.5" font-weight="normal" fill="#0f172a">usuario_id</text>
+<text x="1120" y="1214" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">FK</text>
+<line x1="830" y1="1219" x2="1130" y2="1219" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cumplimiento_incidenteseguridad"><rect x="830" y="1262" width="300" height="189" rx="7"/></clipPath>
+<g>
+<rect x="830" y="1262" width="300" height="189" rx="7" fill="#ffffff"/>
+<rect x="830" y="1262" width="300" height="27" fill="#ede9fe" clip-path="url(#clip_cumplimiento_incidenteseguridad)"/>
+<rect x="830" y="1262" width="300" height="189" rx="7" fill="none" stroke="#6d28d9" stroke-width="1.6"/>
+<text x="840" y="1280" font-size="12" font-weight="bold" fill="#6d28d9">cumplimiento_incidenteseguridad</text>
+<text x="840" y="1301" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1120" y="1301" font-size="10.5" text-anchor="end" font-weight="bold" fill="#6d28d9">PK</text>
+<line x1="830" y1="1306" x2="1130" y2="1306" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1318" font-size="12.5" font-weight="normal" fill="#334155">eliminado</text>
+<line x1="830" y1="1323" x2="1130" y2="1323" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1335" font-size="12.5" font-weight="normal" fill="#334155">fecha_deteccion</text>
+<line x1="830" y1="1340" x2="1130" y2="1340" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1352" font-size="12.5" font-weight="normal" fill="#334155">descripcion</text>
+<line x1="830" y1="1357" x2="1130" y2="1357" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1369" font-size="12.5" font-weight="normal" fill="#334155">datos_afectados</text>
+<line x1="830" y1="1374" x2="1130" y2="1374" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1386" font-size="12.5" font-weight="normal" fill="#334155">gravedad</text>
+<line x1="830" y1="1391" x2="1130" y2="1391" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1403" font-size="12.5" font-weight="normal" fill="#334155">notificado_apdp</text>
+<line x1="830" y1="1408" x2="1130" y2="1408" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1420" font-size="12.5" font-weight="normal" fill="#334155">fecha_notificacion_apdp</text>
+<line x1="830" y1="1425" x2="1130" y2="1425" stroke="#eef2f6" stroke-width="1"/>
+<text x="840" y="1437" font-size="12.5" font-weight="normal" fill="#334155">notificado_titulares</text>
+<line x1="830" y1="1442" x2="1130" y2="1442" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_django_content_type"><rect x="1225" y="96" width="300" height="87" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="96" width="300" height="87" rx="7" fill="#ffffff"/>
+<rect x="1225" y="96" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_django_content_type)"/>
+<rect x="1225" y="96" width="300" height="87" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="114" font-size="12" font-weight="bold" fill="#64748b">django_content_type</text>
+<text x="1235" y="135" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="135" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="140" x2="1525" y2="140" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="152" font-size="12.5" font-weight="normal" fill="#334155">app_label</text>
+<line x1="1225" y1="157" x2="1525" y2="157" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="169" font-size="12.5" font-weight="normal" fill="#334155">model</text>
+<line x1="1225" y1="174" x2="1525" y2="174" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_auth_group"><rect x="1225" y="217" width="300" height="70" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="217" width="300" height="70" rx="7" fill="#ffffff"/>
+<rect x="1225" y="217" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_auth_group)"/>
+<rect x="1225" y="217" width="300" height="70" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="235" font-size="12" font-weight="bold" fill="#64748b">auth_group</text>
+<text x="1235" y="256" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="256" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="261" x2="1525" y2="261" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="273" font-size="12.5" font-weight="normal" fill="#334155">name</text>
+<text x="1515" y="273" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">UQ</text>
+<line x1="1225" y1="278" x2="1525" y2="278" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_auth_permission"><rect x="1225" y="321" width="300" height="104" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="321" width="300" height="104" rx="7" fill="#ffffff"/>
+<rect x="1225" y="321" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_auth_permission)"/>
+<rect x="1225" y="321" width="300" height="104" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="339" font-size="12" font-weight="bold" fill="#64748b">auth_permission</text>
+<text x="1235" y="360" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="360" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="365" x2="1525" y2="365" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="377" font-size="12.5" font-weight="normal" fill="#334155">name</text>
+<line x1="1225" y1="382" x2="1525" y2="382" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="394" font-size="12.5" font-weight="normal" fill="#0f172a">content_type_id</text>
+<text x="1515" y="394" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="399" x2="1525" y2="399" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="411" font-size="12.5" font-weight="normal" fill="#334155">codename</text>
+<line x1="1225" y1="416" x2="1525" y2="416" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_django_admin_log"><rect x="1225" y="459" width="300" height="172" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="459" width="300" height="172" rx="7" fill="#ffffff"/>
+<rect x="1225" y="459" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_django_admin_log)"/>
+<rect x="1225" y="459" width="300" height="172" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="477" font-size="12" font-weight="bold" fill="#64748b">django_admin_log</text>
+<text x="1235" y="498" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="498" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="503" x2="1525" y2="503" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="515" font-size="12.5" font-weight="normal" fill="#334155">action_time</text>
+<line x1="1225" y1="520" x2="1525" y2="520" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="532" font-size="12.5" font-weight="normal" fill="#334155">object_id</text>
+<line x1="1225" y1="537" x2="1525" y2="537" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="549" font-size="12.5" font-weight="normal" fill="#334155">object_repr</text>
+<line x1="1225" y1="554" x2="1525" y2="554" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="566" font-size="12.5" font-weight="normal" fill="#334155">action_flag</text>
+<line x1="1225" y1="571" x2="1525" y2="571" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="583" font-size="12.5" font-weight="normal" fill="#334155">change_message</text>
+<line x1="1225" y1="588" x2="1525" y2="588" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="600" font-size="12.5" font-weight="normal" fill="#0f172a">content_type_id</text>
+<text x="1515" y="600" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="605" x2="1525" y2="605" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="617" font-size="12.5" font-weight="normal" fill="#0f172a">user_id</text>
+<text x="1515" y="617" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="622" x2="1525" y2="622" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_django_migrations"><rect x="1225" y="665" width="300" height="104" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="665" width="300" height="104" rx="7" fill="#ffffff"/>
+<rect x="1225" y="665" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_django_migrations)"/>
+<rect x="1225" y="665" width="300" height="104" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="683" font-size="12" font-weight="bold" fill="#64748b">django_migrations</text>
+<text x="1235" y="704" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="704" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="709" x2="1525" y2="709" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="721" font-size="12.5" font-weight="normal" fill="#334155">app</text>
+<line x1="1225" y1="726" x2="1525" y2="726" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="738" font-size="12.5" font-weight="normal" fill="#334155">name</text>
+<line x1="1225" y1="743" x2="1525" y2="743" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="755" font-size="12.5" font-weight="normal" fill="#334155">applied</text>
+<line x1="1225" y1="760" x2="1525" y2="760" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_django_session"><rect x="1225" y="803" width="300" height="87" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="803" width="300" height="87" rx="7" fill="#ffffff"/>
+<rect x="1225" y="803" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_django_session)"/>
+<rect x="1225" y="803" width="300" height="87" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="821" font-size="12" font-weight="bold" fill="#64748b">django_session</text>
+<text x="1235" y="842" font-size="12.5" font-weight="bold" fill="#0f172a">session_key</text>
+<text x="1515" y="842" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="847" x2="1525" y2="847" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="859" font-size="12.5" font-weight="normal" fill="#334155">session_data</text>
+<line x1="1225" y1="864" x2="1525" y2="864" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="876" font-size="12.5" font-weight="normal" fill="#334155">expire_date</text>
+<line x1="1225" y1="881" x2="1525" y2="881" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_auth_group_permissions"><rect x="1225" y="924" width="300" height="87" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="924" width="300" height="87" rx="7" fill="#ffffff"/>
+<rect x="1225" y="924" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_auth_group_permissions)"/>
+<rect x="1225" y="924" width="300" height="87" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="942" font-size="12" font-weight="bold" fill="#64748b">auth_group_permissions</text>
+<text x="1235" y="963" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="963" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="968" x2="1525" y2="968" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="980" font-size="12.5" font-weight="normal" fill="#0f172a">group_id</text>
+<text x="1515" y="980" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="985" x2="1525" y2="985" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="997" font-size="12.5" font-weight="normal" fill="#0f172a">permission_id</text>
+<text x="1515" y="997" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="1002" x2="1525" y2="1002" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cuentas_usuario_groups"><rect x="1225" y="1045" width="300" height="87" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="1045" width="300" height="87" rx="7" fill="#ffffff"/>
+<rect x="1225" y="1045" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_cuentas_usuario_groups)"/>
+<rect x="1225" y="1045" width="300" height="87" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="1063" font-size="12" font-weight="bold" fill="#64748b">cuentas_usuario_groups</text>
+<text x="1235" y="1084" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="1084" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="1089" x2="1525" y2="1089" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="1101" font-size="12.5" font-weight="normal" fill="#0f172a">usuario_id</text>
+<text x="1515" y="1101" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="1106" x2="1525" y2="1106" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="1118" font-size="12.5" font-weight="normal" fill="#0f172a">group_id</text>
+<text x="1515" y="1118" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="1123" x2="1525" y2="1123" stroke="#eef2f6" stroke-width="1"/>
+</g>
+<clipPath id="clip_cuentas_usuario_user_permissions"><rect x="1225" y="1166" width="300" height="87" rx="7"/></clipPath>
+<g>
+<rect x="1225" y="1166" width="300" height="87" rx="7" fill="#ffffff"/>
+<rect x="1225" y="1166" width="300" height="27" fill="#eef2f6" clip-path="url(#clip_cuentas_usuario_user_permissions)"/>
+<rect x="1225" y="1166" width="300" height="87" rx="7" fill="none" stroke="#64748b" stroke-width="1.6"/>
+<text x="1235" y="1184" font-size="12" font-weight="bold" fill="#64748b">cuentas_usuario_user_permissions</text>
+<text x="1235" y="1205" font-size="12.5" font-weight="bold" fill="#0f172a">id</text>
+<text x="1515" y="1205" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">PK</text>
+<line x1="1225" y1="1210" x2="1525" y2="1210" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="1222" font-size="12.5" font-weight="normal" fill="#0f172a">usuario_id</text>
+<text x="1515" y="1222" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="1227" x2="1525" y2="1227" stroke="#eef2f6" stroke-width="1"/>
+<text x="1235" y="1239" font-size="12.5" font-weight="normal" fill="#0f172a">permission_id</text>
+<text x="1515" y="1239" font-size="10.5" text-anchor="end" font-weight="bold" fill="#64748b">FK</text>
+<line x1="1225" y1="1244" x2="1525" y2="1244" stroke="#eef2f6" stroke-width="1"/>
+</g>
+</svg>
