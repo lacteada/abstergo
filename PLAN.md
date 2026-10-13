@@ -17,7 +17,7 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - **Config por entorno** `config/settings/{base,dev,prod}.py`, todo desde env, sin secretos. — **ausente**.
 - **Usuario propio** desde la migración 1, identidad única, `USERNAME_FIELD`. — **hecho** (`cuentas.Usuario`).
 - **Autenticación**: sesión web + token con refresh para móvil, endpoints login/refresh/logout y `/me`. — **hecho** (JWT con refresh y blacklist; falta HTTPS).
-- **RBAC centralizado**: roles como dato (`Rol.codigo`) + una matriz rol × permiso + un mixin o clase que la aplica. — **parcial** (matriz y `PermisoPorRol` en la API; la web sigue con `LoginRequiredMixin`).
+- **RBAC centralizado**: roles como dato (`Rol.codigo`) + una matriz rol × permiso + un mixin o clase que la aplica. — **hecho** (`apps/common/permisos.py`; web y API la consultan).
 - **Validación en el borde**: validadores de campo + cruce en serializer/form + restricciones en la base. — **parcial** (serializers en la API; faltan restricciones en la base).
 - **Errores uniformes** 400/401/403/404/500. — **ausente**.
 - **Auditoría central** por señal o middleware. — **parcial y mal ubicada** (se llama desde las vistas).
@@ -31,7 +31,7 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - El hueco de raíz: no existe una lista de requisitos con estado. Eso es "no hay puntos claros de qué cubrir".
 - Cada requisito tiene estado y un criterio de aceptación verificable.
 - R1 · Login y recuperación con OTP — **hecho**.
-- R2 · Roles y permisos aplicados de verdad — **parcial** (en la API; pendiente en la web).
+- R2 · Roles y permisos aplicados de verdad — **hecho** (web y API, con el menú filtrado por rol).
 - R3 · Gestión de usuarios, roles, delegaciones, catálogos y vecinos — **hecho** (CRUD web y de API).
 - R4 · Flujo "crear atención" con historial del vecino — **parcial**.
 - R5 · Reemplazar el Excel: importación única, export y UX del funcionario — **parcial**.
@@ -87,7 +87,8 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 ## 10. Bitácora
 - `PLAN.md`, `scripts/verificar.sh`, `pyproject.toml` y CI: creados.
 - API v1 (`apps/api`): auth JWT, permisos por rol, CRUD con borrado lógico y recuperación por correo (`RecuperacionPassword`). Esquema en `/api/schema/`. Verificado con `scripts/verificar.sh` (EXIT=0, recuperación de punta a punta).
-- Pendiente inmediato de documentación: `documentacion/documento_tecnico.md` (sección de API) y `.env.example` (variables de JWT y paginación).
+- Permisos por rol en `apps/common/permisos.py` (matriz rol × módulo), aplicados en la web, la API y el menú. Usuario de MariaDB con contraseña rotada.
+- Pendiente inmediato de documentación: `documentacion/documento_tecnico.md` (sección de API y permisos) y `.env.example` (variables de JWT y paginación).
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

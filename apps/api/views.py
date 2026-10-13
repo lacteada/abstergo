@@ -22,7 +22,7 @@ from apps.ciudadanos.models import Vecino
 from apps.cuentas.models import RecuperacionPassword, Rol
 from apps.organizacion.models import Delegacion
 
-from .permissions import ROLES_ADMIN, ROLES_ESCRITURA, ROLES_TODOS, PermisoPorRol
+from .permissions import PermisoPorRol
 from .serializers import (
     AtencionSerializer,
     DelegacionSerializer,
@@ -43,11 +43,10 @@ Usuario = get_user_model()
 
 
 class BaseViewSet(viewsets.ModelViewSet):
-    """CRUD con borrado lógico y permiso por rol."""
+    """CRUD con borrado lógico. El permiso sale de la matriz, vía `modulo`."""
 
     permission_classes = [IsAuthenticated, PermisoPorRol]
-    roles_lectura = ROLES_TODOS
-    roles_escritura = ROLES_ESCRITURA
+    modulo = None
 
     def perform_destroy(self, instance):
         instance.eliminar()
@@ -56,13 +55,13 @@ class BaseViewSet(viewsets.ModelViewSet):
 class RolViewSet(BaseViewSet):
     queryset = Rol.objects.all()
     serializer_class = RolSerializer
-    roles_escritura = ROLES_ADMIN
+    modulo = "roles"
 
 
 class UsuarioViewSet(BaseViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    roles_escritura = ROLES_ADMIN
+    modulo = "usuarios"
 
     def get_queryset(self):
         # `Usuario.objects` es un UserManager: no filtra el borrado lógico.
@@ -72,31 +71,37 @@ class UsuarioViewSet(BaseViewSet):
 class DelegacionViewSet(BaseViewSet):
     queryset = Delegacion.objects.all()
     serializer_class = DelegacionSerializer
+    modulo = "delegaciones"
 
 
 class MetaViewSet(BaseViewSet):
     queryset = MetaModel.objects.all()
     serializer_class = MetaSerializer
+    modulo = "metas"
 
 
 class TipoAtencionViewSet(BaseViewSet):
     queryset = TipoAtencion.objects.all()
     serializer_class = TipoAtencionSerializer
+    modulo = "tipos"
 
 
 class SubAtencionViewSet(BaseViewSet):
     queryset = SubAtencion.objects.all()
     serializer_class = SubAtencionSerializer
+    modulo = "subatenciones"
 
 
 class VecinoViewSet(BaseViewSet):
     queryset = Vecino.objects.all()
     serializer_class = VecinoSerializer
+    modulo = "vecinos"
 
 
 class AtencionViewSet(BaseViewSet):
     queryset = Atencion.objects.select_related("vecino", "tipo_atencion")
     serializer_class = AtencionSerializer
+    modulo = "atenciones"
 
 
 class MeView(APIView):

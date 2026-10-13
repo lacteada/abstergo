@@ -102,6 +102,29 @@ assert a.post("/api/v1/auth/nueva-password/",
                "password": "Nueva.Clave.123"}).status_code == 200, "nueva password"
 assert a.post("/api/v1/auth/login/",
               {"email": "admin@test.cl", "password": "Nueva.Clave.123"}).status_code == 200, "login nuevo"
+
+# Permisos por rol: una cuenta de solo lectura no escribe ni ve usuarios.
+from apps.cuentas.models import Rol as RolModel
+rol_consulta, _ = RolModel.objects.get_or_create(
+    codigo="consulta", defaults={"nombre": "CONSULTA"}
+)
+consulta, _ = U.objects.get_or_create(
+    email="consulta@test.cl", defaults={"first_name": "C", "last_name": "D"}
+)
+consulta.rol = rol_consulta
+consulta.set_password("Clave.123")
+consulta.is_active = True
+consulta.save()
+b = Client()
+rb = b.post("/api/v1/auth/login/", {"email": "consulta@test.cl", "password": "Clave.123"})
+assert rb.status_code == 200, ("login consulta", rb.status_code)
+authb = {"HTTP_AUTHORIZATION": f"Bearer {rb.json()['access']}"}
+assert b.get("/api/v1/vecinos/", **authb).status_code == 200, "consulta lee vecinos"
+assert b.post("/api/v1/vecinos/", {"nombre": "x"}, **authb).status_code == 403, "consulta no escribe"
+assert b.get("/api/v1/usuarios/", **authb).status_code == 403, "consulta no ve usuarios"
+b.post("/login/", {"username": "consulta@test.cl", "password": "Clave.123"}, follow=True)
+assert b.get("/usuarios/").status_code == 403, "web: usuarios prohibido"
+assert b.get("/vecinos/").status_code == 200, "web: vecinos permitido"
 print("SMOKE OK")
 PY
 

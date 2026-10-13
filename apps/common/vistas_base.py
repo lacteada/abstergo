@@ -7,13 +7,33 @@ búsqueda, paginación de 7 filas, exportación a Excel y bitácora de auditorí
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
+from apps.common.permisos import modulo_de, puede
 from apps.cumplimiento.auditoria import registrar
+
+
+class PermisoRequeridoMixin:
+    """Exige el permiso del módulo según el rol, en la web.
+
+    Va después de `LoginRequiredMixin`, así el anónimo se redirige al login y
+    solo el usuario ya autenticado puede recibir un 403.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        modulo = modulo_de(getattr(self, "model", None))
+        if modulo:
+            escribir = request.method not in ("GET", "HEAD", "OPTIONS")
+            if not puede(request.user, modulo, escritura=escribir):
+                raise PermissionDenied(
+                    "Tu rol no tiene permiso para este módulo."
+                )
+        return super().dispatch(request, *args, **kwargs)
 
 
 class Comun:
@@ -40,7 +60,7 @@ class Comun:
         return contexto
 
 
-class ListadoBase(Comun, LoginRequiredMixin, ListView):
+class ListadoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView):
     template_name = "listado.html"
     paginate_by = 7
     busqueda = ()
@@ -112,7 +132,7 @@ class ListadoBase(Comun, LoginRequiredMixin, ListView):
         return "" if valor is None else str(valor)
 
 
-class _FormularioBase(Comun, LoginRequiredMixin):
+class _FormularioBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin):
     template_name = "formulario.html"
 
     def get_template_names(self):
@@ -142,7 +162,7 @@ class EdicionBase(_FormularioBase, UpdateView):
         return respuesta
 
 
-class BorradoBase(Comun, LoginRequiredMixin, DeleteView):
+class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
     template_name = "confirmar.html"
 
     def form_valid(self, form):

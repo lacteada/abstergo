@@ -9,7 +9,12 @@ from django.views import View
 from apps.atenciones.forms import AtencionForm
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
-from apps.common.vistas_base import BorradoBase, EdicionBase, ListadoBase
+from apps.common.vistas_base import (
+    BorradoBase,
+    EdicionBase,
+    ListadoBase,
+    PermisoRequeridoMixin,
+)
 from apps.cumplimiento.auditoria import registrar
 
 
@@ -58,7 +63,7 @@ class Listado(ListadoBase):
     )
 
 
-class CrearAtencion(LoginRequiredMixin, View):
+class CrearAtencion(LoginRequiredMixin, PermisoRequeridoMixin, View):
     """El flujo del rol Funcionario: buscar al vecino y registrar la atención.
 
     Un solo campo busca por RUT, nombre o apellido. Si el vecino existe, se
@@ -67,6 +72,7 @@ class CrearAtencion(LoginRequiredMixin, View):
     """
 
     template_name = "atenciones/crear.html"
+    model = Atencion
 
     def _plantilla(self):
         # En el modal se devuelve solo el fragmento del flujo (búsqueda,
