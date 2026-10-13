@@ -71,7 +71,8 @@ Configuración del proyecto (fuente: `config/settings.py`).
   `STATIC_ROOT = BASE_DIR / "staticfiles"`.
 
 Aplicaciones propias instaladas (`INSTALLED_APPS`): `apps.organizacion`,
-`apps.cuentas`, `apps.catalogos`, `apps.ciudadanos`, `apps.panel`.
+`apps.cuentas`, `apps.catalogos`, `apps.ciudadanos`, `apps.atenciones`,
+`apps.cumplimiento`, `apps.panel` y `apps.api`.
 
 Estructura de carpetas:
 
@@ -613,3 +614,37 @@ Reglas transversales, definidas una sola vez en `apps/common`:
 - Alta y edición del CRUD en modal (`<dialog>`), con botones de icono SVG.
 - Listados con paginación de 7 filas.
 - Exportación a `.xlsx` con `openpyxl`, respetando el filtro y todas las páginas.
+
+---
+
+## 18. API y permisos (implementado)
+
+Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
+
+### 18.1 API v1
+
+- Base `/api/v1/` con el router de DRF. Esquema OpenAPI en `/api/schema/` y
+  documentación navegable en `/api/docs/`.
+- Autenticación con JWT (`djangorestframework-simplejwt`): `POST /api/v1/auth/login/`
+  devuelve `access` y `refresh`; `.../refresh/` renueva; `.../logout/` invalida el
+  refresh (blacklist); `GET .../me/` devuelve el usuario.
+- Recuperación de contraseña: `.../recuperar/`, `.../validar/` y
+  `.../nueva-password/`. El código de 6 dígitos vive en
+  `cuentas.RecuperacionPassword` (no en la sesión), con vencimiento, tope de 5
+  intentos y comparación en tiempo constante. Pedir recuperación **no** desactiva
+  la cuenta.
+- CRUD: un viewset por entidad (`roles`, `usuarios`, `delegaciones`, `metas`,
+  `tipos-atencion`, `sub-atenciones`, `vecinos`, `atenciones`), con borrado lógico.
+
+### 18.2 Permisos por rol
+
+- La política vive una sola vez en `apps/common/permisos.py`: una matriz
+  `módulo → {lectura, escritura}` sobre los códigos de `Rol.codigo`. Cambiarla es
+  editar ese archivo.
+- La web la aplica con `PermisoRequeridoMixin`: el anónimo va al login y el
+  autenticado sin permiso recibe 403.
+- La API la aplica con `PermisoPorRol`, que lee el atributo `modulo` de cada
+  viewset.
+- La barra lateral muestra solo los módulos con lectura permitida, vía el context
+  processor `apps.common.contexto.permisos`.
+- El superusuario cuenta como `admin`.
