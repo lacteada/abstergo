@@ -93,6 +93,10 @@ assert a.get("/api/v1/vecinos/", **auth).status_code == 200, "vecinos con token"
 # Recuperación de contraseña, de punta a punta.
 from apps.cuentas.models import RecuperacionPassword
 a.post("/api/v1/auth/recuperar/", {"email": "admin@test.cl"})
+u.refresh_from_db()
+assert u.is_active is False, "la cuenta debió desactivarse al pedir recuperación"
+assert a.post("/api/v1/auth/login/",
+              {"email": "admin@test.cl", "password": "Clave.123"}).status_code == 401, "login bloqueado"
 rec = RecuperacionPassword.objects.filter(usuario=u).order_by("-creado").first()
 assert rec is not None, "sin recuperación"
 assert a.post("/api/v1/auth/validar/",
@@ -100,6 +104,8 @@ assert a.post("/api/v1/auth/validar/",
 assert a.post("/api/v1/auth/nueva-password/",
               {"email": "admin@test.cl", "codigo": rec.codigo,
                "password": "Nueva.Clave.123"}).status_code == 200, "nueva password"
+u.refresh_from_db()
+assert u.is_active is True, "la cuenta debió reactivarse"
 assert a.post("/api/v1/auth/login/",
               {"email": "admin@test.cl", "password": "Nueva.Clave.123"}).status_code == 200, "login nuevo"
 print("SMOKE OK")

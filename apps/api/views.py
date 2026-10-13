@@ -148,6 +148,9 @@ class RecuperarPasswordView(APIView):
         if usuario:
             recuperacion = RecuperacionPassword.generar(usuario)
             _enviar_codigo(usuario, recuperacion.codigo)
+            # La cuenta queda desactivada hasta que se fije la contraseña nueva.
+            usuario.is_active = False
+            usuario.save(update_fields=["is_active"])
         # Misma respuesta exista o no el correo: no se revela qué cuentas hay.
         return Response({"detail": "Si el correo existe, se envió un código."})
 
@@ -213,7 +216,9 @@ class NuevaPasswordView(APIView):
         except ValidationError as exc:
             return Response({"detail": list(exc.messages)}, status=400)
         usuario.set_password(password)
-        usuario.save(update_fields=["password"])
+        # Con la contraseña nueva, la cuenta vuelve a estar activa.
+        usuario.is_active = True
+        usuario.save(update_fields=["password", "is_active"])
         recuperacion.usado = timezone.now()
         recuperacion.save(update_fields=["usado"])
         return Response({"detail": "Contraseña actualizada."})
