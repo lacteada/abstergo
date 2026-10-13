@@ -1,5 +1,10 @@
+import secrets
+from datetime import timedelta
+
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+from django.utils import timezone
 
 from apps.common.soft_delete import BorradoLogico, Eliminado
 from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
@@ -100,3 +105,48 @@ class Usuario(AbstractUser, Eliminado):
         # normalize_username(None) revienta. Sin correo no hay qué normalizar.
         if self.email:
             super().clean()
+
+
+class RecuperacionPassword(models.Model):
+    """Código de recuperación de contraseña.
+
+    Antes vivía en la sesión de la web; el cliente móvil no tiene sesión, así
+    que el código persiste. Se guarda en claro a propósito: son 6 dígitos con
+    vencimiento corto y tope de intentos.
+    """
+
+    MAX_INTENTOS = 5
+
+    usuario = models.ForeignKey(
+        "cuentas.Usuario",
+        on_delete=models.CASCADE,
+        related_name="recuperaciones",
+        verbose_name="usuario",
+    )
+    codigo = models.CharField("código", max_length=6)
+    creado = models.DateTimeField("creado", auto_now_add=True)
+    expira = models.DateTimeField("expira")
+    validado = models.DateTimeField("validado", null=True, blank=True)
+    usado = models.DateTimeField("usado", null=True, blank=True)
+    intentos = models.PositiveIntegerField("intentos", default=0)
+
+    class Meta:
+        verbose_name = "recuperación de contraseña"
+        verbose_name_plural = "recuperaciones de contraseña"
+        ordering = ["-creado"]
+
+    def __str__(self):
+        return f"Recuperación de {self.usuario} ({self.creado:%d-%m-%Y %H:%M})"
+
+    def vigente(self):
+        return (
+            self.usado is None
+            and self.intentos < self.MAX_INTENTOS
+            and timezone.now() < self.expira
+        )
+
+    @classmethod
+    def generar(cls, usuario):
+        codigo = f"{secrets.randbelow(1000000):06d}"
+        vence = timezone.now() + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)
+        return cls.objects.create(usuario=usuario, codigo=codigo, expira=vence)

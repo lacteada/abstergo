@@ -2,7 +2,7 @@
 
 Guía para que el agente trabaje este proyecto de punta a punta: el usuario
 escribe el cambio, el agente lo implementa, lo verifica, hace commit, lo sube y
-lo despliega. **Sin pedir confirmaciones.**
+lo despliega. **Pero nada se cierra sin pasar la verificación.**
 
 ---
 
@@ -10,10 +10,12 @@ lo despliega. **Sin pedir confirmaciones.**
 
 Cuando el usuario pide un cambio en este proyecto:
 
-- Impleméntalo directamente. No pidas confirmación ni propongas un plan antes de
-  actuar: hazlo y reporta lo que quedó.
-- Verifica antes de subir (sección 5). Si algo falla, arréglalo y vuelve a
-  verificar.
+- Impleméntalo directamente; no propongas un plan antes de actuar. Hazlo y
+  reporta lo que quedó.
+- El trabajo no está cerrado hasta que `bash scripts/verificar.sh` pase: el
+  cierre lo decide la máquina, no tu vista en el navegador.
+- Antes de actuar, declara qué requisito toca el cambio y qué documento
+  actualiza (ver `PLAN.md`, secciones 5 y 6).
 - Haz `commit` y `push` a `main` sin preguntar.
 - Despliega en AWS (sección 6) y verifica en vivo (sección 7).
 - Termina con un resumen corto: qué cambió, qué se verificó y el hash del commit.
@@ -27,6 +29,7 @@ Cuando el usuario pide un cambio en este proyecto:
 
 - Ruta local: `~/code/ina/backend/abstergo` (Django 6.1 + MariaDB).
 - Repositorio: `https://github.com/lacteada/abstergo.git`, rama `main`.
+- Plan rector: `PLAN.md` (big picture, esqueleto, requisitos y su estado).
 - Front con framework institucional (`static/css/frameworkV1.css` +
   `institucional.css`), SweetAlert2 vendorizado, sin Bootstrap.
 - Datos en `datos_nuevos/` (JSON). Carga con `python manage.py cargar_datos`
@@ -68,8 +71,9 @@ aplica. Si solo toca plantillas o estáticos, el paso 6 igual corre para recarga
 
 ## 5. Verificación local (sin MariaDB)
 
-La máquina local no tiene MariaDB. Se verifica con un SQLite temporal fuera del
-repositorio:
+Corre `bash scripts/verificar.sh`, que es la fuente ejecutable: crea un SQLite
+temporal fuera del repositorio y corre check, migraciones, carga de datos y el
+smoke de rutas. La receta de abajo queda como referencia.
 
 ```bash
 cd ~/code/ina/backend/abstergo
@@ -196,6 +200,7 @@ done
 
 ## 10. Pendientes conocidos
 
+- Estado y pendientes del proyecto (qué falta y cómo se verifica): `PLAN.md`.
 - `STATIC_ROOT` apunta a `~/abstergo/staticfiles`, por eso el `cp` con sudo en
   cada despliegue. Se puede mover a `/var/www/abstergo-static` por `.env` y dar
   permisos a `ec2-user` para eliminar ese paso.
