@@ -7,6 +7,7 @@ from apps.atenciones.models import Atencion
 from apps.catalogos.models import Meta as MetaModel
 from apps.catalogos.models import SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
+from apps.common.permisos import codigo_de, modulos_de
 from apps.cuentas.models import Rol
 from apps.organizacion.models import Delegacion
 
@@ -53,6 +54,30 @@ class UsuarioSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+
+class PerfilSerializer(UsuarioSerializer):
+    """El usuario más lo que puede hacer, para que el cliente no repita la matriz."""
+
+    rol_codigo = serializers.SerializerMethodField()
+    modulos_lectura = serializers.SerializerMethodField()
+    modulos_escritura = serializers.SerializerMethodField()
+
+    class Meta(UsuarioSerializer.Meta):
+        fields = UsuarioSerializer.Meta.fields + [
+            "rol_codigo",
+            "modulos_lectura",
+            "modulos_escritura",
+        ]
+
+    def get_rol_codigo(self, obj):
+        return codigo_de(obj)
+
+    def get_modulos_lectura(self, obj):
+        return sorted(modulos_de(obj))
+
+    def get_modulos_escritura(self, obj):
+        return sorted(modulos_de(obj, escritura=True))
 
 
 class DelegacionSerializer(serializers.ModelSerializer):

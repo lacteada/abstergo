@@ -30,6 +30,7 @@ from .serializers import (
     LogoutSerializer,
     MetaSerializer,
     NuevaPasswordSerializer,
+    PerfilSerializer,
     RecuperarSerializer,
     RolSerializer,
     SubAtencionSerializer,
@@ -107,9 +108,9 @@ class AtencionViewSet(BaseViewSet):
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @extend_schema(responses=UsuarioSerializer)
+    @extend_schema(responses=PerfilSerializer)
     def get(self, request):
-        return Response(UsuarioSerializer(request.user).data)
+        return Response(PerfilSerializer(request.user).data)
 
 
 class LogoutView(APIView):

@@ -125,6 +125,16 @@ assert b.get("/api/v1/usuarios/", **authb).status_code == 403, "consulta no ve u
 b.post("/login/", {"username": "consulta@test.cl", "password": "Clave.123"}, follow=True)
 assert b.get("/usuarios/").status_code == 403, "web: usuarios prohibido"
 assert b.get("/vecinos/").status_code == 200, "web: vecinos permitido"
+
+# El perfil expone el rol y los módulos, para que el cliente no repita la matriz.
+perfil_admin = a.get("/api/v1/auth/me/", **auth).json()
+assert perfil_admin["rol_codigo"] == "admin", perfil_admin.get("rol_codigo")
+assert "usuarios" in perfil_admin["modulos_lectura"], "admin lee usuarios"
+perfil_consulta = b.get("/api/v1/auth/me/", **authb).json()
+assert perfil_consulta["rol_codigo"] == "consulta", perfil_consulta.get("rol_codigo")
+assert "usuarios" not in perfil_consulta["modulos_lectura"], "consulta no ve usuarios"
+assert "vecinos" in perfil_consulta["modulos_lectura"], "consulta lee vecinos"
+assert "vecinos" not in perfil_consulta["modulos_escritura"], "consulta no escribe"
 print("SMOKE OK")
 PY
 
