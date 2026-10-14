@@ -204,3 +204,30 @@ done
 - `STATIC_ROOT` apunta a `~/abstergo/staticfiles`, por eso el `cp` con sudo en
   cada despliegue. Se puede mover a `/var/www/abstergo-static` por `.env` y dar
   permisos a `ec2-user` para eliminar ese paso.
+
+---
+
+## 11. Principios del proyecto: simplicidad primero
+
+Regla rectora del código. Si algo de lo anterior entra en duda, gana esta
+sección.
+
+- **La menor complejidad que resuelva el problema.** Si hay dos caminos y uno es
+  más simple, ese.
+- **POO de verdad**: cada clase con una responsabilidad. Si hace dos cosas, se
+  parte en dos.
+- **DRY**: una sola fuente por regla. Si una regla vive en dos lugares, ya está
+  mal (ejemplo correcto: `apps/common/permisos.py`).
+- **Menos líneas con más propósito**: lo que se repite tres veces se abstrae; lo
+  que se usa una vez, no.
+- **Sin dependencias nuevas** si la biblioteca estándar alcanza.
+- **Documentación corta y representable**: cada pieza se explica en una frase y
+  se dibuja en un diagrama. Si no se puede explicar, el problema es el código.
+
+**El límite, para no equivocarnos**
+- "Menos líneas" no es comprimir: una función que hace cinco cosas no es simple,
+  es confusa.
+- La claridad manda sobre el ingenio. Si el código corto necesita un comentario
+  para entenderse, no era corto.
+- Simplicidad **no** es menos verificación: `scripts/verificar.sh` sigue siendo
+  obligatorio para cerrar un cambio.

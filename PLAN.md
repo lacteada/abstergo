@@ -10,6 +10,7 @@ este documento no la repite, la enlaza.
 - La app **no está hecha**: es un esqueleto parcial que cumple una fracción de los requisitos del usuario.
 - Todo proyecto de este tipo tiene la misma forma: **esqueleto** (invariante) → **módulos** (variable) → **front** (presentación).
 - El esqueleto se cierra una vez con un agente; los módulos se paralelizan; el front consume el contrato.
+- Principio rector del código: **simplicidad primero** — la menor complejidad, POO con responsabilidad única, DRY (una sola fuente por regla) y documentación corta y fácil de dibujar. El detalle está en `AGENTS.md` §11.
 
 ## 1. El esqueleto (invariante)
 Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, es esqueleto.
