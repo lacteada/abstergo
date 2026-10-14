@@ -22,6 +22,7 @@ urlpatterns = [
     path("auth/logout/", views.LogoutView.as_view(), name="api-logout"),
     path("auth/me/", views.MeView.as_view(), name="api-me"),
     path("auth/recover/", views.RecuperarPasswordView.as_view(), name="api-recover"),
+    path("auth/register/", views.RegistroView.as_view(), name="api-register"),
     path("auth/verify/", views.ValidarCodigoView.as_view(), name="api-verify"),
     path(
         "auth/new-password/",

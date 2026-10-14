@@ -52,7 +52,7 @@ def _vigente(correo, solo_validadas=False):
 
 
 def solicitar(correo):
-    """Genera y envía un código si el correo existe.
+    """Genera y envía un código si el correo existe, y bloquea la cuenta.
 
     La respuesta es la misma exista o no la cuenta: no se revela qué correos hay.
     """
@@ -60,6 +60,9 @@ def solicitar(correo):
     if usuario:
         recuperacion = RecuperacionPassword.generar(usuario)
         enviar_codigo(usuario, recuperacion.codigo)
+        # La cuenta queda bloqueada hasta que se fije la contraseña nueva.
+        usuario.is_active = False
+        usuario.save(update_fields=["is_active"])
     return usuario
 
 
@@ -97,7 +100,9 @@ def restablecer(correo, password, codigo=None):
     except ValidationError as error:
         return list(error.messages)
     usuario.set_password(password)
-    usuario.save(update_fields=["password"])
+    # Con la contraseña nueva, la cuenta se reactiva.
+    usuario.is_active = True
+    usuario.save(update_fields=["password", "is_active"])
     recuperacion.usado = timezone.now()
     recuperacion.save(update_fields=["usado"])
     return None

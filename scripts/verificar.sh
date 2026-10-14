@@ -79,8 +79,8 @@ for ruta in ["/", "/delegaciones/", "/usuarios/", "/roles/", "/metas/",
 assert c.get("/api/schema/").status_code == 200, "schema"
 esquema = c.get("/api/schema/").content.decode()
 for ruta_api in ["/api/v1/auth/recover/", "/api/v1/auth/verify/",
-                 "/api/v1/auth/new-password/", "/api/v1/neighbors/",
-                 "/api/v1/cases/"]:
+                 "/api/v1/auth/new-password/", "/api/v1/auth/register/",
+                 "/api/v1/neighbors/", "/api/v1/cases/"]:
     assert ruta_api in esquema, ruta_api
 
 a = Client()
@@ -121,8 +121,17 @@ assert "users" not in perfil2["read_modules"]
 assert "neighbors" in perfil2["read_modules"]
 assert "neighbors" not in perfil2["write_modules"]
 
-# Recuperación de contraseña, de punta a punta.
+# Registro público: el correo es el identificador y no se puede repetir.
+alta = {"email": "nuevo@test.cl", "first_name": "Nuevo", "password": "Clave.123"}
+assert a.post("/api/v1/auth/register/", alta).status_code == 201, "registro"
+assert a.post("/api/v1/auth/register/", alta).status_code == 400, "correo repetido"
+
+# Recuperación de contraseña: bloquea la cuenta y la reactiva al guardarla.
 a.post("/api/v1/auth/recover/", {"email": "admin@test.cl"})
+u.refresh_from_db()
+assert u.is_active is False, "la cuenta debía bloquearse al pedir recuperación"
+assert a.post("/api/v1/auth/login/",
+              {"email": "admin@test.cl", "password": "Clave.123"}).status_code == 401, "bloqueada"
 rec = RecuperacionPassword.objects.filter(usuario=u).order_by("-creado").first()
 assert rec is not None, "sin recuperación"
 assert a.post("/api/v1/auth/verify/",
@@ -130,6 +139,8 @@ assert a.post("/api/v1/auth/verify/",
 assert a.post("/api/v1/auth/new-password/",
               {"email": "admin@test.cl", "code": rec.codigo,
                "password": "Nueva.Clave.123"}).status_code == 200, "nueva password"
+u.refresh_from_db()
+assert u.is_active is True, "la cuenta debía reactivarse"
 assert a.post("/api/v1/auth/login/",
               {"email": "admin@test.cl", "password": "Nueva.Clave.123"}).status_code == 200, "login nuevo"
 print("SMOKE OK")

@@ -297,6 +297,30 @@ class DetalleSerializer(serializers.Serializer):
     detail = serializers.CharField()
 
 
+class RegistroSerializer(serializers.Serializer):
+    """El alta pública: el correo es el identificador y no puede repetirse."""
+
+    email = serializers.EmailField()
+    first_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    password = serializers.CharField(write_only=True)
+
+    def validate_email(self, valor):
+        if Usuario.vigentes().filter(email__iexact=valor).exists():
+            raise serializers.ValidationError("Ese correo ya está registrado.")
+        return valor
+
+    def validate_password(self, valor):
+        validate_password(valor)
+        return valor
+
+    def create(self, validated_data):
+        return Usuario.objects.create_user(
+            email=validated_data["email"],
+            password=validated_data["password"],
+            first_name=validated_data.get("first_name", ""),
+        )
+
+
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 

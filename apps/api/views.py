@@ -26,6 +26,7 @@ from .serializers import (
     NuevaPasswordSerializer,
     PerfilSerializer,
     RecuperarSerializer,
+    RegistroSerializer,
     RolSerializer,
     SubAtencionSerializer,
     TipoAtencionSerializer,
@@ -130,6 +131,19 @@ class RecuperarPasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         otp.solicitar(serializer.validated_data["email"])
         return Response({"detail": "Si el correo existe, se envió un código."})
+
+
+class RegistroView(APIView):
+    """Alta pública de usuario: el correo es el identificador."""
+
+    permission_classes = []
+
+    @extend_schema(request=RegistroSerializer, responses={201: UsuarioSerializer})
+    def post(self, request):
+        serializer = RegistroSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        usuario = serializer.save()
+        return Response(UsuarioSerializer(usuario).data, status=status.HTTP_201_CREATED)
 
 
 class ValidarCodigoView(APIView):
