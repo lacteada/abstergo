@@ -50,9 +50,18 @@ def validar_telefono(valor):
         )
 
 
+def limpiar_rut(valor):
+    """Saca puntos y espacios y pasa a mayúsculas, sin agregar el guion.
+
+    Es la forma que se usa para **buscar**: un RUT a medio escribir también
+    tiene que calzar.
+    """
+    return re.sub(r"[.\s]", "", (valor or "")).upper()
+
+
 def normalizar_rut(valor):
     """Deja el RUT en la forma canónica 12345678-9, sin puntos."""
-    limpio = re.sub(r"[.\s]", "", (valor or "")).upper()
+    limpio = limpiar_rut(valor)
     if "-" not in limpio and len(limpio) > 1:
         limpio = limpio[:-1] + "-" + limpio[-1]
     return limpio

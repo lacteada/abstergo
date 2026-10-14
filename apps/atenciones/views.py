@@ -1,5 +1,3 @@
-import re
-
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
@@ -9,6 +7,7 @@ from django.views import View
 from apps.atenciones.forms import AtencionForm
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
+from apps.common.validators import limpiar_rut
 from apps.common.vistas_base import (
     BorradoBase,
     EdicionBase,
@@ -16,10 +15,6 @@ from apps.common.vistas_base import (
     PermisoRequeridoMixin,
 )
 from apps.cumplimiento.auditoria import registrar
-
-
-def limpiar_rut(valor):
-    return re.sub(r"[.\s]", "", valor or "").upper()
 
 
 def buscar_vecinos(consulta):

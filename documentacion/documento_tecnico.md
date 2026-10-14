@@ -86,10 +86,13 @@ abstergo/
 │   │   ├── soft_delete.py
 │   │   ├── admin_base.py
 │   │   └── vistas_base.py
-│   ├── cuentas/               # Rol, Usuario, autenticación (OTP)
+│   ├── cuentas/               # Rol, Usuario, recuperación (otp.py)
 │   ├── organizacion/          # Delegacion
 │   ├── catalogos/             # Meta, TipoAtencion, SubAtencion
 │   ├── ciudadanos/            # Vecino
+│   ├── atenciones/            # Atencion
+│   ├── cumplimiento/          # tablas de la Ley 21.719
+│   ├── api/                   # API v1 (DRF)
 │   └── panel/                 # Inicio y comando cargar_datos
 │       └── management/commands/cargar_datos.py
 ├── datos_nuevos/              # JSON de importación, uno por entidad
@@ -105,9 +108,12 @@ comando de carga (`apps/panel/models.py` está vacío).
 
 ## 4. Modelo de datos
 
-Siete entidades. Todas heredan, directa o indirectamente, del borrado lógico
-(`apps/common/soft_delete.py`). Ninguna relación borra en cascada: **todas usan
-`models.PROTECT`.**
+Trece modelos. Los siete del mantenedor (la tabla de abajo), más `Atencion`, las
+cinco tablas de la Ley 21.719 (§17) y `RecuperacionPassword`. Todos heredan,
+directa o indirectamente, del borrado lógico (`apps/common/soft_delete.py`), salvo
+`RecuperacionPassword`. Ninguna relación borra en cascada: las llaves foráneas
+usan `models.PROTECT`, salvo la de `RecuperacionPassword`, que puede irse con su
+usuario.
 
 | # | Entidad | App | Tabla | Campos propios |
 |---|---|---|---|---|
@@ -170,8 +176,10 @@ del vecino (Activo/Inactivo); `eliminado` es la fila retirada del sistema.
 
 ## 5. Migraciones
 
-Cuatro archivos `0001_initial.py`, uno por app con modelos (`panel` no tiene).
-Cada uno traduce el modelo a la creación de su tabla.
+Un `0001_initial.py` por app con modelos (`panel` no tiene): **seis** en total.
+Encima hay migraciones `0002`, `0003` y `0004` que corrigen la forma de los datos
+ya cargados o agregan modelos nuevos. Cada uno traduce el modelo a la creación de
+su tabla.
 
 Fuente: `apps/*/migrations/0001_initial.py`. Dependencias entre migraciones:
 
@@ -233,11 +241,13 @@ Raíz: `config/urls.py`.
 ```python
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/v1/", include("apps.api.urls")),
     path("", include("apps.cuentas.urls")),
     path("", include("apps.panel.urls")),
     path("", include("apps.organizacion.urls")),
     path("", include("apps.catalogos.urls")),
     path("", include("apps.ciudadanos.urls")),
+    path("", include("apps.atenciones.urls")),
 ]
 ```
 
@@ -517,6 +527,11 @@ DEFAULT_FROM_EMAIL=no-reply@muniserena.cl
 OTP_EXPIRY_MINUTES=10
 PASSWORD_MIN_LENGTH=8
 USUARIOS_PASSWORD_INICIAL=
+
+# API (cliente móvil)
+JWT_ACCESS_MINUTES=60
+JWT_REFRESH_DAYS=7
+API_PAGE_SIZE=20
 ```
 
 En `settings.py`, el backend de correo se declara en `MAILERS` (reemplaza a
@@ -589,9 +604,9 @@ En producción, el servidor WSGI es `gunicorn` (`gunicorn` está en
 
 ---
 
-## 17. Modelo v2 y Ley 21.719 (en diseño)
+## 17. Modelo v2 y Ley 21.719 (implementado)
 
-Describe el destino del proyecto. Aún no está implementado; el detalle vive en
+Describe piezas del proyecto ya implementadas; el diseño original vive en
 `documentacion/vision.md`.
 
 Tablas nuevas:
@@ -648,3 +663,35 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
 - La barra lateral muestra solo los módulos con lectura permitida, vía el context
   processor `apps.common.contexto.permisos`.
 - El superusuario cuenta como `admin`.
+
+### 18.3 El contrato está en inglés
+
+Adentro el dominio está en español y los modelos no se tocan; lo que sale por la
+API está en inglés, con `source` en cada campo del serializer. Este es el
+glosario, el mismo que usa el cliente Android:
+
+- `Rol` → `role`: `codigo` → `code`, `nombre` → `name`, `descripcion` → `description`.
+- `Usuario` → `user`: `rol` → `role`, `delegacion` → `delegation`.
+- `Delegacion` → `delegation`: `codigo` → `code`, `nombre` → `name`,
+  `direccion` → `address`, `comuna` → `commune`, `responsable` → `manager`.
+- `Meta` → `goal`: `nombre` → `name`, `descripcion` → `description`,
+  `delegacion` → `delegation`.
+- `TipoAtencion` → `attention_type`: `nombre` → `name`, `descripcion` → `description`.
+- `SubAtencion` → `attention_subtype`: `nombre` → `name`,
+  `tipo_atencion` → `attention_type`.
+- `Vecino` → `neighbor`: `nombre` → `name`, `rut` se mantiene,
+  `direccion` → `address`, `telefono` → `phone`, `territorio` → `territory`,
+  `tipo_gestion` → `management_type`, `estado` → `status`.
+- `Atencion` → `case`: `vecino` → `neighbor`, `tipo_atencion` → `attention_type`,
+  `sub_atencion` → `attention_subtype`, `delegacion` → `delegation`,
+  `funcionario` → `staff`, `fecha` → `date`, `motivo` → `reason`,
+  `detalle` → `detail`, `estado` → `status`, `canal` → `channel`.
+- `Perfil` → `profile`: `rol_codigo` → `role_code`,
+  `modulos_lectura` → `read_modules`, `modulos_escritura` → `write_modules`.
+- En la recuperación, `codigo` → `code`. `email`, `password`, `refresh` y
+  `detail` se mantienen.
+- Rutas: `auth/recover/`, `auth/verify/`, `auth/new-password/`; y los recursos
+  `roles`, `users`, `delegations`, `goals`, `attention-types`,
+  `attention-subtypes`, `neighbors`, `cases`.
+- Las claves de módulo de la matriz (§18.2) viajan en `read_modules` y
+  `write_modules`, así que también están en inglés.

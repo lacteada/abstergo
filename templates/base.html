@@ -30,15 +30,15 @@
       <div class="grupo">
         <span class="grupo-titulo">Mantenedores</span>
 
-        {% if 'atenciones' in modulos_lectura %}
+        {% if 'cases' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'atenciones' %} activo{% endif %}"
            href="{% url 'atenciones:listado' %}">Atenciones</a>
         {% endif %}
-        {% if 'delegaciones' in modulos_lectura %}
+        {% if 'delegations' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'delegaciones' %} activo{% endif %}"
            href="{% url 'organizacion:delegaciones' %}">Delegaciones Municipales</a>
         {% endif %}
-        {% if 'usuarios' in modulos_lectura %}
+        {% if 'users' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'usuarios' %} activo{% endif %}"
            href="{% url 'cuentas:usuarios' %}">Usuarios</a>
         {% endif %}
@@ -46,19 +46,19 @@
         <a class="nav-sub{% if seccion == 'roles' %} activo{% endif %}"
            href="{% url 'cuentas:roles' %}">Roles</a>
         {% endif %}
-        {% if 'metas' in modulos_lectura %}
+        {% if 'goals' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'metas' %} activo{% endif %}"
            href="{% url 'catalogos:metas' %}">Metas</a>
         {% endif %}
-        {% if 'tipos' in modulos_lectura %}
+        {% if 'attention_types' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'tipos' %} activo{% endif %}"
            href="{% url 'catalogos:tipos' %}">Tipo de Atención</a>
         {% endif %}
-        {% if 'subatenciones' in modulos_lectura %}
+        {% if 'attention_subtypes' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'subatenciones' %} activo{% endif %}"
            href="{% url 'catalogos:subatenciones' %}">Sub Atención</a>
         {% endif %}
-        {% if 'vecinos' in modulos_lectura %}
+        {% if 'neighbors' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'vecinos' %} activo{% endif %}"
            href="{% url 'ciudadanos:vecinos' %}">Vecinos</a>
         {% endif %}

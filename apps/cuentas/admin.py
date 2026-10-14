@@ -108,5 +108,4 @@ class UsuarioAdmin(AdminBase, BaseUserAdmin):
     )
 
     def get_queryset(self, request):
-        # El gestor de Usuario no filtra por borrado lógico; el Admin sí.
-        return super().get_queryset(request).filter(eliminado__isnull=True)
+        return Usuario.vigentes()

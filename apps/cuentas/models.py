@@ -106,6 +106,15 @@ class Usuario(AbstractUser, Eliminado):
         if self.email:
             super().clean()
 
+    @classmethod
+    def vigentes(cls):
+        """Los usuarios no dados de baja.
+
+        `objects` es un UserManager, que no filtra por borrado lógico; esta es la
+        única forma de pedir los vigentes.
+        """
+        return cls.objects.filter(eliminado__isnull=True)
+
 
 class RecuperacionPassword(models.Model):
     """Código de recuperación de contraseña.

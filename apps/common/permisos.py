@@ -3,6 +3,10 @@
 La matriz dice, por módulo, qué roles pueden **leer** y qué roles pueden
 **escribir**. La web y la API la consultan por igual; ninguna vista ramifica por
 rol por su cuenta. Para cambiarla, se edita acá y listo.
+
+Las claves de módulo viajan en el contrato (``/auth/me/`` devuelve
+``read_modules`` y ``write_modules``), así que están en inglés, igual que el
+resto del contrato público.
 """
 
 ADMIN = "admin"
@@ -15,52 +19,33 @@ CONSULTA = "consulta"
 # Códigos de `Rol.codigo` que existen en el sistema.
 ROLES = [ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR, CONSULTA]
 
-# módulo -> {"lectura": set(roles), "escritura": set(roles)}
+TODOS = set(ROLES)
+GESTION = {ADMIN, COORDINADOR}
+TERRENO = {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO}
+CATALOGOS = {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR}
+
+# módulo -> {"read": set(roles), "write": set(roles)}
 MATRIZ = {
-    "atenciones": {
-        "lectura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR, CONSULTA},
-        "escritura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
-    },
-    "vecinos": {
-        "lectura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR, CONSULTA},
-        "escritura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
-    },
-    "delegaciones": {
-        "lectura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR},
-        "escritura": {ADMIN, COORDINADOR},
-    },
-    "metas": {
-        "lectura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
-        "escritura": {ADMIN, COORDINADOR, DELEGADO},
-    },
-    "tipos": {
-        "lectura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR},
-        "escritura": {ADMIN, COORDINADOR},
-    },
-    "subatenciones": {
-        "lectura": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR},
-        "escritura": {ADMIN, COORDINADOR},
-    },
-    "usuarios": {
-        "lectura": {ADMIN},
-        "escritura": {ADMIN},
-    },
-    "roles": {
-        "lectura": {ADMIN},
-        "escritura": {ADMIN},
-    },
+    "cases": {"read": TODOS, "write": TERRENO},
+    "neighbors": {"read": TODOS, "write": TERRENO},
+    "delegations": {"read": CATALOGOS, "write": GESTION},
+    "goals": {"read": TERRENO, "write": {ADMIN, COORDINADOR, DELEGADO}},
+    "attention_types": {"read": CATALOGOS, "write": GESTION},
+    "attention_subtypes": {"read": CATALOGOS, "write": GESTION},
+    "users": {"read": {ADMIN}, "write": {ADMIN}},
+    "roles": {"read": {ADMIN}, "write": {ADMIN}},
 }
 
 # Modelo -> módulo. Las vistas web no repiten la asignación: la derivan del
 # modelo que ya declaran.
 MODELO_A_MODULO = {
-    "Atencion": "atenciones",
-    "Vecino": "vecinos",
-    "Delegacion": "delegaciones",
-    "Meta": "metas",
-    "TipoAtencion": "tipos",
-    "SubAtencion": "subatenciones",
-    "Usuario": "usuarios",
+    "Atencion": "cases",
+    "Vecino": "neighbors",
+    "Delegacion": "delegations",
+    "Meta": "goals",
+    "TipoAtencion": "attention_types",
+    "SubAtencion": "attention_subtypes",
+    "Usuario": "users",
     "Rol": "roles",
 }
 
@@ -77,12 +62,10 @@ def codigo_de(usuario):
 def puede(usuario, modulo, escritura=False):
     """¿El usuario puede leer (o escribir) ese módulo?"""
     codigo = codigo_de(usuario)
-    if not codigo:
-        return False
-    permisos = MATRIZ.get(modulo)
+    permisos = MATRIZ.get(modulo) if codigo else None
     if not permisos:
         return False
-    return codigo in permisos["escritura" if escritura else "lectura"]
+    return codigo in permisos["write" if escritura else "read"]
 
 
 def modulo_de(modelo):
@@ -95,5 +78,5 @@ def modulos_de(usuario, escritura=False):
     codigo = codigo_de(usuario)
     if not codigo:
         return set()
-    clave = "escritura" if escritura else "lectura"
+    clave = "write" if escritura else "read"
     return {modulo for modulo, p in MATRIZ.items() if codigo in p[clave]}

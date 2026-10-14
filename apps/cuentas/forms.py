@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 from apps.common.validators import validar_nombre
 from apps.cuentas.models import Rol, Usuario
@@ -89,17 +90,11 @@ class CodigoForm(forms.Form):
     codigo = forms.CharField(
         label="Código de verificación",
         max_length=6,
-        min_length=6,
+        validators=[RegexValidator(r"^\d{6}$", "El código son 6 dígitos.")],
         widget=forms.TextInput(
             attrs={"class": "codigo", "inputmode": "numeric", "autocomplete": "off"}
         ),
     )
-
-    def clean_codigo(self):
-        codigo = self.cleaned_data["codigo"].strip()
-        if not codigo.isdigit():
-            raise forms.ValidationError("El código son 6 dígitos.")
-        return codigo
 
 
 class NuevaPasswordForm(forms.Form):

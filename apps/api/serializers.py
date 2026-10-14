@@ -1,6 +1,13 @@
-"""Serializers de la API `v1`."""
+"""Serializers de la API `v1`.
+
+El contrato público está en inglés y el dominio interno sigue en español: cada
+campo declara su `source` y conserva los validadores del modelo. Así el esquema
+OpenAPI —que es lo que consume el cliente— también queda en inglés.
+El glosario está en `documentacion/documento_tecnico.md`.
+"""
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from apps.atenciones.models import Atencion
@@ -8,6 +15,15 @@ from apps.catalogos.models import Meta as MetaModel
 from apps.catalogos.models import SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
 from apps.common.permisos import codigo_de, modulos_de
+from apps.common.validators import (
+    validar_catalogo,
+    validar_codigo,
+    validar_comuna,
+    validar_direccion,
+    validar_nombre,
+    validar_rut,
+    validar_telefono,
+)
 from apps.cuentas.models import Rol
 from apps.organizacion.models import Delegacion
 
@@ -15,12 +31,37 @@ Usuario = get_user_model()
 
 
 class RolSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(
+        source="codigo",
+        max_length=40,
+        allow_null=True,
+        required=False,
+        validators=[validar_codigo],
+    )
+    name = serializers.CharField(source="nombre", max_length=60, validators=[validar_nombre])
+    description = serializers.CharField(
+        source="descripcion",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
+    )
+
     class Meta:
         model = Rol
-        fields = ["id", "codigo", "nombre", "descripcion"]
+        fields = ["id", "code", "name", "description"]
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    role = serializers.PrimaryKeyRelatedField(
+        source="rol", queryset=Rol.objects.all(), allow_null=True, required=False
+    )
+    delegation = serializers.PrimaryKeyRelatedField(
+        source="delegacion",
+        queryset=Delegacion.objects.all(),
+        allow_null=True,
+        required=False,
+    )
     password = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
@@ -30,11 +71,17 @@ class UsuarioSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
-            "rol",
-            "delegacion",
+            "role",
+            "delegation",
             "is_active",
             "password",
         ]
+
+    def validate_password(self, valor):
+        # La misma regla para la web, la API y el Admin.
+        if valor:
+            validate_password(valor, self.instance)
+        return valor
 
     def create(self, validated_data):
         password = validated_data.pop("password", "") or None
@@ -59,83 +106,189 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class PerfilSerializer(UsuarioSerializer):
     """El usuario más lo que puede hacer, para que el cliente no repita la matriz."""
 
-    rol_codigo = serializers.SerializerMethodField()
-    modulos_lectura = serializers.SerializerMethodField()
-    modulos_escritura = serializers.SerializerMethodField()
+    role_code = serializers.SerializerMethodField()
+    read_modules = serializers.SerializerMethodField()
+    write_modules = serializers.SerializerMethodField()
 
     class Meta(UsuarioSerializer.Meta):
         fields = UsuarioSerializer.Meta.fields + [
-            "rol_codigo",
-            "modulos_lectura",
-            "modulos_escritura",
+            "role_code",
+            "read_modules",
+            "write_modules",
         ]
 
-    def get_rol_codigo(self, obj):
+    def get_role_code(self, obj) -> str | None:
         return codigo_de(obj)
 
-    def get_modulos_lectura(self, obj):
+    def get_read_modules(self, obj) -> list[str]:
         return sorted(modulos_de(obj))
 
-    def get_modulos_escritura(self, obj):
+    def get_write_modules(self, obj) -> list[str]:
         return sorted(modulos_de(obj, escritura=True))
 
 
 class DelegacionSerializer(serializers.ModelSerializer):
+    code = serializers.CharField(
+        source="codigo", max_length=40, validators=[validar_codigo]
+    )
+    name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
+    address = serializers.CharField(
+        source="direccion",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_direccion],
+    )
+    commune = serializers.CharField(
+        source="comuna",
+        max_length=80,
+        allow_blank=True,
+        required=False,
+        validators=[validar_comuna],
+    )
+    manager = serializers.PrimaryKeyRelatedField(
+        source="responsable",
+        queryset=Usuario.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+
     class Meta:
         model = Delegacion
-        fields = ["id", "codigo", "nombre", "direccion", "comuna", "responsable"]
+        fields = ["id", "code", "name", "address", "commune", "manager"]
 
 
 class MetaSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
+    description = serializers.CharField(
+        source="descripcion",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
+    )
+    delegation = serializers.PrimaryKeyRelatedField(
+        source="delegacion", queryset=Delegacion.objects.all()
+    )
+
     class Meta:
         model = MetaModel
-        fields = ["id", "nombre", "descripcion", "delegacion"]
+        fields = ["id", "name", "description", "delegation"]
 
 
 class TipoAtencionSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
+    description = serializers.CharField(
+        source="descripcion",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
+    )
+
     class Meta:
         model = TipoAtencion
-        fields = ["id", "nombre", "descripcion"]
+        fields = ["id", "name", "description"]
 
 
 class SubAtencionSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
+    attention_type = serializers.PrimaryKeyRelatedField(
+        source="tipo_atencion", queryset=TipoAtencion.objects.all()
+    )
+
     class Meta:
         model = SubAtencion
-        fields = ["id", "nombre", "tipo_atencion"]
+        fields = ["id", "name", "attention_type"]
 
 
 class VecinoSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
+    rut = serializers.CharField(max_length=15, validators=[validar_rut])
+    address = serializers.CharField(
+        source="direccion",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_direccion],
+    )
+    phone = serializers.CharField(
+        source="telefono",
+        max_length=30,
+        allow_blank=True,
+        required=False,
+        validators=[validar_telefono],
+    )
+    territory = serializers.PrimaryKeyRelatedField(
+        source="territorio", queryset=Delegacion.objects.all()
+    )
+    management_type = serializers.CharField(
+        source="tipo_gestion",
+        max_length=80,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
+    )
+    status = serializers.ChoiceField(source="estado", choices=Vecino.ESTADOS)
+
     class Meta:
         model = Vecino
         fields = [
             "id",
-            "nombre",
+            "name",
             "rut",
-            "direccion",
-            "telefono",
-            "territorio",
-            "tipo_gestion",
-            "estado",
+            "address",
+            "phone",
+            "territory",
+            "management_type",
+            "status",
         ]
 
 
 class AtencionSerializer(serializers.ModelSerializer):
+    neighbor = serializers.PrimaryKeyRelatedField(
+        source="vecino", queryset=Vecino.objects.all()
+    )
+    attention_type = serializers.PrimaryKeyRelatedField(
+        source="tipo_atencion", queryset=TipoAtencion.objects.all()
+    )
+    attention_subtype = serializers.PrimaryKeyRelatedField(
+        source="sub_atencion",
+        queryset=SubAtencion.objects.all(),
+        allow_null=True,
+        required=False,
+    )
+    delegation = serializers.PrimaryKeyRelatedField(
+        source="delegacion", queryset=Delegacion.objects.all()
+    )
+    staff = serializers.PrimaryKeyRelatedField(
+        source="funcionario", queryset=Usuario.objects.all()
+    )
+    date = serializers.DateTimeField(source="fecha", read_only=True)
+    reason = serializers.CharField(source="motivo", max_length=200)
+    detail = serializers.CharField(
+        source="detalle", allow_blank=True, required=False
+    )
+    status = serializers.ChoiceField(source="estado", choices=Atencion.ESTADOS)
+    channel = serializers.ChoiceField(
+        source="canal", choices=Atencion.CANALES, allow_blank=True, required=False
+    )
+
     class Meta:
         model = Atencion
         fields = [
             "id",
-            "vecino",
-            "tipo_atencion",
-            "sub_atencion",
-            "delegacion",
-            "funcionario",
-            "fecha",
-            "motivo",
-            "detalle",
-            "estado",
-            "canal",
+            "neighbor",
+            "attention_type",
+            "attention_subtype",
+            "delegation",
+            "staff",
+            "date",
+            "reason",
+            "detail",
+            "status",
+            "channel",
         ]
-        read_only_fields = ["fecha"]
 
 
 class DetalleSerializer(serializers.Serializer):
@@ -154,10 +307,10 @@ class RecuperarSerializer(serializers.Serializer):
 
 class ValidarSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    codigo = serializers.CharField(max_length=6)
+    code = serializers.CharField(max_length=6, min_length=6)
 
 
 class NuevaPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    codigo = serializers.CharField(max_length=6)
+    code = serializers.CharField(max_length=6, min_length=6)
     password = serializers.CharField(write_only=True)

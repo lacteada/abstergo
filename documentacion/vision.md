@@ -5,8 +5,8 @@ planificación anterior: el proyecto se documenta como una unidad independiente.
 
 - Fecha: 5 de octubre de 2026.
 - Base de código: `/home/lct/code/ina/backend/abstergo` (Django + MariaDB).
-- Estado: modelo v1 en producción de desarrollo (7 tablas). Este documento
-  define el modelo v2 y las reglas transversales.
+- Estado: el modelo v2 y las reglas transversales están implementados. Lo que
+  falta vive en `PLAN.md`.
 
 ---
 
@@ -37,7 +37,7 @@ sus delegaciones y mantenga la información personal bajo la Ley 21.719.
 **Fuera (por ahora)**
 
 - Cumplimiento de tareas y metas trimestrales del funcionario.
-- Módulo Reportes y API REST.
+- Módulo Reportes. La API REST ya está implementada (`documento_tecnico.md` §18).
 
 ---
 
@@ -195,10 +195,10 @@ Cada campo de entrada se valida en el formulario y, cuando aplica, en el modelo.
 RUT            ^\d{7,8}-[\dkK]$          + validación dígito verificador (módulo 11)
 Nombre         ^[A-Za-zÁÉÍÓÚÑáéíóúñÜü' -]{2,60}$
 Email          ^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$
-Teléfono       ^\+?56?9?\d{8,9}$
+Teléfono       entre 8 y 13 dígitos (^\d{8,13}$, tras quitar separadores)
 Dirección      ^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ°#.,\- ]{5,200}$
 Comuna         ^[A-Za-zÁÉÍÓÚÑáéíóúñ' ]{3,80}$
-Código         ^[A-Z0-9\-]{2,40}$
+Código         letras, números y guiones (^[A-Za-z0-9-]{2,40}$)
 Catálogo       ^.{2,120}$
 OTP            ^\d{6}$
 ```
@@ -233,7 +233,8 @@ OTP            ^\d{6}$
 ### 6.4 Exportación a Excel
 
 - Formato `.xlsx`, generado con `openpyxl`.
-- Un `ExportarExcelMixin` que reutiliza el mismo `get_queryset()` de la vista.
+- Un `ExportarExcelMixin` (en `apps/common/vistas_base.py`) que reutiliza el
+  mismo `get_queryset()` de la vista.
 - Respeta el filtro de búsqueda y exporta todas las páginas, no solo la actual.
 - Sin búsqueda: exporta todos los registros.
 - Con búsqueda: exporta todos los registros que calzan con el filtro.
@@ -256,7 +257,8 @@ OTP            ^\d{6}$
    detalle, y registra la atención.
 5. Si no existe, se ofrece agregarlo; al guardarlo se vuelve a Crear Atención con
    el vecino ya elegido.
-6. El vecino queda asociado a la delegación del funcionario como territorio.
+6. La **atención** queda asociada a la delegación del funcionario o, si no tiene
+   una, al territorio del vecino. El vecino no se modifica.
 
 ---
 

@@ -1,13 +1,10 @@
-import secrets
-from datetime import timedelta
-
 from django.conf import settings
-from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views.generic import FormView, TemplateView, View
 
+from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
+from apps.cuentas import otp
 from apps.cuentas.forms import (
     CodigoForm,
     NuevaPasswordForm,
@@ -16,7 +13,6 @@ from apps.cuentas.forms import (
     UsuarioForm,
 )
 from apps.cuentas.models import Rol, Usuario
-from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
 
 
 # ------------------------------------------------------------------ Roles
@@ -82,7 +78,7 @@ class UsuariosListado(ListadoBase):
     url_listado = "cuentas:usuarios"
 
     def get_queryset(self):
-        # Usuario conserva el UserManager, que no filtra por borrado lógico.
+        # El listado agrega la búsqueda, así que no puede partir de `vigentes()`.
         return super().get_queryset().filter(eliminado__isnull=True)
 
 
@@ -110,40 +106,17 @@ class UsuariosBorrado(BorradoBase):
 
 
 # ------------------------------------------------- Recuperar la contraseña
-def _guardar_otp(request, usuario):
-    """Genera el código, lo deja en la sesión y lo manda por correo.
-
-    En la sesión, así no necesita tabla propia y no se puede reutilizar.
-    """
-    codigo = f"{secrets.randbelow(1000000):06d}"
-    sesion = request.session
-    sesion["otp_codigo"] = codigo
-    sesion["otp_usuario"] = usuario.pk
-    sesion["otp_expira"] = (
-        timezone.now() + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)
-    ).timestamp()
-    sesion.pop("otp_validado", None)
-    send_mail(
-        "Código de verificación",
-        f"Tu código de verificación es {codigo}. "
-        f"Vence en {settings.OTP_EXPIRY_MINUTES} minutos.",
-        None,
-        [usuario.email],
-    )
-
-
 class Recuperar(FormView):
     template_name = "cuentas/recuperar.html"
     form_class = RecuperarForm
     success_url = reverse_lazy("cuentas:validar")
 
     def form_valid(self, form):
-        usuario = Usuario.objects.filter(
-            email__iexact=form.cleaned_data["correo"]
-        ).first()
-        if usuario:
-            _guardar_otp(self.request, usuario)
-        # Se siga o no, la respuesta es la misma: no se revela qué correos existen.
+        correo = form.cleaned_data["correo"]
+        otp.solicitar(correo)
+        # El correo queda en la sesión solo para no volver a pedirlo. El código,
+        # en cambio, vive en la tabla.
+        self.request.session["recuperacion_correo"] = correo
         return super().form_valid(form)
 
 
@@ -153,38 +126,31 @@ class Validar(FormView):
     success_url = reverse_lazy("cuentas:nueva_password")
 
     def dispatch(self, request, *args, **kwargs):
-        if "otp_codigo" not in request.session:
+        if not request.session.get("recuperacion_correo"):
             return redirect("cuentas:recuperar")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
-        usuario = Usuario.objects.filter(
-            pk=self.request.session.get("otp_usuario")
-        ).first()
-        contexto["correo"] = usuario.email if usuario else ""
+        contexto["correo"] = self.request.session.get("recuperacion_correo", "")
         contexto["minutos"] = settings.OTP_EXPIRY_MINUTES
         return contexto
 
     def form_valid(self, form):
-        sesion = self.request.session
-        if timezone.now().timestamp() > sesion.get("otp_expira", 0):
-            form.add_error(None, "El código venció. Pide uno nuevo.")
+        errores = otp.verificar(
+            self.request.session["recuperacion_correo"], form.cleaned_data["codigo"]
+        )
+        if errores:
+            form.add_error(None, errores)
             return self.form_invalid(form)
-        if form.cleaned_data["codigo"] != sesion["otp_codigo"]:
-            form.add_error(None, "El código no coincide.")
-            return self.form_invalid(form)
-        # Se borra de la sesión: sirve una sola vez.
-        del sesion["otp_codigo"]
-        sesion["otp_validado"] = True
         return super().form_valid(form)
 
 
 class Reenviar(View):
     def post(self, request):
-        usuario = Usuario.objects.filter(pk=request.session.get("otp_usuario")).first()
-        if usuario:
-            _guardar_otp(request, usuario)
+        correo = request.session.get("recuperacion_correo")
+        if correo:
+            otp.solicitar(correo)
         return redirect("cuentas:validar")
 
 
@@ -194,19 +160,18 @@ class NuevaPassword(FormView):
     success_url = reverse_lazy("cuentas:login")
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.session.get("otp_validado"):
+        correo = request.session.get("recuperacion_correo")
+        if not correo or not otp.hay_codigo_validado(correo):
             return redirect("cuentas:recuperar")
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        usuario = Usuario.objects.filter(
-            pk=self.request.session.get("otp_usuario")
-        ).first()
-        if usuario:
-            usuario.set_password(form.cleaned_data["password1"])
-            usuario.save()
-        for llave in ("otp_usuario", "otp_validado", "otp_expira"):
-            self.request.session.pop(llave, None)
+        correo = self.request.session.get("recuperacion_correo")
+        errores = otp.restablecer(correo, form.cleaned_data["password1"])
+        if errores:
+            form.add_error(None, errores)
+            return self.form_invalid(form)
+        self.request.session.pop("recuperacion_correo", None)
         return super().form_valid(form)
 
 

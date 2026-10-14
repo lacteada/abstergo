@@ -5,7 +5,6 @@ from django.utils import timezone
 
 from apps.common.soft_delete import BorradoLogico
 
-
 BASES_LICITUD = [
     ("deber_legal", "Cumplimiento de un deber legal"),
     ("funcion_publica", "Ejercicio de funciones públicas"),

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from apps.common.admin_base import AdminBase
 from apps.ciudadanos.models import Vecino
+from apps.common.admin_base import AdminBase
 
 
 @admin.register(Vecino)

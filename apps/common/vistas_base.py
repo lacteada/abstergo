@@ -2,7 +2,7 @@
 
 Cada módulo declara solo sus datos: el modelo, el formulario, el título, la
 plantilla y los nombres de sus rutas. El comportamiento vive acá, una vez:
-búsqueda, paginación de 7 filas, exportación a Excel y bitácora de auditoría.
+búsqueda, paginación, exportación a Excel y bitácora de auditoría.
 """
 
 from django.contrib import messages
@@ -36,64 +36,20 @@ class PermisoRequeridoMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class Comun:
-    """Datos que cada módulo define y que las plantillas necesitan."""
+class ExportarExcelMixin:
+    """Descarga el listado en `.xlsx`.
 
-    titulo = ""
-    subtitulo = ""
-    seccion = ""
-    etiqueta_nueva = ""
-    url_listado = ""
-    url_nueva = None  # solo el listado la define
+    Reutiliza el mismo `get_queryset()` del listado, así respeta el filtro y
+    exporta todas las páginas, no solo la que se está viendo.
+    """
 
-    def get_context_data(self, **kwargs):
-        contexto = super().get_context_data(**kwargs)
-        contexto.update(
-            titulo=self.titulo,
-            subtitulo=self.subtitulo,
-            seccion=self.seccion,
-            etiqueta_nueva=self.etiqueta_nueva,
-            url_listado=self.url_listado,
-            url_nueva=reverse(self.url_nueva) if self.url_nueva else "",
-            permite_exportar=bool(getattr(self, "exportar_columnas", ())),
-        )
-        return contexto
-
-
-class ListadoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView):
-    template_name = "listado.html"
-    paginate_by = 7
-    busqueda = ()
-    # Llaves foráneas que la plantilla recorre. Traerlas con JOIN evita una
-    # consulta por fila.
-    relacionadas = ()
-    # Columnas del Excel. Cada una es (encabezado, "ruta.atributo") o
-    # (encabezado, función). Si está vacío, el listado no ofrece exportar.
+    # Cada columna es (encabezado, "ruta.atributo") o (encabezado, función).
     exportar_columnas = ()
     exportar_nombre = "listado"
-    # Los listados con datos personales dejan rastro en la bitácora.
-    auditar_lectura = False
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.relacionadas:
-            queryset = queryset.select_related(*self.relacionadas)
-        q = self.request.GET.get("q")
-        if q and self.busqueda:
-            condicion = Q()
-            for campo in self.busqueda:
-                condicion |= Q(**{f"{campo}__icontains": q})
-            queryset = queryset.filter(condicion)
-        return queryset
-
-    def get(self, request, *args, **kwargs):
-        # La exportación reutiliza el mismo queryset: respeta el filtro y trae
-        # todas las páginas, no solo la que se está viendo.
-        if request.GET.get("exportar") and self.exportar_columnas:
-            return self.exportar()
-        if self.auditar_lectura:
-            registrar(request, "ver", None, f"Listado: {self.titulo}")
-        return super().get(request, *args, **kwargs)
+    @property
+    def permite_exportar(self):
+        return bool(self.exportar_columnas)
 
     def exportar(self):
         from openpyxl import Workbook
@@ -105,7 +61,9 @@ class ListadoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView):
         hoja.title = (self.titulo or "Listado")[:31]
         hoja.append([encabezado for encabezado, _ in self.exportar_columnas])
         for fila in self.get_queryset():
-            hoja.append([self._valor(fila, campo) for _, campo in self.exportar_columnas])
+            hoja.append(
+                [self._valor(fila, campo) for _, campo in self.exportar_columnas]
+            )
         for indice, (encabezado, _) in enumerate(self.exportar_columnas, start=1):
             letra = get_column_letter(indice)
             hoja.column_dimensions[letra].width = max(14, len(encabezado) + 4)
@@ -130,6 +88,63 @@ class ListadoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView):
             if callable(valor):
                 valor = valor()
         return "" if valor is None else str(valor)
+
+
+class Comun:
+    """Datos que cada módulo define y que las plantillas necesitan."""
+
+    titulo = ""
+    subtitulo = ""
+    seccion = ""
+    etiqueta_nueva = ""
+    url_listado = ""
+    url_nueva = None  # solo el listado la define
+    permite_exportar = False
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto.update(
+            titulo=self.titulo,
+            subtitulo=self.subtitulo,
+            seccion=self.seccion,
+            etiqueta_nueva=self.etiqueta_nueva,
+            url_listado=self.url_listado,
+            url_nueva=reverse(self.url_nueva) if self.url_nueva else "",
+            permite_exportar=self.permite_exportar,
+        )
+        return contexto
+
+
+class ListadoBase(
+    ExportarExcelMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView
+):
+    template_name = "listado.html"
+    paginate_by = 7
+    busqueda = ()
+    # Llaves foráneas que la plantilla recorre. Traerlas con JOIN evita una
+    # consulta por fila.
+    relacionadas = ()
+    # Los listados con datos personales dejan rastro en la bitácora.
+    auditar_lectura = False
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.relacionadas:
+            queryset = queryset.select_related(*self.relacionadas)
+        q = self.request.GET.get("q")
+        if q and self.busqueda:
+            condicion = Q()
+            for campo in self.busqueda:
+                condicion |= Q(**{f"{campo}__icontains": q})
+            queryset = queryset.filter(condicion)
+        return queryset
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get("exportar") and self.exportar_columnas:
+            return self.exportar()
+        if self.auditar_lectura:
+            registrar(request, "ver", None, f"Listado: {self.titulo}")
+        return super().get(request, *args, **kwargs)
 
 
 class _FormularioBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin):

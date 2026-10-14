@@ -1,6 +1,6 @@
+from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
 from apps.organizacion.forms import DelegacionForm
 from apps.organizacion.models import Delegacion
-from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
 
 
 class Listado(ListadoBase):
