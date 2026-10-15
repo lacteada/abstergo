@@ -128,10 +128,16 @@ assert "users" not in perfil2["read_modules"]
 assert "neighbors" in perfil2["read_modules"]
 assert "neighbors" not in perfil2["write_modules"]
 
-# Registro público: el correo es el identificador y no se puede repetir.
-alta = {"email": "nuevo@test.cl", "first_name": "Nuevo", "password": "Clave.123"}
+# Registro público: el correo es el identificador y no se puede repetir. El
+# nombre y el apellido son obligatorios, y el correo se guarda en minúsculas.
+alta = {"email": "Nuevo@Test.CL", "first_name": "Nuevo", "last_name": "Apellido",
+        "password": "Clave.123"}
 assert a.post("/api/v1/auth/register/", alta).status_code == 201, "registro"
+nuevo = U.objects.get(email="nuevo@test.cl")
+assert (nuevo.first_name, nuevo.last_name) == ("Nuevo", "Apellido"), "titular guardado"
 assert a.post("/api/v1/auth/register/", alta).status_code == 400, "correo repetido"
+assert a.post("/api/v1/auth/register/",
+              {"email": "sin-titular@test.cl", "password": "Clave.123"}).status_code == 400, "sin titular"
 
 # Recuperación de contraseña: bloquea la cuenta y la reactiva al guardarla.
 a.post("/api/v1/auth/recover/", {"email": "admin@test.cl"})
