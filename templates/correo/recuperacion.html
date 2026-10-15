@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Restablece tu contraseña</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f5f7;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f4f5f7;">Tu código es {{ codigo }}. Vence en {{ minutos }} minuto{{ minutos|pluralize }}.</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f5f7;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" border="0" style="width:480px;max-width:100%;background-color:#ffffff;border:1px solid #e6e8eb;border-radius:12px;">
+        <tr>
+          <td style="padding:0;border-top:3px solid #C41230;border-radius:12px 12px 0 0;"></td>
+        </tr>
+        <tr>
+          <td style="padding:28px 32px 0;">
+            <p style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#111827;">Abstergo</p>
+            <p style="margin:2px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#6b7280;">Sistema Municipal de Atención Ciudadana</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <h1 style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;line-height:1.3;font-weight:600;color:#111827;">Restablece tu contraseña</h1>
+            <p style="margin:10px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#374151;">
+              {% if nombre %}Hola {{ nombre }}. {% endif %}Usa este código para continuar. Vence en {{ minutos }} minuto{{ minutos|pluralize }} y sirve una sola vez.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f9fafb;border:1px solid #e6e8eb;border-radius:10px;">
+              <tr>
+                <td align="center" style="padding:18px 12px;">
+                  <span style="font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:34px;font-weight:700;letter-spacing:8px;color:#111827;">{{ codigo }}</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 32px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fdf2f2;border:1px solid #f5d0d0;border-radius:10px;">
+              <tr>
+                <td style="padding:14px 16px;">
+                  <p style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#7f1d1d;">Por seguridad, tu cuenta quedó <strong>deshabilitada</strong> al pedir el código. Se reactiva cuando guardes la nueva contraseña.</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 32px 28px;">
+            <p style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#6b7280;">Si no lo solicitaste, tu cuenta igual quedó deshabilitada: pide un código nuevo y cambia la contraseña cuanto antes.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:20px 32px 28px;border-top:1px solid #f0f1f3;">
+            <p style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#9ca3af;">Correo automático, no respondas a esta dirección.</p>
+          </td>
+        </tr>
+      </table>
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

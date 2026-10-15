@@ -12,6 +12,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.cuentas.models import RecuperacionPassword
@@ -24,13 +25,18 @@ CODIGO_INVALIDO = "Código inválido o vencido."
 
 def enviar_codigo(usuario, codigo):
     """Manda el código por correo. Un fallo se registra, no se esconde."""
+    contexto = {
+        "codigo": codigo,
+        "nombre": usuario.first_name,
+        "minutos": settings.OTP_EXPIRY_MINUTES,
+    }
     try:
         send_mail(
-            "Código de verificación",
-            f"Tu código de verificación es {codigo}. "
-            f"Vence en {settings.OTP_EXPIRY_MINUTES} minutos.",
+            "Código para restablecer tu contraseña · Abstergo",
+            render_to_string("correo/recuperacion.txt", contexto),
             settings.DEFAULT_FROM_EMAIL,
             [usuario.email],
+            html_message=render_to_string("correo/recuperacion.html", contexto),
         )
     except Exception:
         logger.exception("No se pudo enviar el código a %s", usuario.email)

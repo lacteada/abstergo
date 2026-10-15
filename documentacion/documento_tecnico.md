@@ -355,10 +355,13 @@ Flujo de recuperación en cuatro pasos (`apps/cuentas/views.py`):
 4. **NuevaPassword** (`FormView`): exige `otp_validado`; cambia la contraseña con
    `set_password` y limpia la sesión.
 
-Detalle de implementación del OTP (`_guardar_otp`): el código se genera con
-`secrets.randbelow(1000000)` formateado a 6 dígitos y se guarda **en la sesión**
-(`otp_codigo`, `otp_usuario`, `otp_expira`), sin tabla propia. El envío usa
-`send_mail`.
+Detalle de implementación del OTP (`apps/cuentas/otp.py`): el código se genera
+con `secrets.randbelow(1000000)` formateado a 6 dígitos y vive en la tabla
+`RecuperacionPassword`, con vencimiento de `OTP_EXPIRY_MINUTES` y tope de cinco
+intentos. El correo sale de las plantillas `correo/recuperacion.txt` y
+`correo/recuperacion.html`, que viajan juntas en un mismo mensaje
+(`send_mail(html_message=...)`). Al pedir el código la cuenta queda deshabilitada
+y se reactiva cuando se guarda la contraseña nueva.
 
 ---
 
