@@ -20,6 +20,13 @@ PY
 
 export DJANGO_SETTINGS_MODULE=settings_verif
 export PYTHONPATH="$SCRATCH:$RAIZ"
+
+# Un clon limpio (CI) no tiene .env, y sin SECRET_KEY la configuración revienta.
+# La verificación aporta valores de prueba y manda el correo a la consola.
+export SECRET_KEY="verificacion-sin-secreto"
+export MAILER_BACKEND="django.core.mail.backends.console.EmailBackend"
+export USUARIOS_PASSWORD_INICIAL="Clave.Verificacion1"
+
 PY="$RAIZ/venv/bin/python"
 [ -x "$PY" ] || PY="$(command -v python3)"
 
