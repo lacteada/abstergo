@@ -3,8 +3,8 @@
 Sistema Municipal de Gestión de Atención Ciudadana (Abstergo).
 Acompaña a los requisitos del PDF de la segunda evaluación.
 
-- Fecha de la corrida: _(completar al cerrar la entrega)_
-- Responsable: _(integrante que ejecuta)_
+- Fecha de la corrida: 2026-10-19
+- Responsable: equipo de desarrollo (Abstergo)
 - Entorno funcional: SQLite temporal vía `scripts/verificar.sh` (Air/Dev).
 - Entorno de carga: AWS (EC2 + Apache + gunicorn + MariaDB).
 
@@ -85,3 +85,12 @@ No quedan pantallas sin persistencia. Todos los mantenedores, el ingreso de
 atención y el flujo de acceso persisten en MariaDB. Lo que no cubre esta
 entrega: las tareas trimestrales y el módulo de Reportes (fuera de alcance en
 `documentacion/vision.md`).
+
+### 2026-10-19 08:44 · http://18.209.251.129/login/
+
+| Concurrencia | Solicitudes | RPS | Latencia prom. (ms) | P95 (ms) | Errores | Veredicto |
+|---|---|---|---|---|---|---|
+| 5 | 203 | 16.6 | 299 | 308 | 0.0% | APRUEBA |
+| 10 | 420 | 34.6 | 288 | 300 | 0.0% | APRUEBA |
+| 20 | 802 | 65.4 | 303 | 388 | 0.0% | APRUEBA |
+| 40 | 1661 | 135.2 | 293 | 320 | 0.0% | APRUEBA |
