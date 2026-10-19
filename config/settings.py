@@ -30,6 +30,15 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env_bool("DEBUG", True)
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
 
+# El TLS termina en el Apache que hace de proxy, así que la petición llega a
+# Django por HTTP: sin esta cabecera Django cree que es insegura y el chequeo
+# CSRF del navegador falla (y las cookies no se marcan Secure).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Orígenes de confianza para el CSRF, además del propio host. Se listan en el
+# .env, por ejemplo https://18.209.251.129.
+CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
