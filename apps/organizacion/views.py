@@ -1,4 +1,10 @@
-from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
+from apps.common.vistas_base import (
+    AltaBase,
+    BorradoBase,
+    ConsultaBase,
+    EdicionBase,
+    ListadoBase,
+)
 from apps.organizacion.forms import DelegacionForm
 from apps.organizacion.models import Delegacion
 
@@ -11,6 +17,7 @@ class Listado(ListadoBase):
     etiqueta_nueva = "Nueva delegación"
     busqueda = ("codigo", "nombre", "comuna", "responsable__first_name")
     relacionadas = ("responsable",)
+    campo_delegacion = "pk"
     exportar_nombre = "delegaciones"
     exportar_columnas = (
         ("Código", "codigo"),
@@ -18,6 +25,7 @@ class Listado(ListadoBase):
         ("Dirección", "direccion"),
         ("Comuna", "comuna"),
         ("Responsable", "responsable.get_full_name"),
+        ("Estado", "get_estado_display"),
     )
     url_nueva = "organizacion:delegaciones_nueva"
     url_listado = "organizacion:delegaciones"
@@ -44,3 +52,18 @@ class Borrado(BorradoBase):
     titulo = "Eliminar delegación"
     seccion = "delegaciones"
     url_listado = "organizacion:delegaciones"
+
+
+class Consulta(ConsultaBase):
+    model = Delegacion
+    titulo = "Consultar delegación"
+    seccion = "delegaciones"
+    url_listado = "organizacion:delegaciones"
+    consulta_campos = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Dirección", "direccion"),
+        ("Comuna", "comuna"),
+        ("Responsable", "responsable.get_full_name"),
+        ("Estado", "get_estado_display"),
+    )

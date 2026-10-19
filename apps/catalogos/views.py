@@ -1,6 +1,12 @@
 from apps.catalogos.forms import MetaForm, SubAtencionForm, TipoAtencionForm
 from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
-from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
+from apps.common.vistas_base import (
+    AltaBase,
+    BorradoBase,
+    ConsultaBase,
+    EdicionBase,
+    ListadoBase,
+)
 
 
 # ------------------------------------------------------------------- Metas
@@ -10,13 +16,16 @@ class MetasListado(ListadoBase):
     titulo = "Metas"
     seccion = "metas"
     etiqueta_nueva = "Nueva meta"
-    busqueda = ("nombre", "descripcion", "delegacion__nombre")
+    busqueda = ("codigo", "nombre", "descripcion", "delegacion__nombre")
     relacionadas = ("delegacion",)
+    campo_delegacion = "delegacion"
     exportar_nombre = "metas"
     exportar_columnas = (
+        ("Código", "codigo"),
         ("Nombre", "nombre"),
         ("Delegación", "delegacion.nombre"),
         ("Descripción", "descripcion"),
+        ("Estado", "get_estado_display"),
     )
     url_nueva = "catalogos:metas_nueva"
     url_listado = "catalogos:metas"
@@ -45,6 +54,20 @@ class MetasBorrado(BorradoBase):
     url_listado = "catalogos:metas"
 
 
+class MetasConsulta(ConsultaBase):
+    model = Meta
+    titulo = "Consultar meta"
+    seccion = "metas"
+    url_listado = "catalogos:metas"
+    consulta_campos = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Descripción", "descripcion"),
+        ("Estado", "get_estado_display"),
+    )
+
+
 # -------------------------------------------------------- Tipo de Atención
 class TiposListado(ListadoBase):
     model = TipoAtencion
@@ -52,11 +75,13 @@ class TiposListado(ListadoBase):
     titulo = "Tipo de Atención"
     seccion = "tipos"
     etiqueta_nueva = "Nuevo tipo de atención"
-    busqueda = ("nombre", "descripcion")
+    busqueda = ("codigo", "nombre", "descripcion")
     exportar_nombre = "tipos_atencion"
     exportar_columnas = (
+        ("Código", "codigo"),
         ("Nombre", "nombre"),
         ("Descripción", "descripcion"),
+        ("Estado", "get_estado_display"),
     )
     url_nueva = "catalogos:tipos_nueva"
     url_listado = "catalogos:tipos"
@@ -85,6 +110,19 @@ class TiposBorrado(BorradoBase):
     url_listado = "catalogos:tipos"
 
 
+class TiposConsulta(ConsultaBase):
+    model = TipoAtencion
+    titulo = "Consultar tipo de atención"
+    seccion = "tipos"
+    url_listado = "catalogos:tipos"
+    consulta_campos = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Descripción", "descripcion"),
+        ("Estado", "get_estado_display"),
+    )
+
+
 # ------------------------------------------------------------ Sub Atención
 class SubAtencionesListado(ListadoBase):
     model = SubAtencion
@@ -92,12 +130,14 @@ class SubAtencionesListado(ListadoBase):
     titulo = "Sub Atención"
     seccion = "subatenciones"
     etiqueta_nueva = "Nueva sub atención"
-    busqueda = ("nombre", "tipo_atencion__nombre")
+    busqueda = ("codigo", "nombre", "tipo_atencion__nombre")
     relacionadas = ("tipo_atencion",)
     exportar_nombre = "sub_atenciones"
     exportar_columnas = (
+        ("Código", "codigo"),
         ("Nombre", "nombre"),
         ("Tipo de Atención", "tipo_atencion.nombre"),
+        ("Estado", "get_estado_display"),
     )
     url_nueva = "catalogos:subatenciones_nueva"
     url_listado = "catalogos:subatenciones"
@@ -124,3 +164,16 @@ class SubAtencionesBorrado(BorradoBase):
     titulo = "Eliminar sub atención"
     seccion = "subatenciones"
     url_listado = "catalogos:subatenciones"
+
+
+class SubAtencionesConsulta(ConsultaBase):
+    model = SubAtencion
+    titulo = "Consultar sub atención"
+    seccion = "subatenciones"
+    url_listado = "catalogos:subatenciones"
+    consulta_campos = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Tipo de Atención", "tipo_atencion.nombre"),
+        ("Estado", "get_estado_display"),
+    )

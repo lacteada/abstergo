@@ -1,9 +1,8 @@
-from django import forms
-
+from apps.common.forms import FormularioCRUD
 from apps.organizacion.models import Delegacion
 
 
-class DelegacionForm(forms.ModelForm):
+class DelegacionForm(FormularioCRUD):
     class Meta:
         model = Delegacion
-        fields = ("codigo", "nombre", "direccion", "comuna", "responsable")
+        fields = ("codigo", "nombre", "direccion", "comuna", "responsable", "estado")

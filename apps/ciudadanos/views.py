@@ -5,7 +5,13 @@ from django.urls import reverse
 
 from apps.ciudadanos.forms import VecinoForm
 from apps.ciudadanos.models import Vecino
-from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
+from apps.common.vistas_base import (
+    AltaBase,
+    BorradoBase,
+    ConsultaBase,
+    EdicionBase,
+    ListadoBase,
+)
 
 
 class Listado(ListadoBase):
@@ -24,6 +30,7 @@ class Listado(ListadoBase):
         "tipo_gestion",
     )
     relacionadas = ("territorio",)
+    campo_delegacion = "territorio"
     auditar_lectura = True
     exportar_nombre = "vecinos"
     exportar_columnas = (
@@ -77,3 +84,19 @@ class Borrado(BorradoBase):
     titulo = "Eliminar vecino"
     seccion = "vecinos"
     url_listado = "ciudadanos:vecinos"
+
+
+class Consulta(ConsultaBase):
+    model = Vecino
+    titulo = "Consultar vecino"
+    seccion = "vecinos"
+    url_listado = "ciudadanos:vecinos"
+    consulta_campos = (
+        ("Nombre", "nombre"),
+        ("RUT", "rut"),
+        ("Dirección", "direccion"),
+        ("Teléfono", "telefono"),
+        ("Territorio", "territorio.nombre"),
+        ("Tipo de Gestión", "tipo_gestion"),
+        ("Estado", "get_estado_display"),
+    )

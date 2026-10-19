@@ -7,9 +7,11 @@ from django.views import View
 from apps.atenciones.forms import AtencionForm
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
+from apps.common.delegaciones import activa
 from apps.common.validators import limpiar_rut
 from apps.common.vistas_base import (
     BorradoBase,
+    ConsultaBase,
     EdicionBase,
     ListadoBase,
     PermisoRequeridoMixin,
@@ -43,6 +45,7 @@ class Listado(ListadoBase):
     )
     url_nueva = "atenciones:crear"
     url_listado = "atenciones:listado"
+    campo_delegacion = "delegacion"
     auditar_lectura = True
     exportar_nombre = "atenciones"
     exportar_columnas = (
@@ -86,10 +89,17 @@ class CrearAtencion(LoginRequiredMixin, PermisoRequeridoMixin, View):
             atencion = form.save(commit=False)
             atencion.vecino = vecino
             atencion.funcionario = request.user
-            atencion.delegacion = request.user.delegacion or vecino.territorio
+            # La delegación sale del contexto autorizado del usuario; si su
+            # perfil no tiene una activa, cae al territorio del vecino.
+            atencion.delegacion = (
+                activa(request) or request.user.delegacion or vecino.territorio
+            )
             atencion.save()
             registrar(request, "crear", atencion, "Alta desde Crear Atención")
-            messages.success(request, f"Atención registrada para {vecino.nombre}.")
+            messages.success(
+                request,
+                f"Atención N° {atencion.pk} registrada para {vecino.nombre}.",
+            )
             return redirect("atenciones:listado")
         return render(
             request,
@@ -134,3 +144,24 @@ class Borrado(BorradoBase):
     titulo = "Eliminar atención"
     seccion = "atenciones"
     url_listado = "atenciones:listado"
+
+
+class Consulta(ConsultaBase):
+    model = Atencion
+    titulo = "Consultar atención"
+    seccion = "atenciones"
+    url_listado = "atenciones:listado"
+    consulta_campos = (
+        ("N° atención", "id"),
+        ("Fecha", lambda a: a.fecha.strftime("%d-%m-%Y %H:%M") if a.fecha else ""),
+        ("Solicitante", "vecino.nombre"),
+        ("RUT", "vecino.rut"),
+        ("Tipo", "tipo_atencion.nombre"),
+        ("Sub atención", "sub_atencion.nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Responsable", "funcionario.get_full_name"),
+        ("Estado", "get_estado_display"),
+        ("Canal", "get_canal_display"),
+        ("Motivo", "motivo"),
+        ("Detalle", "detalle"),
+    )

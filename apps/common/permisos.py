@@ -19,6 +19,9 @@ CONSULTA = "consulta"
 # Códigos de `Rol.codigo` que existen en el sistema.
 ROLES = [ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR, CONSULTA]
 
+# Los que ven por encima de las delegaciones: no se acotan a un territorio.
+ALCANCE_GLOBAL = {ADMIN, COORDINADOR}
+
 TODOS = set(ROLES)
 GESTION = {ADMIN, COORDINADOR}
 TERRENO = {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO}
@@ -71,6 +74,15 @@ def puede(usuario, modulo, escritura=False):
 def modulo_de(modelo):
     """El módulo de un modelo, o None si no está mapeado."""
     return MODELO_A_MODULO.get(modelo.__name__) if modelo else None
+
+
+def alcance_global(usuario):
+    """¿El rol del usuario ve por encima de las delegaciones?
+
+    Admin y coordinador no se acotan a un territorio: ven todos los registros.
+    El resto trabaja solo con las delegaciones que tiene autorizadas.
+    """
+    return codigo_de(usuario) in ALCANCE_GLOBAL
 
 
 def modulos_de(usuario, escritura=False):

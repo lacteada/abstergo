@@ -117,16 +117,19 @@ usuario.
 
 | # | Entidad | App | Tabla | Campos propios |
 |---|---|---|---|---|
-| 1 | `Delegacion` | organizacion | `organizacion_delegacion` | `codigo` (único), `nombre`, `direccion`, `comuna` |
-| 2 | `Rol` | cuentas | `cuentas_rol` | `nombre` (único), `descripcion` |
-| 3 | `Usuario` | cuentas | `cuentas_usuario` | `email` (único, nulo), `rol`, `delegacion` + campos de `AbstractUser` |
-| 4 | `Meta` | catalogos | `catalogos_meta` | `nombre`, `descripcion`, `delegacion` |
-| 5 | `TipoAtencion` | catalogos | `catalogos_tipoatencion` | `nombre`, `descripcion` |
-| 6 | `SubAtencion` | catalogos | `catalogos_subatencion` | `nombre`, `tipo_atencion` |
+| 1 | `Delegacion` | organizacion | `organizacion_delegacion` | `codigo` (único), `nombre`, `direccion`, `comuna`, `responsable`, `estado` |
+| 2 | `Rol` | cuentas | `cuentas_rol` | `nombre` (único), `descripcion`, `codigo` (único) |
+| 3 | `Usuario` | cuentas | `cuentas_usuario` | `email` (único, nulo), `rol`, `delegacion`, `delegaciones_autorizadas` (M2M) + campos de `AbstractUser` |
+| 4 | `Meta` | catalogos | `catalogos_meta` | `codigo` (único), `nombre`, `descripcion`, `delegacion`, `estado` |
+| 5 | `TipoAtencion` | catalogos | `catalogos_tipoatencion` | `codigo` (único), `nombre`, `descripcion`, `estado` |
+| 6 | `SubAtencion` | catalogos | `catalogos_subatencion` | `codigo` (único), `nombre`, `tipo_atencion`, `estado` |
 | 7 | `Vecino` | ciudadanos | `ciudadanos_vecino` | `nombre`, `rut` (único), `direccion`, `telefono`, `territorio`, `tipo_gestion`, `estado` |
 
 Toda entidad lleva además la columna `eliminado` (`DateTimeField`, nulo) que
-aporta el borrado lógico.
+aporta el borrado lógico, y —salvo `Usuario` y `Vecino`, que tienen su propio
+`estado`— la columna `estado` (`Activo`/`Inactivo`) que aporta `ConEstado`
+(`apps/common/estados.py`). `estado` es el dato de negocio; `eliminado` es la
+fila retirada del sistema.
 
 ### Relaciones (llaves foráneas)
 
@@ -251,16 +254,17 @@ urlpatterns = [
 ]
 ```
 
-Cada app define su `app_name` (namespace). Cada mantenedor expone cuatro rutas:
-listado, alta, edición y borrado. Fuente: `apps/*/urls.py`.
+Cada app define su `app_name` (namespace). Cada mantenedor expone cinco rutas:
+listado, alta, consulta, edición y borrado. Fuente: `apps/*/urls.py`.
 
 | Namespace | Rutas |
 |---|---|
-| `panel` | `` → Inicio |
-| `organizacion` | `delegaciones/`, `.../nueva/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
+| `panel` | `` → Inicio, `contexto/delegacion/` (cambiar delegación activa) |
+| `organizacion` | `delegaciones/`, `.../nueva/`, `.../<pk>/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
 | `cuentas` | `roles/...`, `usuarios/...`, `login/`, `logout/`, `recuperar/`, `validar/`, `reenviar/`, `nueva-password/` |
 | `catalogos` | `metas/...`, `tipos-atencion/...`, `sub-atenciones/...` |
 | `ciudadanos` | `vecinos/...` |
+| `atenciones` | `atenciones/`, `atenciones/crear/`, `.../<pk>/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
 
 ---
 
@@ -698,3 +702,61 @@ glosario, el mismo que usa el cliente Android:
   `attention-subtypes`, `neighbors`, `cases`.
 - Las claves de módulo de la matriz (§18.2) viajan en `read_modules` y
   `write_modules`, así que también están en inglés.
+
+---
+
+## 19. Contexto de delegación, consulta y pruebas (implementado)
+
+Piezas que cierran los requisitos de la segunda evaluación.
+
+### 19.1 Contexto de delegación
+
+Fuente: `apps/common/delegaciones.py`, `apps/common/contexto.py`,
+`apps/panel/views.py`, `templates/base.html`.
+
+- Cada usuario tiene una delegación **principal** (`Usuario.delegacion`) y, si
+  su perfil trabaja en más de un territorio, un conjunto de **autorizadas**
+  (`Usuario.delegaciones_autorizadas`, M2M).
+- La **delegación activa** se guarda en la sesión (`delegacion_activa`) y se
+  valida contra las autorizadas: una delegación no autorizada nunca se activa.
+- Los roles de **alcance global** (admin y coordinador) ven todas las
+  delegaciones; su delegación activa es "todas" salvo que elijan una.
+- La **cabecera** muestra de forma permanente el código y el nombre de la
+  delegación activa, más el usuario y su rol, con icono y texto (el color no es
+  la única señal). Cuando el perfil tiene más de una, aparece el **selector**,
+  que recarga el contexto en el servidor.
+- `ListadoBase.campo_delegacion` acota el queryset del listado —y por ende la
+  exportación— a la delegación activa. El mismo queryset alimenta el `.xlsx`.
+- Los formularios (`apps/common/forms.py`) acotan sus campos de delegación a las
+  autorizadas, así el servidor rechaza una delegación ajena aunque se altere la
+  petición.
+
+### 19.2 Vista de consulta
+
+- `ConsultaBase` (`apps/common/vistas_base.py`) agrega la ficha de solo lectura
+  que completa el CRUD (crear, **consultar**, listar, editar, eliminar).
+- Cada módulo declara `consulta_campos`; la plantilla los renderiza igual en la
+  página completa (`templates/consulta.html`) y en el modal
+  (`templates/modal/consulta.html`).
+- `resolver_campo` comparte con la exportación la forma de leer un campo.
+
+### 19.3 Reglas de la segunda entrega
+
+- **Estado y código**: `ConEstado` y el campo `codigo` en los catálogos.
+- **Tipo → Sub Atención**: `SelectSubAtencion` marca cada opción con su tipo; el
+  JavaScript (`static/js/atencion.js`) muestra solo las del tipo elegido y
+  limpia la que deja de ser válida; `AtencionForm.clean` valida lo mismo en el
+  servidor. El ingreso de atención muestra el **identificador** y deriva la
+  delegación del contexto autorizado.
+- **Estados de interfaz**: los listados distinguen "sin coincidencias" de
+  "aún no hay registros", muestran el estado de carga y avisan el error de red.
+- **Reenvío del código**: `otp.reenviar` respeta la espera mínima
+  (`OTP_REENVIO_SEGUNDOS`), además del tope de intentos ya existente.
+
+### 19.4 Pruebas
+
+- Automatizadas con `pytest` (`apps/*/tests.py`, `apps/common/test_web.py`,
+  `conftest.py`): permisos, listados, alcance por delegación, búsqueda,
+  exportación, consulta, catálogos, ingreso de atención y recuperación.
+- El registro de resultados, con evidencias y la prueba de carga, vive en
+  `documentacion/pruebas.md`; la carga la corre `scripts/estres.py`.

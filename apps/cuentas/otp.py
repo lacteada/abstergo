@@ -72,6 +72,31 @@ def solicitar(correo):
     return usuario
 
 
+def reenviar(correo):
+    """Genera y envía un código nuevo, respetando la espera mínima.
+
+    Devuelve los segundos que faltan para poder reenviar, o 0 si se envió. El
+    límite de frecuencia evita el uso del reenvío como vector de spam o de
+    fuerza bruta sobre el correo de un tercero.
+    """
+    usuario = _usuario(correo)
+    if not usuario:
+        return 0
+    ultima = (
+        RecuperacionPassword.objects.filter(usuario=usuario)
+        .order_by("-creado")
+        .first()
+    )
+    if ultima:
+        transcurrido = (timezone.now() - ultima.creado).total_seconds()
+        espera = settings.OTP_REENVIO_SEGUNDOS
+        if transcurrido < espera:
+            return int(espera - transcurrido) + 1
+    recuperacion = RecuperacionPassword.generar(usuario)
+    enviar_codigo(usuario, recuperacion.codigo)
+    return 0
+
+
 def verificar(correo, codigo):
     """Marca el código como validado. Devuelve la lista de errores, o None."""
     _, recuperacion = _vigente(correo)

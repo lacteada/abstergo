@@ -4,6 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
+from apps.common.forms import FormularioCRUD
 from apps.common.validators import validar_nombre
 from apps.cuentas.models import Rol, Usuario
 
@@ -22,18 +23,19 @@ class FormularioLogin(AuthenticationForm):
         self.fields["password"].label = "Contraseña"
 
 
-class RolForm(forms.ModelForm):
+class RolForm(FormularioCRUD):
     class Meta:
         model = Rol
-        fields = ("nombre", "descripcion")
+        fields = ("codigo", "nombre", "descripcion")
 
 
-class UsuarioForm(forms.ModelForm):
+class UsuarioForm(FormularioCRUD):
     """El mantenedor de Usuarios.
 
     El correo es un dato editable y puede quedar vacío: en ese caso el usuario
     existe pero no puede iniciar sesión. La unicidad la valida el ModelForm,
-    porque el campo es único en el modelo.
+    porque el campo es único en el modelo. `delegaciones_autorizadas` es la
+    lista que el selector de contexto puede ofrecer.
     """
 
     nombre = forms.CharField(
@@ -51,7 +53,13 @@ class UsuarioForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
-        fields = ("email", "rol", "delegacion", "is_active")
+        fields = (
+            "email",
+            "rol",
+            "delegacion",
+            "delegaciones_autorizadas",
+            "is_active",
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,6 +86,8 @@ class UsuarioForm(forms.ModelForm):
             usuario.set_password(clave)
         if commit:
             usuario.save()
+            # `delegaciones_autorizadas` es una relación M2M: se guarda aparte.
+            self.save_m2m()
         return usuario
 
 

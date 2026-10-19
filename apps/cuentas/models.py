@@ -86,6 +86,15 @@ class Usuario(AbstractUser, Eliminado):
         related_name="usuarios",
         verbose_name="delegación",
     )
+    # Cuando el perfil trabaja en más de un territorio. `delegacion` sigue
+    # siendo la principal; esta es la lista completa de las autorizadas que el
+    # selector de contexto puede ofrecer.
+    delegaciones_autorizadas = models.ManyToManyField(
+        "organizacion.Delegacion",
+        blank=True,
+        related_name="usuarios_autorizados",
+        verbose_name="delegaciones autorizadas",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -99,6 +108,18 @@ class Usuario(AbstractUser, Eliminado):
 
     def __str__(self):
         return self.get_full_name() or self.email or f"Usuario {self.pk}"
+
+    @property
+    def delegaciones_texto(self):
+        """Las autorizadas en una línea; si no hay, la principal.
+
+        La usan la ficha de consulta y la exportación, para no repetir el
+        recorrido por la relación en cada lugar.
+        """
+        autorizadas = list(self.delegaciones_autorizadas.all())
+        if autorizadas:
+            return ", ".join(delegacion.nombre for delegacion in autorizadas)
+        return self.delegacion.nombre if self.delegacion_id else ""
 
     def clean(self):
         # AbstractBaseUser.clean() normaliza el USERNAME_FIELD, y

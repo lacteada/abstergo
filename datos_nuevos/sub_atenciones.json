@@ -1,34 +1,50 @@
 [
   {
+    "codigo": "informacion-tramites",
     "nombre": "Información de trámites",
-    "tipo_atencion": "Orientación e información"
+    "tipo_atencion": "Orientación e información",
+    "estado": "activo"
   },
   {
+    "codigo": "orientacion-previsional",
     "nombre": "Orientación previsional",
-    "tipo_atencion": "Orientación e información"
+    "tipo_atencion": "Orientación e información",
+    "estado": "activo"
   },
   {
+    "codigo": "subsidio-agua-potable",
     "nombre": "Subsidio de agua potable",
-    "tipo_atencion": "Asistencia social"
+    "tipo_atencion": "Asistencia social",
+    "estado": "activo"
   },
   {
+    "codigo": "ayuda-tecnica",
     "nombre": "Ayuda técnica",
-    "tipo_atencion": "Asistencia social"
+    "tipo_atencion": "Asistencia social",
+    "estado": "activo"
   },
   {
+    "codigo": "pension-basica-solidaria",
     "nombre": "Pensión básica solidaria",
-    "tipo_atencion": "Asistencia social"
+    "tipo_atencion": "Asistencia social",
+    "estado": "activo"
   },
   {
+    "codigo": "mantencion-areas-verdes",
     "nombre": "Mantención de áreas verdes",
-    "tipo_atencion": "Requerimiento territorial"
+    "tipo_atencion": "Requerimiento territorial",
+    "estado": "activo"
   },
   {
+    "codigo": "alumbrado-publico",
     "nombre": "Alumbrado público",
-    "tipo_atencion": "Requerimiento territorial"
+    "tipo_atencion": "Requerimiento territorial",
+    "estado": "activo"
   },
   {
+    "codigo": "mediacion-ruidos-molestos",
     "nombre": "Mediación por ruidos molestos",
-    "tipo_atencion": "Convivencia vecinal"
+    "tipo_atencion": "Convivencia vecinal",
+    "estado": "activo"
   }
 ]

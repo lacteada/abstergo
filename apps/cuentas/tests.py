@@ -1,7 +1,11 @@
 """Pruebas de la recuperación de contraseña."""
 
+from datetime import timedelta
+
 import pytest
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from apps.cuentas import otp
 from apps.cuentas.models import RecuperacionPassword
@@ -44,3 +48,21 @@ def test_vigentes_deja_fuera_los_dados_de_baja(usuario):
     usuario.eliminar()
     assert not Usuario.vigentes().filter(pk=usuario.pk).exists()
     assert Usuario.objects.filter(pk=usuario.pk).exists()
+
+
+def test_el_reenvio_respeta_la_espera_minima(usuario):
+    otp.solicitar(usuario.email)
+    # Recién pedido el código, el reenvío espera en vez de emitir otro.
+    assert otp.reenviar(usuario.email) > 0
+    assert RecuperacionPassword.objects.filter(usuario=usuario).count() == 1
+
+
+def test_el_reenvio_emite_tras_la_espera(usuario):
+    otp.solicitar(usuario.email)
+    primera = RecuperacionPassword.objects.get(usuario=usuario)
+    primera.creado = timezone.now() - timedelta(
+        seconds=settings.OTP_REENVIO_SEGUNDOS + 1
+    )
+    primera.save(update_fields=["creado"])
+    assert otp.reenviar(usuario.email) == 0
+    assert RecuperacionPassword.objects.filter(usuario=usuario).count() == 2

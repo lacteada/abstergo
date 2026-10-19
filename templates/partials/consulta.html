@@ -1,0 +1,12 @@
+{% comment %}
+Campos de la ficha de consulta. Los arma `ConsultaBase` a partir de
+`consulta_campos`, así que cada módulo solo declara qué mostrar.
+{% endcomment %}
+<dl class="detalle">
+  {% for etiqueta, valor in campos %}
+    <div class="detalle-item">
+      <dt>{{ etiqueta }}</dt>
+      <dd>{{ valor|default:"—" }}</dd>
+    </div>
+  {% endfor %}
+</dl>

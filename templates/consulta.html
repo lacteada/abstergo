@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <a class="btn-muni btn-icono" href="{% url url_listado %}"
+       title="Volver al listado" aria-label="Volver al listado">
+      {% include 'iconos/anterior.html' %}
+    </a>
+  </div>
+  {% if subtitulo %}<p class="subtitulo">{{ subtitulo }}</p>{% endif %}
+
+  <div class="ficha">
+    {% include "partials/consulta.html" %}
+  </div>
+
+{% endblock %}

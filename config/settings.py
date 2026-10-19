@@ -160,8 +160,10 @@ LOGIN_REDIRECT_URL = "panel:inicio"
 LOGOUT_REDIRECT_URL = "cuentas:login"
 
 
-# Validez del código OTP, en minutos (mockup §3).
-OTP_EXPIRY_MINUTES = int(env("OTP_EXPIRY_MINUTES", "1"))
+# Validez del código OTP, en minutos, y espera mínima entre reenvíos, en
+# segundos. Los valores de los diseños del PDF son referenciales.
+OTP_EXPIRY_MINUTES = int(env("OTP_EXPIRY_MINUTES", "10"))
+OTP_REENVIO_SEGUNDOS = int(env("OTP_REENVIO_SEGUNDOS", "45"))
 
 # Contraseña inicial que el comando cargar_datos asigna a los usuarios migrados.
 USUARIOS_PASSWORD_INICIAL = env("USUARIOS_PASSWORD_INICIAL")

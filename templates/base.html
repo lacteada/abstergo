@@ -68,6 +68,60 @@
 
   <div class="contenido">
     <header class="header">
+      <div class="contexto">
+        {% if delegacion_activa %}
+          <span class="delegacion" title="Delegación activa">
+            <span class="delegacion-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"></path>
+                <path d="M5 21V7l7-4 7 4v14"></path>
+                <path d="M9 21v-5h6v5"></path>
+              </svg>
+            </span>
+            <span class="delegacion-textos">
+              <span class="delegacion-codigo">{{ delegacion_activa.codigo }}</span>
+              <span class="delegacion-nombre">{{ delegacion_activa.nombre }}</span>
+            </span>
+          </span>
+        {% else %}
+          <span class="delegacion global" title="Alcance del perfil">
+            <span class="delegacion-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M3 12h18"></path>
+                <path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"></path>
+              </svg>
+            </span>
+            <span class="delegacion-textos">
+              <span class="delegacion-codigo">TODAS</span>
+              <span class="delegacion-nombre">Todas las delegaciones</span>
+            </span>
+          </span>
+        {% endif %}
+
+        {% if delegaciones_autorizadas|length > 1 %}
+          <form class="selector-delegacion" method="post"
+                action="{% url 'panel:cambiar_delegacion' %}" data-cambiar-delegacion>
+            {% csrf_token %}
+            <input type="hidden" name="siguiente" value="{{ request.get_full_path }}">
+            <label class="sr-solo" for="delegacion-selector">Cambiar delegación activa</label>
+            <select id="delegacion-selector" name="delegacion">
+              {% if alcance_global %}
+                <option value="">Todas las delegaciones</option>
+              {% endif %}
+              {% for d in delegaciones_autorizadas %}
+                <option value="{{ d.pk }}"
+                  {% if delegacion_activa and delegacion_activa.pk == d.pk %}selected{% endif %}>
+                  {{ d.codigo }} · {{ d.nombre }}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        {% endif %}
+      </div>
+
       <span class="header-espacio"></span>
       <details class="usuario">
         <summary class="usuario-resumen">
@@ -127,6 +181,8 @@
 
 <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
 <script src="{% static 'js/mensajes.js' %}"></script>
+<script src="{% static 'js/contexto.js' %}"></script>
+<script src="{% static 'js/atencion.js' %}"></script>
 <script src="{% static 'js/modal.js' %}"></script>
 
 </body>

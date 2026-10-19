@@ -65,6 +65,7 @@ class Command(BaseCommand):
                 "nombre": f["nombre"],
                 "direccion": f["direccion"],
                 "comuna": f["comuna"],
+                "estado": f.get("estado", "activo"),
             },
         )
         self.cargar(
@@ -77,23 +78,33 @@ class Command(BaseCommand):
         self.cargar(
             "metas",
             Meta,
-            "nombre",
+            "codigo",
             lambda f: {
+                "nombre": f["nombre"],
                 "descripcion": f["descripcion"],
                 "delegacion": Delegacion.objects.get(codigo=f["delegacion"]),
+                "estado": f.get("estado", "activo"),
             },
         )
         self.cargar(
             "tipos_atencion",
             TipoAtencion,
-            "nombre",
-            lambda f: {"descripcion": f["descripcion"]},
+            "codigo",
+            lambda f: {
+                "nombre": f["nombre"],
+                "descripcion": f["descripcion"],
+                "estado": f.get("estado", "activo"),
+            },
         )
         self.cargar(
             "sub_atenciones",
             SubAtencion,
-            "nombre",
-            lambda f: {"tipo_atencion": TipoAtencion.objects.get(nombre=f["tipo_atencion"])},
+            "codigo",
+            lambda f: {
+                "nombre": f["nombre"],
+                "tipo_atencion": TipoAtencion.objects.get(nombre=f["tipo_atencion"]),
+                "estado": f.get("estado", "activo"),
+            },
         )
         self.cargar(
             "vecinos",
@@ -141,4 +152,11 @@ class Command(BaseCommand):
                     settings.USUARIOS_PASSWORD_INICIAL if correo else None
                 )
                 usuario.save()
+            # Un perfil puede quedar autorizado en más de una delegación; el
+            # selector de contexto ofrece solo estas.
+            codigos = fila.get("delegaciones") or []
+            if codigos:
+                usuario.delegaciones_autorizadas.set(
+                    Delegacion.objects.filter(codigo__in=codigos)
+                )
             self.anotar(creado)

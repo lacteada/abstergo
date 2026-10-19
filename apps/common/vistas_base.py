@@ -12,10 +12,27 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
+from apps.common.delegaciones import acotar
 from apps.common.permisos import modulo_de, puede
 from apps.cumplimiento.auditoria import registrar
+
+
+def resolver_campo(objeto, campo):
+    """Saca el valor de un campo por ruta ("a.b") o llamando una función.
+
+    Lo comparten la exportación a Excel y la vista de consulta: una sola forma
+    de leer un campo, sin repetir el recorrido.
+    """
+    if callable(campo):
+        return campo(objeto)
+    valor = objeto
+    for parte in campo.split("."):
+        valor = getattr(valor, parte, "")
+        if callable(valor):
+            valor = valor()
+    return "" if valor is None else str(valor)
 
 
 class PermisoRequeridoMixin:
@@ -62,7 +79,7 @@ class ExportarExcelMixin:
         hoja.append([encabezado for encabezado, _ in self.exportar_columnas])
         for fila in self.get_queryset():
             hoja.append(
-                [self._valor(fila, campo) for _, campo in self.exportar_columnas]
+                [resolver_campo(fila, campo) for _, campo in self.exportar_columnas]
             )
         for indice, (encabezado, _) in enumerate(self.exportar_columnas, start=1):
             letra = get_column_letter(indice)
@@ -77,17 +94,6 @@ class ExportarExcelMixin:
         )
         libro.save(respuesta)
         return respuesta
-
-    @staticmethod
-    def _valor(objeto, campo):
-        if callable(campo):
-            return campo(objeto)
-        valor = objeto
-        for parte in campo.split("."):
-            valor = getattr(valor, parte, "")
-            if callable(valor):
-                valor = valor()
-        return "" if valor is None else str(valor)
 
 
 class Comun:
@@ -124,6 +130,9 @@ class ListadoBase(
     # Llaves foráneas que la plantilla recorre. Traerlas con JOIN evita una
     # consulta por fila.
     relacionadas = ()
+    # Ruta del campo por el que se acota a la delegación activa. Vacío = el
+    # módulo no tiene dimensión territorial (catálogos globales).
+    campo_delegacion = None
     # Los listados con datos personales dejan rastro en la bitácora.
     auditar_lectura = False
 
@@ -137,6 +146,10 @@ class ListadoBase(
             for campo in self.busqueda:
                 condicion |= Q(**{f"{campo}__icontains": q})
             queryset = queryset.filter(condicion)
+        # El alcance territorial se aplica en el servidor, sobre el mismo
+        # queryset que exporta: un cambio de contexto actualiza ambas cosas.
+        if self.campo_delegacion:
+            queryset = acotar(self.request, queryset, self.campo_delegacion)
         return queryset
 
     def get(self, request, *args, **kwargs):
@@ -149,6 +162,12 @@ class ListadoBase(
 
 class _FormularioBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin):
     template_name = "formulario.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        # Los formularios acotan sus campos de delegación con la petición.
+        kwargs["request"] = self.request
+        return kwargs
 
     def get_template_names(self):
         # El modal pide el fragmento (X-Modal); sin ese encabezado se sirve la
@@ -187,3 +206,30 @@ class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
         registrar(self.request, "eliminar", objeto)
         messages.success(self.request, "Registro dado de baja.")
         return redirect(self.url_listado)
+
+
+class ConsultaBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DetailView):
+    """Ficha de solo lectura de un registro.
+
+    Completa el CRUD: el PDF pide crear, **consultar**, listar, editar y
+    eliminar. Usa el mismo permiso de lectura del listado, porque no cambia
+    nada. Se sirve como página completa y, con el encabezado del modal, como
+    fragmento para el `<dialog>`.
+    """
+
+    template_name = "consulta.html"
+    # Cada campo es (etiqueta, "ruta.atributo") o (etiqueta, función).
+    consulta_campos = ()
+
+    def get_template_names(self):
+        if self.request.headers.get("X-Modal") == "1":
+            return ["modal/consulta.html"]
+        return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["campos"] = [
+            (etiqueta, resolver_campo(self.object, campo))
+            for etiqueta, campo in self.consulta_campos
+        ]
+        return contexto

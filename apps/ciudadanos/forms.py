@@ -1,10 +1,11 @@
-from django import forms
-
 from apps.ciudadanos.models import Vecino
+from apps.common.forms import FormularioCRUD
 from apps.common.validators import normalizar_rut
 
 
-class VecinoForm(forms.ModelForm):
+class VecinoForm(FormularioCRUD):
+    campo_delegacion = "territorio"
+
     class Meta:
         model = Vecino
         fields = (

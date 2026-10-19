@@ -1,21 +1,22 @@
-from django import forms
-
 from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
+from apps.common.forms import FormularioCRUD
 
 
-class MetaForm(forms.ModelForm):
+class MetaForm(FormularioCRUD):
+    campo_delegacion = "delegacion"
+
     class Meta:
         model = Meta
-        fields = ("nombre", "descripcion", "delegacion")
+        fields = ("codigo", "nombre", "descripcion", "delegacion", "estado")
 
 
-class TipoAtencionForm(forms.ModelForm):
+class TipoAtencionForm(FormularioCRUD):
     class Meta:
         model = TipoAtencion
-        fields = ("nombre", "descripcion")
+        fields = ("codigo", "nombre", "descripcion", "estado")
 
 
-class SubAtencionForm(forms.ModelForm):
+class SubAtencionForm(FormularioCRUD):
     class Meta:
         model = SubAtencion
-        fields = ("nombre", "tipo_atencion")
+        fields = ("codigo", "nombre", "tipo_atencion", "estado")

@@ -1,9 +1,16 @@
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView, View
 
-from apps.common.vistas_base import AltaBase, BorradoBase, EdicionBase, ListadoBase
+from apps.common.vistas_base import (
+    AltaBase,
+    BorradoBase,
+    ConsultaBase,
+    EdicionBase,
+    ListadoBase,
+)
 from apps.cuentas import otp
 from apps.cuentas.forms import (
     CodigoForm,
@@ -56,6 +63,18 @@ class RolesBorrado(BorradoBase):
     url_listado = "cuentas:roles"
 
 
+class RolesConsulta(ConsultaBase):
+    model = Rol
+    titulo = "Consultar rol"
+    seccion = "roles"
+    url_listado = "cuentas:roles"
+    consulta_campos = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Descripción", "descripcion"),
+    )
+
+
 # --------------------------------------------------------------- Usuarios
 class UsuariosListado(ListadoBase):
     model = Usuario
@@ -72,6 +91,7 @@ class UsuariosListado(ListadoBase):
         ("Correo", "email"),
         ("Rol", "rol.nombre"),
         ("Delegación", "delegacion.nombre"),
+        ("Delegaciones autorizadas", "delegaciones_texto"),
         ("Activo", lambda u: "Sí" if u.is_active else "No"),
     )
     url_nueva = "cuentas:usuarios_nueva"
@@ -103,6 +123,21 @@ class UsuariosBorrado(BorradoBase):
     titulo = "Eliminar usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
+
+
+class UsuariosConsulta(ConsultaBase):
+    model = Usuario
+    titulo = "Consultar usuario"
+    seccion = "usuarios"
+    url_listado = "cuentas:usuarios"
+    consulta_campos = (
+        ("Nombre", "get_full_name"),
+        ("Correo", "email"),
+        ("Rol", "rol.nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Delegaciones autorizadas", "delegaciones_texto"),
+        ("Estado", lambda u: "Activo" if u.is_active else "Inactivo"),
+    )
 
 
 # ------------------------------------------------- Recuperar la contraseña
@@ -150,7 +185,14 @@ class Reenviar(View):
     def post(self, request):
         correo = request.session.get("recuperacion_correo")
         if correo:
-            otp.solicitar(correo)
+            espera = otp.reenviar(correo)
+            if espera:
+                messages.warning(
+                    request,
+                    f"Espera {espera} segundos antes de pedir otro código.",
+                )
+            else:
+                messages.success(request, "Enviamos un código nuevo.")
         return redirect("cuentas:validar")
 
 

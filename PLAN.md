@@ -40,7 +40,7 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - R7 · API para el cliente Android — **parcial** (API v1 con token, CRUD y recuperación; falta HTTPS).
 - R8 · Dashboard por rol — **parcial**.
 - R9 · Seguridad de producción (HTTPS, rate limiting) — **ausente**.
-- R10 · Calidad (tests, CI) — **parcial** (CI creada; tests pendientes).
+- R10 · Calidad (tests, CI) — **hecho** (CI creada; 25 pruebas funcionales y unitarias con `pytest`, registro en `documentacion/pruebas.md`).
 
 ## 3. Módulos (variable, paralelizable)
 - Un módulo = una entidad de dominio: modelo, migración, serializer/form, vista, permiso, tests, import/export.
@@ -90,6 +90,7 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - API v1 (`apps/api`): auth JWT, permisos por rol, CRUD con borrado lógico y recuperación por correo (`RecuperacionPassword`). Esquema en `/api/schema/`. Verificado con `scripts/verificar.sh` (EXIT=0, recuperación de punta a punta).
 - Permisos por rol en `apps/common/permisos.py` (matriz rol × módulo), aplicados en la web, la API y el menú. Usuario de MariaDB con contraseña rotada.
 - Pendiente inmediato de documentación: `documentacion/documento_tecnico.md` (sección de API y permisos) y `.env.example` (variables de JWT y paginación).
+- **Segunda evaluación**: `estado` y `codigo` en los catálogos (`ConEstado`, migración de datos `catalogos.0004`), multi-delegación (`Usuario.delegaciones_autorizadas`), contexto de delegación en la cabecera con selector (`apps/common/delegaciones.py`), acotado de listados y formularios al alcance del perfil, vista de consulta en los CRUD (`ConsultaBase`), dependencia Tipo → Sub Atención con validación en servidor, identificador de atención, estados de interfaz y espera entre reenvíos del código (`OTP_REENVIO_SEGUNDOS`). Pruebas en `conftest.py` y `apps/*/tests.py`; registro en `documentacion/pruebas.md`; carga con `scripts/estres.py`; despliegue en `documentacion/despliegue_aws.md`.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

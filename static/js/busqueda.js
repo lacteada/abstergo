@@ -14,14 +14,16 @@ function iniciarBusqueda() {
   const filas = document.querySelector("[data-filas]");
   const pie = document.querySelector("[data-pie]");
   const paginacion = document.querySelector("[data-paginacion]");
+  const cargando = document.querySelector("[data-cargando]");
   let temporizador = null;
 
   async function actualizar() {
     const destino =
       entrada.dataset.url + "?q=" + encodeURIComponent(entrada.value.trim());
+    if (cargando) cargando.hidden = false;
     try {
       const respuesta = await fetch(destino);
-      if (!respuesta.ok) return;
+      if (!respuesta.ok) throw new Error("respuesta " + respuesta.status);
       const documento = new DOMParser().parseFromString(
         await respuesta.text(),
         "text/html"
@@ -35,7 +37,12 @@ function iniciarBusqueda() {
         paginacion.innerHTML = nuevaPaginacion ? nuevaPaginacion.innerHTML : "";
       }
     } catch (error) {
-      // Si falla la red se deja lo que ya estaba en pantalla.
+      // Si falla la red se deja lo que ya estaba en pantalla y se avisa.
+      if (window.Mensajes) {
+        window.Mensajes.avisar("error", "No se pudo buscar. Intenta de nuevo.");
+      }
+    } finally {
+      if (cargando) cargando.hidden = true;
     }
   }
 

@@ -31,7 +31,8 @@
     {% endif %}
   </div>
 
-  <div class="tabla-envoltura">
+  <div class="tabla-envoltura" data-tabla>
+    <div class="tabla-cargando" data-cargando hidden>Cargando…</div>
     <table class="tabla">
       <thead>
         <tr>{% block encabezado %}{% endblock %}</tr>
@@ -40,7 +41,15 @@
         {% for fila in object_list %}
           <tr>{% block fila %}{% endblock %}</tr>
         {% empty %}
-          <tr><td colspan="20" class="vacio">Sin registros.</td></tr>
+          <tr>
+            <td colspan="20" class="vacio">
+              {% if request.GET.q %}
+                Sin coincidencias para «{{ request.GET.q }}».
+              {% else %}
+                Aún no hay registros.
+              {% endif %}
+            </td>
+          </tr>
         {% endfor %}
       </tbody>
     </table>

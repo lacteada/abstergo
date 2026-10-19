@@ -68,6 +68,34 @@ body {
   border-bottom: 1px solid var(--gris-borde); padding: 12px 24px;
 }
 .header-espacio { flex: 1; }
+
+/* ---------- Contexto de delegación (cabecera) ----------
+   El código y el nombre de la delegación activa siempre a la vista, más el
+   selector cuando el perfil tiene más de una. El color no es la única señal:
+   el distintivo lleva icono y texto. */
+.contexto { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.delegacion {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 12px; border-radius: 8px;
+  background: var(--gris-fondo); border: 1px solid var(--gris-borde);
+}
+.delegacion-icono { display: inline-flex; color: var(--muni-base); flex: 0 0 auto; }
+.delegacion-icono svg { width: 20px; height: 20px; }
+.delegacion-textos { display: flex; flex-direction: column; line-height: 1.15; }
+.delegacion-codigo {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muni-oscuro);
+}
+.delegacion-nombre { font-size: 13px; font-weight: 600; }
+.delegacion.global .delegacion-icono { color: #5b6169; }
+.selector-delegacion select {
+  padding: 7px 10px; border: 1px solid var(--gris-borde);
+  border-radius: 6px; font-size: 13px; background: #fff; cursor: pointer;
+}
+.sr-solo {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
 /* ---------- Usuario del header ----------
    Icono, nombre con el rol debajo y un desplegable para cerrar la sesión. */
 .usuario { position: relative; font-size: 14px; }
@@ -142,7 +170,16 @@ body {
   background: #fff;
   border: 1px solid var(--gris-borde);
   border-radius: 8px;
+  position: relative;
 }
+/* Estado de carga mientras el buscador en vivo trae las filas. */
+.tabla-cargando {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .72);
+  font-size: 13px; color: #5b6169;
+}
+.tabla-cargando[hidden] { display: none; }
 .tabla {
   width: 100%; border-collapse: collapse; font-size: 14px;
 }
@@ -385,3 +422,12 @@ body {
 .modal .ficha,
 .modal .aviso { border: 0; padding: 0; max-width: none; background: transparent; }
 .modal-cargando { padding: 28px; text-align: center; color: #8a9099; font-size: 14px; }
+
+/* ---------- Ficha de consulta ---------- */
+.detalle { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px 22px; margin: 0; }
+.detalle-item { border-bottom: 1px solid #eef0f2; padding-bottom: 8px; }
+.detalle-item dt {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+  color: #8a9099; margin-bottom: 2px;
+}
+.detalle-item dd { margin: 0; font-size: 14px; color: #22262b; }

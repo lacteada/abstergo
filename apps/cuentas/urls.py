@@ -25,11 +25,17 @@ urlpatterns = [
     # Roles
     path("roles/", views.RolesListado.as_view(), name="roles"),
     path("roles/nuevo/", views.RolesAlta.as_view(), name="roles_nueva"),
+    path("roles/<int:pk>/", views.RolesConsulta.as_view(), name="roles_consultar"),
     path("roles/<int:pk>/editar/", views.RolesEdicion.as_view(), name="roles_editar"),
     path("roles/<int:pk>/eliminar/", views.RolesBorrado.as_view(), name="roles_eliminar"),
     # Usuarios
     path("usuarios/", views.UsuariosListado.as_view(), name="usuarios"),
     path("usuarios/nuevo/", views.UsuariosAlta.as_view(), name="usuarios_nueva"),
+    path(
+        "usuarios/<int:pk>/",
+        views.UsuariosConsulta.as_view(),
+        name="usuarios_consultar",
+    ),
     path(
         "usuarios/<int:pk>/editar/",
         views.UsuariosEdicion.as_view(),

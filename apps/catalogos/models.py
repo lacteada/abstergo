@@ -1,10 +1,19 @@
 from django.db import models
 
+from apps.common.estados import ConEstado
 from apps.common.soft_delete import BorradoLogico
-from apps.common.validators import validar_catalogo, validar_nombre
+from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
 
 
-class Meta(BorradoLogico):
+class Meta(ConEstado, BorradoLogico):
+    codigo = models.SlugField(
+        "código",
+        max_length=40,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[validar_codigo],
+    )
     nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
     descripcion = models.CharField(
         "descripción", max_length=200, blank=True, validators=[validar_catalogo]
@@ -25,7 +34,15 @@ class Meta(BorradoLogico):
         return f"{self.nombre} ({self.delegacion})"
 
 
-class TipoAtencion(BorradoLogico):
+class TipoAtencion(ConEstado, BorradoLogico):
+    codigo = models.SlugField(
+        "código",
+        max_length=40,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[validar_codigo],
+    )
     nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
     descripcion = models.CharField(
         "descripción", max_length=200, blank=True, validators=[validar_catalogo]
@@ -40,7 +57,15 @@ class TipoAtencion(BorradoLogico):
         return self.nombre
 
 
-class SubAtencion(BorradoLogico):
+class SubAtencion(ConEstado, BorradoLogico):
+    codigo = models.SlugField(
+        "código",
+        max_length=40,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[validar_codigo],
+    )
     nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
     tipo_atencion = models.ForeignKey(
         TipoAtencion,
