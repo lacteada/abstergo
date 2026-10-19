@@ -158,11 +158,9 @@ class Command(BaseCommand):
                     settings.USUARIOS_PASSWORD_INICIAL if correo else None
                 )
                 usuario.save()
-            # Un perfil puede quedar autorizado en más de una delegación; el
-            # selector de contexto ofrece solo estas.
-            codigos = fila.get("delegaciones") or []
-            if codigos:
-                usuario.delegaciones_autorizadas.set(
-                    Delegacion.objects.filter(codigo__in=codigos)
-                )
+            # La semilla manda: se fija la lista completa de autorizadas, así
+            # reejecutar deja el contexto igual y no arrastra una lista vieja.
+            usuario.delegaciones_autorizadas.set(
+                Delegacion.objects.filter(codigo__in=fila.get("delegaciones") or [])
+            )
             self.anotar(creado)
