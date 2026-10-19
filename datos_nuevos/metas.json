@@ -1,13 +1,13 @@
 [
   {
-    "codigo": "cobertura-atencion-territorial",
+    "codigo": "cobertura-de-atencion-territorial",
     "nombre": "Cobertura de atención territorial",
     "descripcion": "Porcentaje de requerimientos vecinales respondidos dentro del plazo comprometido.",
     "delegacion": "avenida-del-mar",
     "estado": "activo"
   },
   {
-    "codigo": "tiempo-respuesta",
+    "codigo": "tiempo-de-respuesta",
     "nombre": "Tiempo de respuesta",
     "descripcion": "Días hábiles promedio entre el ingreso de un requerimiento y su respuesta.",
     "delegacion": "centro",
@@ -21,14 +21,14 @@
     "estado": "activo"
   },
   {
-    "codigo": "actualizacion-registros-vecinales",
+    "codigo": "actualizacion-de-registros-vecinales",
     "nombre": "Actualización de registros vecinales",
     "descripcion": "Porcentaje de fichas de vecinos con datos de contacto vigentes.",
     "delegacion": "las-companias",
     "estado": "activo"
   },
   {
-    "codigo": "cobertura-operativos-sociales",
+    "codigo": "cobertura-de-operativos-sociales",
     "nombre": "Cobertura de operativos sociales",
     "descripcion": "Operativos sociales realizados por delegación durante el período.",
     "delegacion": "la-pampa",

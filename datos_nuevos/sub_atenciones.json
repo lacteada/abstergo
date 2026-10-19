@@ -1,6 +1,6 @@
 [
   {
-    "codigo": "informacion-tramites",
+    "codigo": "informacion-de-tramites",
     "nombre": "Información de trámites",
     "tipo_atencion": "Orientación e información",
     "estado": "activo"
@@ -12,7 +12,7 @@
     "estado": "activo"
   },
   {
-    "codigo": "subsidio-agua-potable",
+    "codigo": "subsidio-de-agua-potable",
     "nombre": "Subsidio de agua potable",
     "tipo_atencion": "Asistencia social",
     "estado": "activo"
@@ -30,7 +30,7 @@
     "estado": "activo"
   },
   {
-    "codigo": "mantencion-areas-verdes",
+    "codigo": "mantencion-de-areas-verdes",
     "nombre": "Mantención de áreas verdes",
     "tipo_atencion": "Requerimiento territorial",
     "estado": "activo"
@@ -42,7 +42,7 @@
     "estado": "activo"
   },
   {
-    "codigo": "mediacion-ruidos-molestos",
+    "codigo": "mediacion-por-ruidos-molestos",
     "nombre": "Mediación por ruidos molestos",
     "tipo_atencion": "Convivencia vecinal",
     "estado": "activo"
