@@ -53,10 +53,14 @@ def activa(request):
 def acotar(request, queryset, campo):
     """Filtra el queryset por la delegación activa.
 
-    Sin delegación activa (rol global sin selección) devuelve el queryset
-    completo: el alcance global no se acota.
+    `campo` es la ruta del campo que apunta a la delegación ("delegacion",
+    "territorio"). Para el propio modelo Delegacion se usa el valor especial
+    "pk", que compara contra la clave de la delegación activa: `pk` es un
+    entero, así que hay que pasar el número y no el objeto.
     """
     delegacion = activa(request)
     if delegacion is None:
         return queryset
+    if campo == "pk":
+        return queryset.filter(pk=delegacion.pk)
     return queryset.filter(**{campo: delegacion})
