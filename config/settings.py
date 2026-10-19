@@ -174,6 +174,11 @@ LOGOUT_REDIRECT_URL = "cuentas:login"
 OTP_EXPIRY_MINUTES = int(env("OTP_EXPIRY_MINUTES", "10"))
 OTP_REENVIO_SEGUNDOS = int(env("OTP_REENVIO_SEGUNDOS", "45"))
 
+# Días de vigencia del enlace con que se invita a una cuenta nueva a fijar su
+# contraseña. El token usa PASSWORD_RESET_TIMEOUT, así que se mantienen juntos.
+INVITACION_DIAS = int(env("INVITACION_DIAS", "3"))
+PASSWORD_RESET_TIMEOUT = INVITACION_DIAS * 24 * 60 * 60
+
 # Contraseña inicial que el comando cargar_datos asigna a los usuarios migrados.
 USUARIOS_PASSWORD_INICIAL = env("USUARIOS_PASSWORD_INICIAL")
 

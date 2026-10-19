@@ -32,10 +32,11 @@ class RolForm(FormularioCRUD):
 class UsuarioForm(FormularioCRUD):
     """El mantenedor de Usuarios.
 
-    El correo es un dato editable y puede quedar vacío: en ese caso el usuario
-    existe pero no puede iniciar sesión. La unicidad la valida el ModelForm,
-    porque el campo es único en el modelo. `delegaciones_autorizadas` es la
-    lista que el selector de contexto puede ofrecer.
+    El administrador no define la contraseña: al crear la cuenta nace
+    **pendiente** (sin contraseña usable y sin acceso) y se le envía un correo
+    para activarla y fijar su clave. Por eso el correo es obligatorio al crear:
+    es el único camino de activación. `delegaciones_autorizadas` es la lista
+    que el selector de contexto puede ofrecer.
     """
 
     nombre = forms.CharField(
@@ -43,12 +44,6 @@ class UsuarioForm(FormularioCRUD):
     )
     apellido = forms.CharField(
         label="Apellido", max_length=150, required=False, validators=[validar_nombre]
-    )
-    clave = forms.CharField(
-        label="Contraseña",
-        required=False,
-        widget=forms.PasswordInput,
-        help_text="En blanco para no cambiarla.",
     )
 
     class Meta:
@@ -63,15 +58,20 @@ class UsuarioForm(FormularioCRUD):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["email"].required = False
+        self.creando = self.instance.pk is None
         self.fields["email"].label = "Correo electrónico"
         self.fields["is_active"].label = "Activo"
-        if self.instance.pk:
+        if self.creando:
+            self.fields["email"].required = True
+            self.fields["email"].help_text = (
+                "Se enviará la invitación a este correo para que fije su contraseña."
+            )
+            # La cuenta nace pendiente: el estado se decide al activarla.
+            self.fields.pop("is_active")
+        else:
+            self.fields["email"].required = False
             self.fields["nombre"].initial = self.instance.first_name
             self.fields["apellido"].initial = self.instance.last_name
-        else:
-            # Al crear hay que definir la contraseña.
-            self.fields["clave"].required = True
 
     def clean_email(self):
         # Dos cadenas vacías chocan contra el índice único; None no.
@@ -81,9 +81,10 @@ class UsuarioForm(FormularioCRUD):
         usuario = super().save(commit=False)
         usuario.first_name = self.cleaned_data["nombre"]
         usuario.last_name = self.cleaned_data["apellido"]
-        clave = self.cleaned_data["clave"]
-        if clave:
-            usuario.set_password(clave)
+        if self.creando:
+            # Sin contraseña usable y sin acceso hasta que active por correo.
+            usuario.is_active = False
+            usuario.set_unusable_password()
         if commit:
             usuario.save()
             # `delegaciones_autorizadas` es una relación M2M: se guarda aparte.

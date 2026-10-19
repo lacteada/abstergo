@@ -1,0 +1,16 @@
+Abstergo · Sistema Municipal de Atención Ciudadana
+
+Activa tu cuenta
+
+{% if nombre %}Hola {{ nombre }}.{% endif %}
+El administrador creó tu cuenta con el correo {{ correo }}. Para activarla,
+entra al siguiente enlace y define tu contraseña. El enlace vence en
+{{ dias }} día{{ dias|pluralize }} y sirve una sola vez.
+
+    {{ enlace }}
+
+Si no esperabas esta cuenta, ignora este correo: sin activarla no se puede
+entrar al sistema.
+
+—
+Correo automático, no respondas a esta dirección.

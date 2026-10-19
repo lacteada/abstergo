@@ -1,0 +1,54 @@
+{% extends "cuentas/base_auth.html" %}
+
+{% block titulo %}Activar cuenta · Sistema Municipal{% endblock %}
+
+{% block ventana %}
+  <div class="ventana">
+    <span></span><span></span><span></span>
+    <em>Sistema Municipal - Activar cuenta</em>
+  </div>
+{% endblock %}
+
+{% block contenido %}
+  {% if valido %}
+    <h2 class="auth-seccion">Activa tu cuenta</h2>
+    <hr class="divisor">
+
+    <p class="auth-texto">
+      {% if nombre %}Hola {{ nombre }}. {% endif %}Define tu contraseña para
+      entrar al sistema.
+    </p>
+
+    <ul class="requisitos">
+      <li>Mínimo 8 caracteres</li>
+      <li>Al menos una letra mayúscula</li>
+      <li>Al menos una letra minúscula</li>
+      <li>Al menos un número</li>
+      <li>Al menos un carácter especial (ej: ! @ # $ %)</li>
+    </ul>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+
+      <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+      {{ form.password1 }}
+
+      <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+      {{ form.password2 }}
+
+      {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+
+      <button class="btn-muni auth-boton" type="submit">Activar mi cuenta</button>
+    </form>
+  {% else %}
+    <h2 class="auth-seccion">Enlace no válido</h2>
+    <hr class="divisor">
+
+    <p class="auth-texto">
+      Este enlace ya se usó o venció. Pide al administrador que reenvíe la
+      invitación desde el mantenedor de usuarios.
+    </p>
+
+    <a class="auth-enlace" href="{% url 'cuentas:login' %}">Volver al login</a>
+  {% endif %}
+{% endblock %}

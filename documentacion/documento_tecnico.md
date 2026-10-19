@@ -317,10 +317,13 @@ Las pantallas de autenticación son `FormView`/`View` en
 - `DelegacionForm`, `MetaForm`, `TipoAtencionForm`, `SubAtencionForm`,
   `VecinoForm`, `RolForm`: `ModelForm` con la lista de `fields` igual a las
   columnas editables del modelo.
-- `UsuarioForm`: el mantenedor propio de usuarios. El correo puede quedar vacío
-  (`clean_email` lo guarda como `None`, no como cadena vacía, para no chocar con
-  el índice único). Recibe `nombre`, `apellido` y `clave` (contraseña); `save()`
-  los aplica y usa `set_password` si se escribió una clave.
+- `UsuarioForm`: el mantenedor propio de usuarios. El correo es obligatorio al
+  crear (es el camino de activación) y editable al editar; `clean_email` lo
+  guarda como `None` si queda vacío, no como cadena vacía, para no chocar con el
+  índice único. Recibe `nombre` y `apellido`; **no** pide contraseña. Al crear,
+  `save()` deja la cuenta `is_active=False` con `set_unusable_password()` y el
+  correo de activación se manda desde la vista. `delegaciones_autorizadas` es el
+  M2M que el selector de contexto ofrece.
 - `FormularioLogin(AuthenticationForm)`: solo reetiqueta el campo interno
   `username` como "Correo electrónico" (porque `USERNAME_FIELD` es el correo).
 - Formularios del flujo OTP: `RecuperarForm`, `CodigoForm` (valida 6 dígitos) y
@@ -366,6 +369,24 @@ intentos. El correo sale de las plantillas `correo/recuperacion.txt` y
 `correo/recuperacion.html`, que viajan juntas en un mismo mensaje
 (`send_mail(html_message=...)`). Al pedir el código la cuenta queda deshabilitada
 y se reactiva cuando se guarda la contraseña nueva.
+
+### 10.1 Alta de usuarios por invitación
+
+Fuente: `apps/cuentas/invitaciones.py`, `apps/cuentas/views.py`.
+
+- El administrador **no define** la contraseña. Al crear una cuenta, el
+  mantenedor la deja **pendiente** (`is_active=False`, sin contraseña usable) y
+  le envía un enlace firmado al correo (`correo/invitacion.*`).
+- El enlace (`/activar/<uidb64>/<token>/`) usa el `default_token_generator` de
+  Django: el token se firma con la contraseña actual del usuario, así que al
+  guardarla **deja de valer** (sirve una sola vez) y vence en `INVITACION_DIAS`
+  (`PASSWORD_RESET_TIMEOUT`). Un enlace vencido o ya usado muestra el aviso de
+  inválido.
+- La vista `Activar` reutiliza `NuevaPasswordForm`: valida la clave, la guarda y
+  pone `is_active=True`. Desde ahí la persona inicia sesión normalmente.
+- Como el administrador no puede fijar la clave, el listado de Usuarios ofrece
+  **reenviar la invitación** a las cuentas pendientes, y muestra el estado
+  `Pendiente` (`Usuario.estado_texto`).
 
 ---
 

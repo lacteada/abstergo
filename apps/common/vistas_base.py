@@ -181,10 +181,15 @@ class _FormularioBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin):
 
 
 class AltaBase(_FormularioBase, CreateView):
+    # Vacío = la vista concreta arma su propio aviso (por ejemplo, si además
+    # manda un correo y quiere informar el resultado).
+    mensaje_alta = "Registro creado."
+
     def form_valid(self, form):
         respuesta = super().form_valid(form)
         registrar(self.request, "crear", self.object)
-        messages.success(self.request, "Registro creado.")
+        if self.mensaje_alta:
+            messages.success(self.request, self.mensaje_alta)
         return respuesta
 
 

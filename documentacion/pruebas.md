@@ -29,6 +29,12 @@ Se ejecutan con `bash scripts/verificar.sh`, que corre `check`, migraciones,
 | 12 | Tipo → Sub Atención | atenciones | Tipo y subatención de otro tipo | Rechaza la subatención que no pertenece al tipo | Aprobado | `apps/atenciones/tests.py` |
 | 13 | Contexto de delegación | panel | Usuario con varias delegaciones | El cambio actualiza el alcance de los listados | Aprobado | `apps/panel/tests.py` |
 | 14 | Contexto — rechazo | panel | Delegación no autorizada | El servidor no cambia el contexto | Aprobado | `apps/panel/tests.py` |
+| 15 | Alta de usuario — sin contraseña | cuentas | Formulario de usuario | No pide contraseña; la cuenta nace pendiente e inactiva | Aprobado | `apps/cuentas/tests.py` |
+| 16 | Alta de usuario — invitación | cuentas | Crear un usuario con correo | Se envía el correo con el enlace de activación | Aprobado | `apps/cuentas/tests.py` |
+| 17 | Activar cuenta | cuentas | Enlace de activación válido | Fija la contraseña y deja la cuenta activa | Aprobado | `apps/cuentas/tests.py` |
+| 18 | Enlace de un solo uso | cuentas | Enlace ya usado | El mismo enlace deja de valer | Aprobado | `apps/cuentas/tests.py` |
+| 19 | Enlace inválido | cuentas | Token alterado | No cambia nada y avisa inválido | Aprobado | `apps/cuentas/tests.py` |
+| 20 | Reenviar invitación | cuentas | Cuenta pendiente | Reenvía el correo desde el listado | Aprobado | `apps/cuentas/tests.py` |
 
 Comando:
 
@@ -37,7 +43,7 @@ cd ~/code/ina/backend/abstergo
 bash scripts/verificar.sh        # espera VERIFICACIÓN OK
 ```
 
-Resultado de la última corrida: **25 pruebas, 0 fallos**.
+Resultado de la última corrida: **32 pruebas, 0 fallos**.
 
 ## 2. Pruebas manuales de interfaz
 

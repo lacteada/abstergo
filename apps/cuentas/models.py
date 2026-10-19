@@ -110,6 +110,23 @@ class Usuario(AbstractUser, Eliminado):
         return self.get_full_name() or self.email or f"Usuario {self.pk}"
 
     @property
+    def pendiente(self):
+        """Cuenta creada sin contraseña: falta que active con el enlace.
+
+        El administrador no define la clave; hasta que la persona entra al
+        enlace del correo, la cuenta no tiene contraseña usable y no puede
+        iniciar sesión.
+        """
+        return not self.has_usable_password()
+
+    @property
+    def estado_texto(self):
+        """Estado para la tabla y la ficha: Pendiente, Activo o Inactivo."""
+        if self.pendiente:
+            return "Pendiente"
+        return "Activo" if self.is_active else "Inactivo"
+
+    @property
     def delegaciones_texto(self):
         """Las autorizadas en una línea; si no hay, la principal.
 

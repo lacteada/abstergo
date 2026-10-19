@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView, View
 
@@ -10,8 +11,9 @@ from apps.common.vistas_base import (
     ConsultaBase,
     EdicionBase,
     ListadoBase,
+    PermisoRequeridoMixin,
 )
-from apps.cuentas import otp
+from apps.cuentas import invitaciones, otp
 from apps.cuentas.forms import (
     CodigoForm,
     NuevaPasswordForm,
@@ -108,6 +110,23 @@ class UsuariosAlta(AltaBase):
     titulo = "Nuevo usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
+    # El aviso lo arma la vista, porque depende del envío de la invitación.
+    mensaje_alta = ""
+
+    def form_valid(self, form):
+        respuesta = super().form_valid(form)
+        if invitaciones.enviar(self.object, self.request):
+            messages.success(
+                self.request,
+                f"Cuenta creada. Se envió la invitación a {self.object.email}.",
+            )
+        else:
+            messages.error(
+                self.request,
+                "Cuenta creada, pero no se pudo enviar la invitación. Reenvíala "
+                "desde el listado.",
+            )
+        return respuesta
 
 
 class UsuariosEdicion(EdicionBase):
@@ -136,8 +155,28 @@ class UsuariosConsulta(ConsultaBase):
         ("Rol", "rol.nombre"),
         ("Delegación", "delegacion.nombre"),
         ("Delegaciones autorizadas", "delegaciones_texto"),
-        ("Estado", lambda u: "Activo" if u.is_active else "Inactivo"),
+        ("Estado", "estado_texto"),
     )
+
+
+class UsuariosInvitar(LoginRequiredMixin, PermisoRequeridoMixin, View):
+    """Reenvía la invitación a una cuenta que todavía no se activó.
+
+    Como el administrador no define la contraseña, este es el camino para
+    recuperar una invitación perdida sin tener que dar de baja la cuenta.
+    """
+
+    model = Usuario
+
+    def post(self, request, pk):
+        usuario = get_object_or_404(Usuario.vigentes(), pk=pk)
+        if not usuario.pendiente:
+            messages.warning(request, "La cuenta ya está activada.")
+        elif invitaciones.enviar(usuario, request):
+            messages.success(request, f"Invitación reenviada a {usuario.email}.")
+        else:
+            messages.error(request, "No se pudo enviar la invitación.")
+        return redirect("cuentas:usuarios")
 
 
 # ------------------------------------------------- Recuperar la contraseña
@@ -221,3 +260,39 @@ class Privacidad(TemplateView):
     """Política de privacidad, pública y enlazada desde el login."""
 
     template_name = "privacidad.html"
+
+
+# ---------------------------------------------------- Activar una cuenta
+class Activar(FormView):
+    """Fija la contraseña de una cuenta invitada y la activa.
+
+    El enlace lleva el identificador y un token firmado con la contraseña
+    actual; al guardar, el token deja de valer, así que sirve una sola vez. Un
+    enlace usado o vencido muestra el aviso de inválido.
+    """
+
+    template_name = "cuentas/activar.html"
+    form_class = NuevaPasswordForm
+    success_url = reverse_lazy("cuentas:login")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.usuario = invitaciones.usuario_de_enlace(kwargs["uidb64"])
+        self.valido = invitaciones.enlace_valido(self.usuario, kwargs["token"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["valido"] = self.valido
+        contexto["nombre"] = self.usuario.first_name if self.usuario else ""
+        return contexto
+
+    def form_valid(self, form):
+        if not self.valido:
+            return self.form_invalid(form)
+        self.usuario.set_password(form.cleaned_data["password1"])
+        self.usuario.is_active = True
+        self.usuario.save(update_fields=["password", "is_active"])
+        messages.success(
+            self.request, "Tu cuenta quedó activa. Ya puedes iniciar sesión."
+        )
+        return super().form_valid(form)

@@ -18,6 +18,10 @@ delegaciones, los usuarios y roles, las metas por territorio y los catálogos de
 tipos y sub atenciones. Cada perfil ve y edita solo lo que su rol y su contexto
 de delegación autorizan.
 
+Las cuentas se crean **por invitación**: el administrador no define la
+contraseña; al crear un usuario, el sistema le envía un correo con un enlace
+(vigente por `INVITACION_DIAS`) donde activa la cuenta y fija su clave.
+
 ## Estado de cada módulo
 
 | Módulo | Estado | Notas |
@@ -26,7 +30,8 @@ de delegación autorizan.
 | Recuperación de contraseña | Operativo | Código de 6 dígitos, vigencia configurable y espera entre reenvíos |
 | CRUD Delegaciones | Operativo | Código, nombre, dirección, comuna, responsable y estado |
 | CRUD Roles | Operativo | Código, nombre y descripción; permisos según la matriz |
-| CRUD Usuarios | Operativo | Rol, delegación principal, delegaciones autorizadas y estado |
+| CRUD Usuarios | Operativo | Rol, delegación principal, delegaciones autorizadas y estado; el alta invita por correo |
+| Activación de cuenta | Operativo | El admin no fija la clave: el usuario activa y define su contraseña desde el correo |
 | CRUD Ítems y metas | Operativo | Código, nombre, descripción, delegación y estado |
 | CRUD Tipo de Atención | Operativo | Código, nombre, descripción y estado |
 | CRUD Sub Atención | Operativo | Código, nombre, tipo asociado y estado |

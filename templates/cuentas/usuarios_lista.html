@@ -17,11 +17,21 @@
   <td>{{ fila.rol|default:"—" }}</td>
   <td>{{ fila.delegacion|default:"—" }}</td>
   <td>
-    {% if fila.is_active %}<span class="estado activo">Activo</span>
-    {% else %}<span class="estado inactivo">Inactivo</span>{% endif %}
+    <span class="estado {{ fila.estado_texto|lower }}">{{ fila.estado_texto }}</span>
   </td>
   <td class="acciones">
     <ul class="acciones-lista">
+      {% if fila.pendiente %}
+        <li>
+          <form method="post" action="{% url 'cuentas:usuarios_invitar' fila.pk %}">
+            {% csrf_token %}
+            <button class="accion accion-icono" type="submit"
+                    title="Reenviar invitación" aria-label="Reenviar invitación">
+              {% include 'iconos/correo.html' %}
+            </button>
+          </form>
+        </li>
+      {% endif %}
       <li><a class="accion accion-icono" href="{% url 'cuentas:usuarios_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
       <li><a class="accion accion-icono" href="{% url 'cuentas:usuarios_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
       <li><a class="accion accion-icono peligro" href="{% url 'cuentas:usuarios_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>

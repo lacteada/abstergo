@@ -21,6 +21,11 @@ urlpatterns = [
     path("validar/", views.Validar.as_view(), name="validar"),
     path("reenviar/", views.Reenviar.as_view(), name="reenviar"),
     path("nueva-password/", views.NuevaPassword.as_view(), name="nueva_password"),
+    path(
+        "activar/<uidb64>/<token>/",
+        views.Activar.as_view(),
+        name="activar",
+    ),
     path("privacidad/", views.Privacidad.as_view(), name="privacidad"),
     # Roles
     path("roles/", views.RolesListado.as_view(), name="roles"),
@@ -35,6 +40,11 @@ urlpatterns = [
         "usuarios/<int:pk>/",
         views.UsuariosConsulta.as_view(),
         name="usuarios_consultar",
+    ),
+    path(
+        "usuarios/<int:pk>/invitar/",
+        views.UsuariosInvitar.as_view(),
+        name="usuarios_invitar",
     ),
     path(
         "usuarios/<int:pk>/editar/",
