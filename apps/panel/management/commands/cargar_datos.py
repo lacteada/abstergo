@@ -132,10 +132,14 @@ class Command(BaseCommand):
         La llave de idempotencia es el nombre completo, no el correo: un
         usuario sin correo lo tiene nulo y no sirve para buscar. Sin correo la
         contraseña queda inutilizable, porque ese usuario no puede entrar.
+
+        `superusuario` en el JSON da acceso al Django Admin (tablas de la ley);
+        sin la bandera, el usuario es solo de la aplicación.
         """
         for fila in leer("usuarios"):
             nombre, _, apellido = fila["nombre"].partition(" ")
             correo = fila.get("email") or None
+            superusuario = bool(fila.get("superusuario", False))
             usuario, creado = Usuario.objects.update_or_create(
                 first_name=nombre,
                 last_name=apellido,
@@ -144,6 +148,8 @@ class Command(BaseCommand):
                     "rol": Rol.objects.get(nombre=fila["rol"]),
                     "delegacion": Delegacion.objects.get(codigo=fila["delegacion"]),
                     "is_active": fila["activo"],
+                    "is_staff": superusuario,
+                    "is_superuser": superusuario,
                     "eliminado": None,
                 },
             )

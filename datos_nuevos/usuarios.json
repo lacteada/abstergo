@@ -1,47 +1,25 @@
 [
   {
-    "nombre": "Carlos Mendoza",
-    "email": "carlos@muniserena.cl",
-    "rol": "ADMIN",
-    "delegacion": "centro",
-    "delegaciones": ["centro", "avenida-del-mar", "la-antena", "las-companias", "la-pampa", "rural"],
-    "activo": true
-  },
-  {
-    "nombre": "Laura Muñoz",
-    "email": "laura@muniserena.cl",
-    "rol": "COORDINADOR",
-    "delegacion": "centro",
-    "delegaciones": ["centro", "avenida-del-mar", "la-antena", "las-companias", "la-pampa", "rural"],
-    "activo": true
-  },
-  {
-    "nombre": "Pedro Soto",
-    "email": "pedro@muniserena.cl",
+    "nombre": "Sebastian Gilberto",
+    "email": "sebastian.gilberto02@inacapmail.cl",
     "rol": "DELEGADO",
     "delegacion": "centro",
-    "delegaciones": ["centro", "avenida-del-mar"],
+    "delegaciones": ["centro"],
     "activo": true
   },
   {
-    "nombre": "María González",
-    "email": "maria@muniserena.cl",
+    "nombre": "Gabriel Egaña",
+    "email": "gabriel.egana03@inacapmail.cl",
+    "rol": "ADMIN",
+    "delegacion": "centro",
+    "superusuario": true,
+    "activo": true
+  },
+  {
+    "nombre": "Demian Catalan",
+    "email": "demian.catalan02@inacapmail.cl",
     "rol": "FUNCIONARIO",
     "delegacion": "centro",
-    "activo": true
-  },
-  {
-    "nombre": "Roberto Silva",
-    "email": "roberto@muniserena.cl",
-    "rol": "VERIFICADOR",
-    "delegacion": "la-antena",
-    "activo": true
-  },
-  {
-    "nombre": "Ana Rodríguez",
-    "email": "ana@muniserena.cl",
-    "rol": "CONSULTA",
-    "delegacion": "la-pampa",
     "activo": true
   }
 ]
