@@ -67,10 +67,11 @@ def normalizar_rut(valor):
     return limpio
 
 
-def _digito_verificador(cuerpo):
+def digito_verificador(cuerpo):
+    """El dígito verificador (módulo 11) del cuerpo numérico de un RUT."""
     suma = 0
     multiplicador = 2
-    for digito in reversed(cuerpo):
+    for digito in reversed(str(cuerpo)):
         suma += int(digito) * multiplicador
         multiplicador = multiplicador + 1 if multiplicador < 7 else 2
     resto = 11 - (suma % 11)
@@ -84,7 +85,7 @@ def validar_rut(valor):
     if not PATRON_RUT.match(rut):
         raise ValidationError("RUT inválido. Formato: 12345678-9.", code="formato_invalido")
     cuerpo, verificador = rut.split("-")
-    if _digito_verificador(cuerpo) != verificador:
+    if digito_verificador(cuerpo) != verificador:
         raise ValidationError(
             "El dígito verificador del RUT no coincide.", code="dv_invalido"
         )

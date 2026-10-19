@@ -470,6 +470,18 @@ python manage.py cargar_datos
 dependencias por sí solo y no hashea contraseñas. El comando propio existe para
 cubrir esas tres cosas y mantener la carga idempotente.
 
+### 12.4 Vecinos de relleno
+
+`apps/ciudadanos/management/commands/generar_vecinos.py`.
+
+- Genera vecinos de relleno para volumen de pruebas:
+  `python manage.py generar_vecinos --cantidad 1000`.
+- Los RUT son **válidos** (dígito verificador módulo 11, con
+  `apps.common.validators.digito_verificador`) y únicos; el rango de cuerpos
+  (20–30 millones) no choca con los datos de ejemplo.
+- Un generador con **semilla fija** produce los mismos datos: reejecutar
+  encuentra los RUT ya creados y no agrega ni cambia nada.
+
 ---
 
 ## 13. Front-end

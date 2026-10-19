@@ -114,6 +114,16 @@ python scripts/estres.py --url http://18.209.251.129 --ruta /login/ \
     --niveles 5,10,20,40 --duracion 20 --salida documentacion/pruebas.md
 ```
 
+## Datos de relleno
+
+Para volumen (listados, exportación y pruebas de carga) se pueden generar
+vecinos de relleno con RUT válidos y únicos. La semilla fija los datos, así que
+reejecutar no duplica:
+
+```bash
+python manage.py generar_vecinos --cantidad 1000
+```
+
 ## Estructura
 
 ```text
