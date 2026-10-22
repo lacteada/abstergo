@@ -106,7 +106,7 @@ vecino = a.get("/api/v1/neighbors/", **auth).json()["results"][0]
 assert set(vecino) >= {"name", "rut", "address", "phone", "territory",
                        "management_type", "status"}, sorted(vecino)
 
-# Permisos por rol, con una cuenta de solo lectura.
+# Permisos por rol: cuenta sin permisos (consulta), delegado y funcionario.
 rol, _ = Rol.objects.get_or_create(codigo="consulta", defaults={"nombre": "CONSULTA"})
 u2, _ = U.objects.get_or_create(email="consulta@test.cl",
     defaults={"first_name": "C", "last_name": "D"})
@@ -116,17 +116,43 @@ b = Client()
 rb = b.post("/api/v1/auth/login/", {"email": "consulta@test.cl", "password": "Clave.123"})
 assert rb.status_code == 200, ("login consulta", rb.status_code)
 authb = {"HTTP_AUTHORIZATION": f"Bearer {rb.json()['access']}"}
-assert b.get("/api/v1/neighbors/", **authb).status_code == 200, "consulta lee"
+assert b.get("/api/v1/neighbors/", **authb).status_code == 403, "consulta no lee vecinos"
 assert b.post("/api/v1/neighbors/", {}, **authb).status_code == 403, "consulta no escribe"
 assert b.get("/api/v1/users/", **authb).status_code == 403, "consulta no ve usuarios"
 b.post("/login/", {"username": "consulta@test.cl", "password": "Clave.123"}, follow=True)
 assert b.get("/usuarios/").status_code == 403, "web: usuarios prohibido"
-assert b.get("/vecinos/").status_code == 200, "web: vecinos permitido"
+assert b.get("/vecinos/").status_code == 403, "web: vecinos prohibido para consulta"
 perfil2 = b.get("/api/v1/auth/me/", **authb).json()
 assert perfil2["role_code"] == "consulta", perfil2.get("role_code")
-assert "users" not in perfil2["read_modules"]
-assert "neighbors" in perfil2["read_modules"]
-assert "neighbors" not in perfil2["write_modules"]
+assert len(perfil2["read_modules"]) == 0, "consulta sin modulos de lectura"
+assert len(perfil2["write_modules"]) == 0, "consulta sin modulos de escritura"
+
+# Rol Delegado: ve vecinos, gestiona atenciones y gestiona usuarios de su delegacion
+rol_del, _ = Rol.objects.get_or_create(codigo="delegado", defaults={"nombre": "DELEGADO"})
+u_del, _ = U.objects.get_or_create(email="delegado@test.cl",
+    defaults={"first_name": "Del", "last_name": "Egago"})
+u_del.rol = rol_del; u_del.set_password("Clave.123"); u_del.is_active = True; u_del.save()
+cdel = Client()
+cdel.post("/login/", {"username": "delegado@test.cl", "password": "Clave.123"}, follow=True)
+assert cdel.get("/vecinos/").status_code == 200, "delegado ve vecinos"
+assert cdel.get("/atenciones/").status_code == 200, "delegado ve atenciones"
+assert cdel.get("/atenciones/crear/").status_code == 200, "delegado crea atencion"
+assert cdel.get("/usuarios/").status_code == 200, "delegado ve usuarios de su delegacion"
+assert cdel.get("/delegaciones/").status_code == 403, "delegado no ve delegaciones globales"
+assert cdel.get("/roles/").status_code == 403, "delegado no ve roles"
+
+# Rol Funcionario: ve vecinos y gestiona atenciones
+rol_func, _ = Rol.objects.get_or_create(codigo="funcionario", defaults={"nombre": "FUNCIONARIO"})
+u_func, _ = U.objects.get_or_create(email="funcionario@test.cl",
+    defaults={"first_name": "Fun", "last_name": "Cionario"})
+u_func.rol = rol_func; u_func.set_password("Clave.123"); u_func.is_active = True; u_func.save()
+cfunc = Client()
+cfunc.post("/login/", {"username": "funcionario@test.cl", "password": "Clave.123"}, follow=True)
+assert cfunc.get("/vecinos/").status_code == 200, "funcionario ve vecinos"
+assert cfunc.get("/atenciones/").status_code == 200, "funcionario ve atenciones"
+assert cfunc.get("/atenciones/crear/").status_code == 200, "funcionario crea atencion"
+assert cfunc.get("/usuarios/").status_code == 403, "funcionario no ve usuarios"
+assert cfunc.get("/delegaciones/").status_code == 403, "funcionario no ve delegaciones"
 
 # Registro público: el correo es el identificador y no se puede repetir. El
 # nombre y el apellido son obligatorios, y el correo se guarda en minúsculas.

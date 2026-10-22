@@ -27,14 +27,17 @@ Cuando el usuario pide un cambio en este proyecto:
 
 ## 2. Contexto del proyecto
 
+- Arquitectura global del sistema: `~/SYSTEM_ARCHITECTURE.md`.
 - Ruta local: `~/code/ina/backend/abstergo` (Django 6.1 + MariaDB).
 - Repositorio: `https://github.com/lacteada/abstergo.git`, rama `main`.
 - Plan rector: `PLAN.md` (big picture, esqueleto, requisitos y su estado).
+- Cliente Android relacionado: `~/AndroidStudioProjects/PROYECTOPENKA`.
 - Front con framework institucional (`static/css/frameworkV1.css` +
   `institucional.css`), SweetAlert2 vendorizado, sin Bootstrap.
 - Datos en `datos_nuevos/` (JSON). Carga con `python manage.py cargar_datos`
   (idempotente).
 - Documentación: `documentacion/vision.md` es el rector; el resto acompaña.
+- Toda modificación de contratos API o modelos **requiere actualizar la documentación** (`documentacion/documento_tecnico.md`, `PLAN.md`) antes de cerrar la tarea.
 
 **Configuración relacionada**
 - `config/settings.py` lee todo del `.env`.

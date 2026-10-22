@@ -23,7 +23,7 @@
     <ul class="acciones-lista">
       <li><a class="accion accion-icono" href="{% url 'organizacion:delegaciones_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
       <li><a class="accion accion-icono" href="{% url 'organizacion:delegaciones_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
-      <li><a class="accion accion-icono peligro" href="{% url 'organizacion:delegaciones_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
+      <li><a class="accion accion-icono peligro" href="{% url 'organizacion:delegaciones_eliminar' fila.pk %}" data-eliminar title="Dar de baja" aria-label="Dar de baja">{% include 'iconos/eliminar.html' %}</a></li>
     </ul>
   </td>
 {% endblock %}

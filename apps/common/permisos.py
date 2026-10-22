@@ -20,23 +20,46 @@ CONSULTA = "consulta"
 ROLES = [ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR, CONSULTA]
 
 # Los que ven por encima de las delegaciones: no se acotan a un territorio.
-ALCANCE_GLOBAL = {ADMIN, COORDINADOR}
+ALCANCE_GLOBAL = {ADMIN}
 
-TODOS = set(ROLES)
-GESTION = {ADMIN, COORDINADOR}
-TERRENO = {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO}
-CATALOGOS = {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR}
-
-# módulo -> {"read": set(roles), "write": set(roles)}
+# Matriz de permisos por módulo:
+# - admin: acceso total (delegaciones, roles, usuarios globales, catálogos, atenciones, vecinos).
+# - delegado: gestiona usuarios en su delegación, consulta vecinos y atenciones.
+# - funcionario: consulta vecinos con su historial y crea/gestiona atenciones.
+# - coordinador, verificador, consulta: sin permisos operativos por ahora (inútiles/deshabilitados).
 MATRIZ = {
-    "cases": {"read": TODOS, "write": TERRENO},
-    "neighbors": {"read": TODOS, "write": TERRENO},
-    "delegations": {"read": CATALOGOS, "write": GESTION},
-    "goals": {"read": TERRENO, "write": {ADMIN, COORDINADOR, DELEGADO}},
-    "attention_types": {"read": CATALOGOS, "write": GESTION},
-    "attention_subtypes": {"read": CATALOGOS, "write": GESTION},
-    "users": {"read": {ADMIN}, "write": {ADMIN}},
-    "roles": {"read": {ADMIN}, "write": {ADMIN}},
+    "cases": {
+        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
+    },
+    "neighbors": {
+        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, FUNCIONARIO},
+    },
+    "delegations": {
+        "read": {ADMIN},
+        "write": {ADMIN},
+    },
+    "goals": {
+        "read": {ADMIN},
+        "write": {ADMIN},
+    },
+    "attention_types": {
+        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN},
+    },
+    "attention_subtypes": {
+        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN},
+    },
+    "users": {
+        "read": {ADMIN, DELEGADO},
+        "write": {ADMIN, DELEGADO},
+    },
+    "roles": {
+        "read": {ADMIN},
+        "write": {ADMIN},
+    },
 }
 
 # Modelo -> módulo. Las vistas web no repiten la asignación: la derivan del

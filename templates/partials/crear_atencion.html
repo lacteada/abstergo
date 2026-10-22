@@ -23,61 +23,72 @@ renderizó, no al listado.
 </form>
 
 {% if vecino %}
-  <div class="ficha">
-    <h2>{{ vecino.nombre }}</h2>
-    <p>{{ vecino.rut }} · {{ vecino.territorio }}</p>
-    <p>{{ vecino.direccion }}{% if vecino.telefono %} · {{ vecino.telefono }}{% endif %}</p>
-    <p>Estado: {{ vecino.get_estado_display }}</p>
-  </div>
-
-  <h2 class="titulo">Historial de atenciones</h2>
-  <div class="tabla-envoltura">
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Fecha</th><th>Tipo</th><th>Motivo</th>
-          <th>Funcionario</th><th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for atencion in historial %}
-          <tr>
-            <td>{{ atencion.fecha|date:"d-m-Y H:i" }}</td>
-            <td>{{ atencion.tipo_atencion }}</td>
-            <td>{{ atencion.motivo }}</td>
-            <td>{{ atencion.funcionario }}</td>
-            <td>{{ atencion.get_estado_display }}</td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="5" class="vacio">Sin atenciones previas.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <h2 class="titulo">Nueva atención</h2>
-  <form class="formulario" method="post" action="{{ request.path }}">
-    {% csrf_token %}
-    <input type="hidden" name="vecino" value="{{ vecino.pk }}">
-    {% for campo in form %}
-      <div class="campo">
-        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-        {{ campo }}
-        {% for error in campo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+  <div class="flujo-atencion-horizontal">
+    {# Columna Izquierda: Ficha del vecino e historial de atenciones #}
+    <div class="columna-vecino-historial">
+      <div class="ficha">
+        <h2 class="subtitulo-columna">{{ vecino.nombre }}</h2>
+        <p><strong>RUT:</strong> {{ vecino.rut }}</p>
+        <p><strong>Territorio:</strong> {{ vecino.territorio }}</p>
+        <p><strong>Dirección:</strong> {{ vecino.direccion }}{% if vecino.telefono %} · <strong>Tel:</strong> {{ vecino.telefono }}{% endif %}</p>
+        <p><strong>Estado:</strong> <span class="estado {{ vecino.estado|lower }}">{{ vecino.get_estado_display }}</span></p>
       </div>
-    {% endfor %}
-    {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
-    <div class="botonera">
-      <button class="btn-muni btn-icono" type="submit"
-              title="Registrar atención" aria-label="Registrar atención">
-        {% include 'iconos/guardar.html' %}
-      </button>
-      <a class="btn-icono" href="{% url 'atenciones:listado' %}" data-modal-cerrar
-         title="Cancelar" aria-label="Cancelar">
-        {% include 'iconos/cancelar.html' %}
-      </a>
+
+      <div class="ficha">
+        <h3 class="subtitulo-columna">Historial de atenciones</h3>
+        <div class="tabla-envoltura">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Fecha</th><th>Tipo</th><th>Motivo</th>
+                <th>Funcionario</th><th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for atencion in historial %}
+                <tr>
+                  <td>{{ atencion.fecha|date:"d-m-Y H:i" }}</td>
+                  <td>{{ atencion.tipo_atencion }}</td>
+                  <td>{{ atencion.motivo }}</td>
+                  <td>{{ atencion.funcionario }}</td>
+                  <td><span class="estado">{{ atencion.get_estado_display }}</span></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="vacio">Sin atenciones previas.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </form>
+
+    {# Columna Derecha: Formulario de nueva atención #}
+    <div class="columna-formulario-atencion">
+      <form class="formulario" method="post" action="{{ request.path }}">
+        <h3 class="subtitulo-columna">Nueva atención</h3>
+        {% csrf_token %}
+        <input type="hidden" name="vecino" value="{{ vecino.pk }}">
+        {% for campo in form %}
+          <div class="campo">
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+            {% for error in campo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+          </div>
+        {% endfor %}
+        {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}
+        <div class="botonera">
+          <button class="btn-muni btn-icono" type="submit"
+                  title="Registrar atención" aria-label="Registrar atención">
+            {% include 'iconos/guardar.html' %}
+          </button>
+          <a class="btn-icono" href="{% url 'atenciones:listado' %}" data-modal-cerrar
+             title="Cancelar" aria-label="Cancelar">
+            {% include 'iconos/cancelar.html' %}
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
 
 {% elif buscado %}
   {% if encontrados %}

@@ -17,7 +17,7 @@ class UsuarioFalso:
 
 @pytest.mark.parametrize(
     "codigo, esperado",
-    [("admin", True), ("coordinador", True), ("funcionario", True), ("consulta", False)],
+    [("admin", True), ("coordinador", False), ("funcionario", True), ("consulta", False)],
 )
 def test_escritura_de_vecinos_segun_rol(codigo, esperado):
     assert puede(UsuarioFalso(codigo), "neighbors", escritura=True) is esperado
@@ -33,6 +33,6 @@ def test_el_superusuario_cuenta_como_admin():
     assert modulos_de(usuario, escritura=True) == set(MATRIZ)
 
 
-def test_consulta_solo_lee_vecinos_y_atenciones():
-    assert modulos_de(UsuarioFalso("consulta")) == {"neighbors", "cases"}
+def test_consulta_no_tiene_modulos():
+    assert modulos_de(UsuarioFalso("consulta")) == set()
     assert modulos_de(UsuarioFalso("consulta"), escritura=True) == set()

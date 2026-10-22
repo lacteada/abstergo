@@ -16,7 +16,7 @@ def test_la_meta_acota_la_delegacion_a_las_autorizadas(
     cliente, crear_usuario, centro, mar
 ):
     usuario = crear_usuario(
-        "delegado@test.cl", codigo="delegado", delegacion=centro, autorizadas=[centro]
+        "admin_centro@test.cl", codigo="admin", delegacion=centro, autorizadas=[centro]
     )
     cliente.force_login(usuario)
 

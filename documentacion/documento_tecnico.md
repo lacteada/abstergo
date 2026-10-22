@@ -159,10 +159,17 @@ Todas con `on_delete=models.PROTECT`:
 - Varios usuarios sin correo conviven en la tabla: en MySQL el índice único deja
   coexistir varios `NULL`. Un usuario sin correo no puede iniciar sesión.
 
-### El borrado lógico
+### Matriz de permisos RBAC
 
-`apps/common/soft_delete.py`. Es la pieza que explica el resto del diseño: nada
-se borra con `DELETE`, la fila se marca con la fecha en `eliminado`.
+Fuente: `apps/common/permisos.py`.
+
+- **`admin` (superadministrador)**: Acceso total de lectura y escritura en todos los módulos (delegaciones, roles, usuarios globales, catálogos, vecinos y atenciones).
+- **`delegado`**: Gestión de usuarios acotada a su delegación (`campo_delegacion = "delegacion"`), consulta de vecinos y creación/gestión de atenciones en su territorio. Sin acceso a delegaciones globales ni roles.
+- **`funcionario`**: Consulta de lista de vecinos con su historial de atenciones y registro/creación de atenciones en terreno. Sin acceso a gestión de usuarios ni delegaciones.
+- **`consulta` / `verificador`**: Lectura restringida de auditoría y catálogos.
+
+`apps/common/soft_delete.py` y `apps/common/vistas_base.py`. Es la pieza que explica el resto del diseño: nada
+se borra con `DELETE`, la fila se marca con la fecha en `eliminado` mediante `objeto.eliminar()`.
 
 - `Eliminado` (abstracto): aporta el campo `eliminado` y el método
   `eliminar()`, que hace `save(update_fields=["eliminado"])`.
@@ -171,6 +178,7 @@ se borra con `DELETE`, la fila se marca con la fecha en `eliminado`.
   - `todos = TodosManager()` → ve todo, incluidos los eliminados.
 - Lo usan las entidades que otras referencian, para poder sacarlas de
   circulación sin romper las referencias de quien apuntaba a ellas.
+- **Representación visual**: En las tablas del CRUD, los registros inhabilitados o dados de baja reciben la clase `.fila-inactiva` y se muestran en tono gris atenuado, y las acciones de borrado se rotulan como «Dar de baja».
 
 `estado` (en `Vecino`) y `eliminado` son cosas distintas: `estado` es el estado
 del vecino (Activo/Inactivo); `eliminado` es la fila retirada del sistema.

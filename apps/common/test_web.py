@@ -44,14 +44,18 @@ def test_el_rol_global_ve_todas_las_delegaciones(cliente, crear_usuario, centro,
     assert len(respuesta.context["object_list"]) == 2
 
 
-def test_el_listado_de_delegaciones_se_acota_al_delegado(cliente, crear_usuario, centro, mar):
+def test_el_listado_de_usuarios_se_acota_al_delegado(cliente, crear_usuario, centro, mar):
+    crear_usuario("user_centro@test.cl", codigo="funcionario", delegacion=centro)
+    crear_usuario("user_mar@test.cl", codigo="funcionario", delegacion=mar)
     usuario = crear_usuario("delegado@test.cl", codigo="delegado", delegacion=centro)
     cliente.force_login(usuario)
 
-    respuesta = cliente.get(reverse("organizacion:delegaciones"))
+    respuesta = cliente.get(reverse("cuentas:usuarios"))
 
     assert respuesta.status_code == 200
-    assert [d.codigo for d in respuesta.context["object_list"]] == ["centro"]
+    correos = [u.email for u in respuesta.context["object_list"]]
+    assert "user_centro@test.cl" in correos
+    assert "user_mar@test.cl" not in correos
 
 
 def test_la_busqueda_es_parcial_y_no_distingue_mayusculas(cliente, crear_usuario, centro):

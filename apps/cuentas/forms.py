@@ -39,6 +39,8 @@ class UsuarioForm(FormularioCRUD):
     que el selector de contexto puede ofrecer.
     """
 
+    campo_delegacion = "delegacion"
+
     nombre = forms.CharField(
         label="Nombre", max_length=150, validators=[validar_nombre]
     )

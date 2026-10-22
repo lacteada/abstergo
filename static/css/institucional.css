@@ -403,11 +403,31 @@ body {
 }
 .paginacion .accion-icono:hover { background: #eef0f2; text-decoration: none; }
 
+/* ---------- Filas inactivas / dadas de baja (Gris en CRUD) ---------- */
+tr.fila-inactiva td,
+tr.fila-deshabilitada td {
+  background-color: #f7f9fa !important;
+  color: #8c98a4 !important;
+}
+tr.fila-inactiva .accion-icono,
+tr.fila-deshabilitada .accion-icono {
+  opacity: 0.6;
+  filter: grayscale(1);
+}
+tr.fila-inactiva .estado.inactivo,
+tr.fila-deshabilitada .estado.inactivo {
+  background: #eaedf0;
+  color: #6c757d;
+}
+
 /* ---------- Modal (diálogo nativo) ---------- */
 .modal {
   border: 0; border-radius: 10px; padding: 0;
   width: min(680px, 94vw); max-height: 90vh; overflow: auto;
   box-shadow: 0 18px 50px rgba(15, 23, 42, .28);
+}
+.modal:has(.flujo-atencion-horizontal) {
+  width: min(1040px, 96vw);
 }
 .modal::backdrop { background: rgba(15, 23, 42, .45); }
 .modal-cabecera {
@@ -427,6 +447,54 @@ body {
 .modal .ficha,
 .modal .aviso { border: 0; padding: 0; max-width: none; background: transparent; }
 .modal-cargando { padding: 28px; text-align: center; color: #8a9099; font-size: 14px; }
+
+/* ---------- Layout Horizontal de Atenciones (2 Columnas) ---------- */
+.flujo-atencion-horizontal {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(340px, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 16px;
+}
+@media (max-width: 900px) {
+  .flujo-atencion-horizontal {
+    grid-template-columns: 1fr;
+  }
+}
+.columna-vecino-historial {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.columna-vecino-historial .ficha {
+  margin-bottom: 0;
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+}
+.columna-vecino-historial .tabla-envoltura {
+  max-height: 280px;
+  overflow-y: auto;
+}
+.columna-formulario-atencion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.columna-formulario-atencion .formulario {
+  border: 1px solid var(--gris-borde);
+  border-radius: 8px;
+  padding: 18px;
+  max-width: 100%;
+  background: #fff;
+}
+.subtitulo-columna {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: var(--muni-base);
+}
 
 /* ---------- Ficha de consulta ---------- */
 .detalle { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px 22px; margin: 0; }
