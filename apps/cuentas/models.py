@@ -34,6 +34,12 @@ class Rol(BorradoLogico):
     def __str__(self):
         return self.nombre
 
+    def esta_en_uso(self):
+        return self.usuarios.filter(is_active=True, eliminado__isnull=True).exists()
+
+    def motivo_en_uso(self):
+        return "El rol tiene usuarios activos asignados."
+
 
 class UsuarioManager(UserManager):
     """UserManager con el correo como identificador.

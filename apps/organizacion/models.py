@@ -37,3 +37,25 @@ class Delegacion(ConEstado, BorradoLogico):
 
     def __str__(self):
         return self.nombre
+
+    def esta_en_uso(self):
+        """Verifica si la delegación tiene entidades activas vinculadas."""
+        tiene_metas = self.metas.filter(eliminado__isnull=True).exists()
+        tiene_vecinos = self.vecinos.filter(eliminado__isnull=True).exists()
+        tiene_atenciones = self.atenciones.filter(eliminado__isnull=True).exists()
+        tiene_usuarios = self.usuarios.filter(
+            is_active=True, eliminado__isnull=True
+        ).exists()
+        return tiene_metas or tiene_vecinos or tiene_atenciones or tiene_usuarios
+
+    def motivo_en_uso(self):
+        detalles = []
+        if self.usuarios.filter(is_active=True, eliminado__isnull=True).exists():
+            detalles.append("usuarios activos")
+        if self.vecinos.filter(eliminado__isnull=True).exists():
+            detalles.append("vecinos")
+        if self.metas.filter(eliminado__isnull=True).exists():
+            detalles.append("metas")
+        if self.atenciones.filter(eliminado__isnull=True).exists():
+            detalles.append("atenciones")
+        return f"La delegación tiene {', '.join(detalles)} vinculados."

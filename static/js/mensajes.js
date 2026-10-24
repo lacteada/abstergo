@@ -41,25 +41,48 @@
 
   function confirmaciones() {
     document.addEventListener("click", function (evento) {
-      const enlace = evento.target.closest("[data-eliminar], a.accion.peligro");
+      const enlaceBaja = evento.target.closest("[data-eliminar], a.accion.peligro");
+      const enlaceReactivar = evento.target.closest("[data-reactivar]");
       const formulario = document.getElementById("form-baja");
-      if (!enlace || !formulario || !window.Swal) return; // sigue el enlace normal
-      evento.preventDefault();
-      Swal.fire({
-        icon: "warning",
-        title: "¿Confirmas dar de baja?",
-        text: "El registro se retira del sistema.",
-        showCancelButton: true,
-        confirmButtonText: "Eliminar",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#8B1D19",
-        cancelButtonColor: "#5b6169",
-      }).then(function (resultado) {
-        if (resultado.isConfirmed) {
-          formulario.action = enlace.getAttribute("href");
-          formulario.submit();
-        }
-      });
+
+      if (enlaceBaja && formulario && window.Swal) {
+        evento.preventDefault();
+        Swal.fire({
+          icon: "warning",
+          title: "¿Confirmas dar de baja?",
+          text: "El registro pasará al estado inactivo.",
+          showCancelButton: true,
+          confirmButtonText: "Dar de baja",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#8B1D19",
+          cancelButtonColor: "#5b6169",
+        }).then(function (resultado) {
+          if (resultado.isConfirmed) {
+            formulario.action = enlaceBaja.getAttribute("href");
+            formulario.submit();
+          }
+        });
+        return;
+      }
+
+      if (enlaceReactivar && formulario && window.Swal) {
+        evento.preventDefault();
+        Swal.fire({
+          icon: "question",
+          title: "¿Confirmas reactivar?",
+          text: "El registro volverá a estar activo y disponible.",
+          showCancelButton: true,
+          confirmButtonText: "Reactivar",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#1d6b33",
+          cancelButtonColor: "#5b6169",
+        }).then(function (resultado) {
+          if (resultado.isConfirmed) {
+            formulario.action = enlaceReactivar.getAttribute("href");
+            formulario.submit();
+          }
+        });
+      }
     });
   }
 

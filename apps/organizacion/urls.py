@@ -22,4 +22,9 @@ urlpatterns = [
         views.Borrado.as_view(),
         name="delegaciones_eliminar",
     ),
+    path(
+        "delegaciones/<int:pk>/reactivar/",
+        views.Reactivar.as_view(),
+        name="delegaciones_reactivar",
+    ),
 ]

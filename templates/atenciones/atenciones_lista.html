@@ -21,7 +21,11 @@
     <ul class="acciones-lista">
       <li><a class="accion accion-icono" href="{% url 'atenciones:consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
       <li><a class="accion accion-icono" href="{% url 'atenciones:editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
-      <li><a class="accion accion-icono peligro" href="{% url 'atenciones:eliminar' fila.pk %}" data-eliminar title="Dar de baja" aria-label="Dar de baja">{% include 'iconos/eliminar.html' %}</a></li>
+      {% if fila.eliminado %}
+        <li><a class="accion accion-icono" href="{% url 'atenciones:reactivar' fila.pk %}" data-reactivar title="Reactivar" aria-label="Reactivar">{% include 'iconos/activar.html' %}</a></li>
+      {% else %}
+        <li><a class="accion accion-icono peligro" href="{% url 'atenciones:eliminar' fila.pk %}" data-eliminar title="Dar de baja" aria-label="Dar de baja">{% include 'iconos/eliminar.html' %}</a></li>
+      {% endif %}
     </ul>
   </td>
 {% endblock %}

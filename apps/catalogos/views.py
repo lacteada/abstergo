@@ -6,6 +6,7 @@ from apps.common.vistas_base import (
     ConsultaBase,
     EdicionBase,
     ListadoBase,
+    ReactivarBase,
 )
 
 
@@ -50,6 +51,13 @@ class MetasEdicion(EdicionBase):
 class MetasBorrado(BorradoBase):
     model = Meta
     titulo = "Eliminar meta"
+    seccion = "metas"
+    url_listado = "catalogos:metas"
+
+
+class MetasReactivar(ReactivarBase):
+    model = Meta
+    titulo = "Meta"
     seccion = "metas"
     url_listado = "catalogos:metas"
 
@@ -110,6 +118,13 @@ class TiposBorrado(BorradoBase):
     url_listado = "catalogos:tipos"
 
 
+class TiposReactivar(ReactivarBase):
+    model = TipoAtencion
+    titulo = "Tipo de atención"
+    seccion = "tipos"
+    url_listado = "catalogos:tipos"
+
+
 class TiposConsulta(ConsultaBase):
     model = TipoAtencion
     titulo = "Consultar tipo de atención"
@@ -162,6 +177,13 @@ class SubAtencionesEdicion(EdicionBase):
 class SubAtencionesBorrado(BorradoBase):
     model = SubAtencion
     titulo = "Eliminar sub atención"
+    seccion = "subatenciones"
+    url_listado = "catalogos:subatenciones"
+
+
+class SubAtencionesReactivar(ReactivarBase):
+    model = SubAtencion
+    titulo = "Sub atención"
     seccion = "subatenciones"
     url_listado = "catalogos:subatenciones"
 

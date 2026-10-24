@@ -154,6 +154,32 @@ assert cfunc.get("/atenciones/crear/").status_code == 200, "funcionario crea ate
 assert cfunc.get("/usuarios/").status_code == 403, "funcionario no ve usuarios"
 assert cfunc.get("/delegaciones/").status_code == 403, "funcionario no ve delegaciones"
 
+# Ciclo de baja logica, validacion "en uso" y reactivacion
+from apps.organizacion.models import Delegacion
+from apps.catalogos.models import Meta
+del_test = Delegacion.objects.create(codigo="del-test", nombre="Delegacion Test")
+meta_test = Meta.objects.create(codigo="meta-test", nombre="Meta Test", delegacion=del_test)
+# Intento de baja sobre delegacion en uso -> debe fallar con mensaje de error
+r_del = c.post(f"/delegaciones/{del_test.pk}/eliminar/", follow=True)
+del_test.refresh_from_db()
+assert del_test.eliminado is None, "no debe darse de baja una delegacion en uso"
+assert del_test.estado == "activo"
+
+# Baja logica sobre meta sin dependencias -> se desactiva pero sigue visible
+r_meta = c.post(f"/metas/{meta_test.pk}/eliminar/", follow=True)
+meta_test.refresh_from_db()
+assert meta_test.eliminado is not None, "meta debe quedar con timestamp de eliminado"
+assert meta_test.estado == "inactivo", "meta debe quedar en estado inactivo"
+# Sigue visible en el listado
+r_list = c.get("/metas/")
+assert "meta-test" in r_list.content.decode(), "meta inactiva debe ser visible en el listado"
+
+# Reactivacion de la meta
+r_react = c.post(f"/metas/{meta_test.pk}/reactivar/", follow=True)
+meta_test.refresh_from_db()
+assert meta_test.eliminado is None, "meta reactivada no debe tener eliminado"
+assert meta_test.estado == "activo", "meta reactivada debe quedar en estado activo"
+
 # Registro público: el correo es el identificador y no se puede repetir. El
 # nombre y el apellido son obligatorios, y el correo se guarda en minúsculas.
 alta = {"email": "Nuevo@Test.CL", "first_name": "Nuevo", "last_name": "Apellido",

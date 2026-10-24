@@ -56,6 +56,19 @@ class TipoAtencion(ConEstado, BorradoLogico):
     def __str__(self):
         return self.nombre
 
+    def esta_en_uso(self):
+        tiene_sub = self.sub_atenciones.filter(eliminado__isnull=True).exists()
+        tiene_atenciones = self.atenciones.filter(eliminado__isnull=True).exists()
+        return tiene_sub or tiene_atenciones
+
+    def motivo_en_uso(self):
+        detalles = []
+        if self.sub_atenciones.filter(eliminado__isnull=True).exists():
+            detalles.append("sub-atenciones vinculadas")
+        if self.atenciones.filter(eliminado__isnull=True).exists():
+            detalles.append("atenciones registradas")
+        return f"El tipo de atención tiene {', '.join(detalles)}."
+
 
 class SubAtencion(ConEstado, BorradoLogico):
     codigo = models.SlugField(
@@ -81,3 +94,9 @@ class SubAtencion(ConEstado, BorradoLogico):
 
     def __str__(self):
         return f"{self.nombre} ({self.tipo_atencion})"
+
+    def esta_en_uso(self):
+        return self.atenciones.filter(eliminado__isnull=True).exists()
+
+    def motivo_en_uso(self):
+        return "La sub-atención tiene atenciones registradas vinculadas."

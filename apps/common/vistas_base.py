@@ -10,9 +10,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from apps.common.delegaciones import acotar
 from apps.common.permisos import modulo_de, puede
@@ -137,7 +137,10 @@ class ListadoBase(
     auditar_lectura = False
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        if hasattr(self.model, "todos"):
+            queryset = self.model.todos.all()
+        else:
+            queryset = super().get_queryset()
         if self.relacionadas:
             queryset = queryset.select_related(*self.relacionadas)
         q = self.request.GET.get("q")
@@ -204,12 +207,55 @@ class EdicionBase(_FormularioBase, UpdateView):
 class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
     template_name = "confirmar.html"
 
+    def get_queryset(self):
+        if hasattr(self.model, "todos"):
+            return self.model.todos.all()
+        return super().get_queryset()
+
     def form_valid(self, form):
-        # Se marca la fila en vez de borrarla, para no romper las referencias.
         objeto = self.object
+        if hasattr(objeto, "esta_en_uso") and objeto.esta_en_uso():
+            messages.error(
+                self.request,
+                f"No se puede dar de baja: {objeto.motivo_en_uso()}",
+            )
+            return redirect(self.url_listado)
+
+        # Se marca la fila en vez de borrarla físicamente.
         objeto.eliminar()
+        if hasattr(objeto, "estado"):
+            objeto.estado = "inactivo"
+            objeto.save(update_fields=["estado"])
+        if hasattr(objeto, "is_active"):
+            objeto.is_active = False
+            objeto.save(update_fields=["is_active"])
+
         registrar(self.request, "eliminar", objeto)
         messages.success(self.request, "Registro dado de baja.")
+        return redirect(self.url_listado)
+
+
+class ReactivarBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, View):
+    """Permite reactivar un registro inactivo o dado de baja."""
+
+    def post(self, request, pk, *args, **kwargs):
+        queryset = (
+            self.model.todos.all()
+            if hasattr(self.model, "todos")
+            else self.model.objects.all()
+        )
+        objeto = get_object_or_404(queryset, pk=pk)
+
+        if hasattr(objeto, "estado"):
+            objeto.estado = getattr(objeto, "ACTIVO", "activo")
+        if hasattr(objeto, "eliminado"):
+            objeto.eliminado = None
+        if hasattr(objeto, "is_active"):
+            objeto.is_active = True
+        objeto.save()
+
+        registrar(self.request, "editar", objeto, "Reactivación de registro.")
+        messages.success(self.request, f"{self.titulo or 'Registro'} reactivado correctamente.")
         return redirect(self.url_listado)
 
 

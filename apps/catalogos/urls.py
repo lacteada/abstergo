@@ -11,6 +11,7 @@ urlpatterns = [
     path("metas/<int:pk>/", views.MetasConsulta.as_view(), name="metas_consultar"),
     path("metas/<int:pk>/editar/", views.MetasEdicion.as_view(), name="metas_editar"),
     path("metas/<int:pk>/eliminar/", views.MetasBorrado.as_view(), name="metas_eliminar"),
+    path("metas/<int:pk>/reactivar/", views.MetasReactivar.as_view(), name="metas_reactivar"),
     # Tipo de Atención
     path("tipos-atencion/", views.TiposListado.as_view(), name="tipos"),
     path("tipos-atencion/nuevo/", views.TiposAlta.as_view(), name="tipos_nueva"),
@@ -28,6 +29,11 @@ urlpatterns = [
         "tipos-atencion/<int:pk>/eliminar/",
         views.TiposBorrado.as_view(),
         name="tipos_eliminar",
+    ),
+    path(
+        "tipos-atencion/<int:pk>/reactivar/",
+        views.TiposReactivar.as_view(),
+        name="tipos_reactivar",
     ),
     # Sub Atención
     path("sub-atenciones/", views.SubAtencionesListado.as_view(), name="subatenciones"),
@@ -50,5 +56,10 @@ urlpatterns = [
         "sub-atenciones/<int:pk>/eliminar/",
         views.SubAtencionesBorrado.as_view(),
         name="subatenciones_eliminar",
+    ),
+    path(
+        "sub-atenciones/<int:pk>/reactivar/",
+        views.SubAtencionesReactivar.as_view(),
+        name="subatenciones_reactivar",
     ),
 ]

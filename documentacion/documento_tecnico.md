@@ -168,17 +168,13 @@ Fuente: `apps/common/permisos.py`.
 - **`funcionario`**: Consulta de lista de vecinos con su historial de atenciones y registro/creación de atenciones en terreno. Sin acceso a gestión de usuarios ni delegaciones.
 - **`consulta` / `verificador`**: Lectura restringida de auditoría y catálogos.
 
-`apps/common/soft_delete.py` y `apps/common/vistas_base.py`. Es la pieza que explica el resto del diseño: nada
-se borra con `DELETE`, la fila se marca con la fecha en `eliminado` mediante `objeto.eliminar()`.
+### Desactivación, visibilidad y reactivación en CRUD
 
-- `Eliminado` (abstracto): aporta el campo `eliminado` y el método
-  `eliminar()`, que hace `save(update_fields=["eliminado"])`.
-- `BorradoLogico(Eliminado)` (abstracto): añade dos gestores,
-  - `objects = ActivosManager()` → filtra `eliminado__isnull=True` (oculta lo dado de baja);
-  - `todos = TodosManager()` → ve todo, incluidos los eliminados.
-- Lo usan las entidades que otras referencian, para poder sacarlas de
-  circulación sin romper las referencias de quien apuntaba a ellas.
-- **Representación visual**: En las tablas del CRUD, los registros inhabilitados o dados de baja reciben la clase `.fila-inactiva` y se muestran en tono gris atenuado, y las acciones de borrado se rotulan como «Dar de baja».
+`apps/common/soft_delete.py` y `apps/common/vistas_base.py`. Es la pieza que explica el diseño de ciclo de vida:
+
+- **Desactivación sin pérdida de visibilidad**: Al dar de baja un registro (`BorradoBase`), el sistema cambia su estado a inactivo y registra la marca temporal de baja. Los listados (`ListadoBase`) muestran todos los registros (usando `model.todos.all()`) aplicando la clase visual `.fila-inactiva` (gris atenuado).
+- **Validación de dependencias en uso**: Antes de dar de baja o eliminar una entidad (ej. `Delegacion`, `TipoAtencion`, `Rol`), se ejecuta `objeto.esta_en_uso()`. Si tiene usuarios, vecinos, metas o atenciones activas vinculadas, la operación se bloquea y se muestra una alerta SweetAlert2 explicando los motivos.
+- **Botón de reactivación**: Cuando un registro está desactivado o inactivo, la tabla ofrece el botón «Reactivar» (`ReactivarBase`, `<pk>/reactivar/`), el cual restaura el registro a estado activo (`estado = 'activo'`, `is_active = True`, `eliminado = None`) previa confirmación SweetAlert2.
 
 `estado` (en `Vecino`) y `eliminado` son cosas distintas: `estado` es el estado
 del vecino (Activo/Inactivo); `eliminado` es la fila retirada del sistema.

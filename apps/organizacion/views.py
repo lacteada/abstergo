@@ -4,6 +4,7 @@ from apps.common.vistas_base import (
     ConsultaBase,
     EdicionBase,
     ListadoBase,
+    ReactivarBase,
 )
 from apps.organizacion.forms import DelegacionForm
 from apps.organizacion.models import Delegacion
@@ -50,6 +51,13 @@ class Edicion(EdicionBase):
 class Borrado(BorradoBase):
     model = Delegacion
     titulo = "Eliminar delegación"
+    seccion = "delegaciones"
+    url_listado = "organizacion:delegaciones"
+
+
+class Reactivar(ReactivarBase):
+    model = Delegacion
+    titulo = "Delegación"
     seccion = "delegaciones"
     url_listado = "organizacion:delegaciones"
 

@@ -33,6 +33,7 @@ urlpatterns = [
     path("roles/<int:pk>/", views.RolesConsulta.as_view(), name="roles_consultar"),
     path("roles/<int:pk>/editar/", views.RolesEdicion.as_view(), name="roles_editar"),
     path("roles/<int:pk>/eliminar/", views.RolesBorrado.as_view(), name="roles_eliminar"),
+    path("roles/<int:pk>/reactivar/", views.RolesReactivar.as_view(), name="roles_reactivar"),
     # Usuarios
     path("usuarios/", views.UsuariosListado.as_view(), name="usuarios"),
     path("usuarios/nuevo/", views.UsuariosAlta.as_view(), name="usuarios_nueva"),
@@ -55,5 +56,10 @@ urlpatterns = [
         "usuarios/<int:pk>/eliminar/",
         views.UsuariosBorrado.as_view(),
         name="usuarios_eliminar",
+    ),
+    path(
+        "usuarios/<int:pk>/reactivar/",
+        views.UsuariosReactivar.as_view(),
+        name="usuarios_reactivar",
     ),
 ]

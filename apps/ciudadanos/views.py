@@ -11,6 +11,7 @@ from apps.common.vistas_base import (
     ConsultaBase,
     EdicionBase,
     ListadoBase,
+    ReactivarBase,
 )
 
 
@@ -82,6 +83,13 @@ class Edicion(EdicionBase):
 class Borrado(BorradoBase):
     model = Vecino
     titulo = "Eliminar vecino"
+    seccion = "vecinos"
+    url_listado = "ciudadanos:vecinos"
+
+
+class Reactivar(ReactivarBase):
+    model = Vecino
+    titulo = "Vecino"
     seccion = "vecinos"
     url_listado = "ciudadanos:vecinos"
 

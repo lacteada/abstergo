@@ -15,6 +15,7 @@ from apps.common.vistas_base import (
     EdicionBase,
     ListadoBase,
     PermisoRequeridoMixin,
+    ReactivarBase,
 )
 from apps.cumplimiento.auditoria import registrar
 
@@ -142,6 +143,13 @@ class Edicion(EdicionBase):
 class Borrado(BorradoBase):
     model = Atencion
     titulo = "Eliminar atención"
+    seccion = "atenciones"
+    url_listado = "atenciones:listado"
+
+
+class Reactivar(ReactivarBase):
+    model = Atencion
+    titulo = "Atención"
     seccion = "atenciones"
     url_listado = "atenciones:listado"
 

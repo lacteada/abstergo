@@ -10,4 +10,5 @@ urlpatterns = [
     path("atenciones/<int:pk>/", views.Consulta.as_view(), name="consultar"),
     path("atenciones/<int:pk>/editar/", views.Edicion.as_view(), name="editar"),
     path("atenciones/<int:pk>/eliminar/", views.Borrado.as_view(), name="eliminar"),
+    path("atenciones/<int:pk>/reactivar/", views.Reactivar.as_view(), name="reactivar"),
 ]

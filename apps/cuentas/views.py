@@ -12,6 +12,7 @@ from apps.common.vistas_base import (
     EdicionBase,
     ListadoBase,
     PermisoRequeridoMixin,
+    ReactivarBase,
 )
 from apps.cuentas import invitaciones, otp
 from apps.cuentas.forms import (
@@ -65,6 +66,13 @@ class RolesBorrado(BorradoBase):
     url_listado = "cuentas:roles"
 
 
+class RolesReactivar(ReactivarBase):
+    model = Rol
+    titulo = "Rol"
+    seccion = "roles"
+    url_listado = "cuentas:roles"
+
+
 class RolesConsulta(ConsultaBase):
     model = Rol
     titulo = "Consultar rol"
@@ -101,8 +109,7 @@ class UsuariosListado(ListadoBase):
     url_listado = "cuentas:usuarios"
 
     def get_queryset(self):
-        # El listado agrega la búsqueda, así que no puede partir de `vigentes()`.
-        return super().get_queryset().filter(eliminado__isnull=True)
+        return super().get_queryset()
 
 
 class UsuariosAlta(AltaBase):
@@ -141,6 +148,13 @@ class UsuariosEdicion(EdicionBase):
 class UsuariosBorrado(BorradoBase):
     model = Usuario
     titulo = "Eliminar usuario"
+    seccion = "usuarios"
+    url_listado = "cuentas:usuarios"
+
+
+class UsuariosReactivar(ReactivarBase):
+    model = Usuario
+    titulo = "Usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
 
