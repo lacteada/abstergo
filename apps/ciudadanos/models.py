@@ -1,5 +1,6 @@
 from django.db import models
 
+from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
 from apps.common.validators import (
     validar_catalogo,
@@ -10,7 +11,9 @@ from apps.common.validators import (
 )
 
 
-class Vecino(BorradoLogico):
+class Vecino(ConReferencia, BorradoLogico):
+    PREFIJO = "VEC"
+
     ACTIVO = "Activo"
     INACTIVO = "Inactivo"
     ESTADOS = [(ACTIVO, "Activo"), (INACTIVO, "Inactivo")]

@@ -6,11 +6,14 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils import timezone
 
+from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico, Eliminado
 from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
 
 
-class Rol(BorradoLogico):
+class Rol(ConReferencia, BorradoLogico):
+    PREFIJO = "ROL"
+
     codigo = models.SlugField(
         "código",
         max_length=40,
@@ -62,7 +65,7 @@ class UsuarioManager(UserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class Usuario(AbstractUser, Eliminado):
+class Usuario(ConReferencia, AbstractUser, Eliminado):
     """El usuario del sistema.
 
     Sin `username`: la llave es el `id` y el correo es un dato más, editable.
@@ -75,6 +78,7 @@ class Usuario(AbstractUser, Eliminado):
     """
 
     username = None
+    PREFIJO = "USU"
     email = models.EmailField("correo", unique=True, null=True, blank=True)
     rol = models.ForeignKey(
         Rol,

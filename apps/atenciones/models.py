@@ -1,15 +1,18 @@
 from django.db import models
 from django.utils import timezone
 
+from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
 
 
-class Atencion(BorradoLogico):
+class Atencion(ConReferencia, BorradoLogico):
     """La atención entregada a un vecino.
 
     El historial de un vecino es la consulta de sus atenciones: no hay una
     tabla de historial aparte.
     """
+
+    PREFIJO = "AT"
 
     INGRESADA = "ingresada"
     EN_PROCESO = "en_proceso"

@@ -30,7 +30,17 @@ from apps.organizacion.models import Delegacion
 Usuario = get_user_model()
 
 
-class RolSerializer(serializers.ModelSerializer):
+class CodigoVisibleMixin(serializers.Serializer):
+    """Expone la `referencia` del modelo con el nombre del contrato.
+
+    Es el código que ve el usuario (`DEL-01`, `AT-01`…). Va como solo lectura:
+    lo genera el servidor y no se puede fijar desde el cliente.
+    """
+
+    reference_code = serializers.CharField(source="referencia", read_only=True)
+
+
+class RolSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     code = serializers.CharField(
         source="codigo",
         max_length=40,
@@ -49,10 +59,10 @@ class RolSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Rol
-        fields = ["id", "code", "name", "description"]
+        fields = ["id", "reference_code", "code", "name", "description"]
 
 
-class UsuarioSerializer(serializers.ModelSerializer):
+class UsuarioSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     role = serializers.PrimaryKeyRelatedField(
         source="rol", queryset=Rol.objects.all(), allow_null=True, required=False
     )
@@ -68,6 +78,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             "id",
+            "reference_code",
             "email",
             "first_name",
             "last_name",
@@ -127,7 +138,7 @@ class PerfilSerializer(UsuarioSerializer):
         return sorted(modulos_de(obj, escritura=True))
 
 
-class DelegacionSerializer(serializers.ModelSerializer):
+class DelegacionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     code = serializers.CharField(
         source="codigo", max_length=40, validators=[validar_codigo]
     )
@@ -155,10 +166,10 @@ class DelegacionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Delegacion
-        fields = ["id", "code", "name", "address", "commune", "manager"]
+        fields = ["id", "reference_code", "code", "name", "address", "commune", "manager"]
 
 
-class MetaSerializer(serializers.ModelSerializer):
+class MetaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
     description = serializers.CharField(
         source="descripcion",
@@ -173,10 +184,10 @@ class MetaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MetaModel
-        fields = ["id", "name", "description", "delegation"]
+        fields = ["id", "reference_code", "name", "description", "delegation"]
 
 
-class TipoAtencionSerializer(serializers.ModelSerializer):
+class TipoAtencionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
     description = serializers.CharField(
         source="descripcion",
@@ -188,10 +199,10 @@ class TipoAtencionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TipoAtencion
-        fields = ["id", "name", "description"]
+        fields = ["id", "reference_code", "name", "description"]
 
 
-class SubAtencionSerializer(serializers.ModelSerializer):
+class SubAtencionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
     attention_type = serializers.PrimaryKeyRelatedField(
         source="tipo_atencion", queryset=TipoAtencion.objects.all()
@@ -199,10 +210,10 @@ class SubAtencionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SubAtencion
-        fields = ["id", "name", "attention_type"]
+        fields = ["id", "reference_code", "name", "attention_type"]
 
 
-class VecinoSerializer(serializers.ModelSerializer):
+class VecinoSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     name = serializers.CharField(source="nombre", max_length=120, validators=[validar_nombre])
     rut = serializers.CharField(max_length=15, validators=[validar_rut])
     address = serializers.CharField(
@@ -235,6 +246,7 @@ class VecinoSerializer(serializers.ModelSerializer):
         model = Vecino
         fields = [
             "id",
+            "reference_code",
             "name",
             "rut",
             "address",
@@ -245,7 +257,7 @@ class VecinoSerializer(serializers.ModelSerializer):
         ]
 
 
-class AtencionSerializer(serializers.ModelSerializer):
+class AtencionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     neighbor = serializers.PrimaryKeyRelatedField(
         source="vecino", queryset=Vecino.objects.all()
     )
@@ -278,6 +290,7 @@ class AtencionSerializer(serializers.ModelSerializer):
         model = Atencion
         fields = [
             "id",
+            "reference_code",
             "neighbor",
             "attention_type",
             "attention_subtype",

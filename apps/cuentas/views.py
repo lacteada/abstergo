@@ -32,7 +32,7 @@ class RolesListado(ListadoBase):
     titulo = "Roles"
     seccion = "roles"
     etiqueta_nueva = "Nuevo rol"
-    busqueda = ("codigo", "nombre", "descripcion")
+    busqueda = ("referencia", "codigo", "nombre", "descripcion")
     exportar_nombre = "roles"
     exportar_columnas = (
         ("Código", "codigo"),
@@ -79,7 +79,8 @@ class RolesConsulta(ConsultaBase):
     seccion = "roles"
     url_listado = "cuentas:roles"
     consulta_campos = (
-        ("Código", "codigo"),
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
         ("Nombre", "nombre"),
         ("Descripción", "descripcion"),
     )
@@ -92,7 +93,7 @@ class UsuariosListado(ListadoBase):
     titulo = "Usuarios"
     seccion = "usuarios"
     etiqueta_nueva = "Nuevo usuario"
-    busqueda = ("first_name", "last_name", "email")
+    busqueda = ("referencia", "first_name", "last_name", "email")
     relacionadas = ("rol", "delegacion")
     campo_delegacion = "delegacion"
     auditar_lectura = True
@@ -165,6 +166,7 @@ class UsuariosConsulta(ConsultaBase):
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
     consulta_campos = (
+        ("Código", "referencia"),
         ("Nombre", "get_full_name"),
         ("Correo", "email"),
         ("Rol", "rol.nombre"),

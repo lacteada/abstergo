@@ -23,6 +23,7 @@ class Listado(ListadoBase):
     seccion = "vecinos"
     etiqueta_nueva = "Nuevo vecino"
     busqueda = (
+        "referencia",
         "nombre",
         "rut",
         "direccion",
@@ -100,6 +101,7 @@ class Consulta(ConsultaBase):
     seccion = "vecinos"
     url_listado = "ciudadanos:vecinos"
     consulta_campos = (
+        ("Código", "referencia"),
         ("Nombre", "nombre"),
         ("RUT", "rut"),
         ("Dirección", "direccion"),

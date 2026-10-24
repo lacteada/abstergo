@@ -168,6 +168,38 @@ Fuente: `apps/common/permisos.py`.
 - **`funcionario`**: Consulta de lista de vecinos con su historial de atenciones y registro/creación de atenciones en terreno. Sin acceso a gestión de usuarios ni delegaciones.
 - **`consulta` / `verificador`**: Lectura restringida de auditoría y catálogos.
 
+### El código visible (`referencia`)
+
+Fuente: `apps/common/referencia.py`.
+
+En un registro conviven tres identificadores y conviene no confundirlos:
+
+- **`id`**: la clave primaria. Interna: no se muestra ni se escribe.
+- **`codigo`**: la llave técnica del cargador de datos (`datos_nuevos/`) y de los
+  buscadores. No es un identificador visible.
+- **`referencia`**: el código que ve el usuario. Es el que aparece en la primera
+  columna de cada mantenedor y en la ficha de consulta.
+
+El mixin `ConReferencia` aporta el campo y lo llena solo: se deriva de la clave
+primaria en el primer guardado, así que es único por construcción, **inmutable**
+(el `pk` nunca cambia) y no tiene condición de carrera entre procesos. También
+es buscable: `referencia` está en la tupla `busqueda` de cada listado.
+
+| Entidad | Prefijo | Ejemplo |
+|---|---|---|
+| `Delegacion` | `DEL` | `DEL-01` |
+| `Rol` | `ROL` | `ROL-01` |
+| `Usuario` | `USU` | `USU-01` |
+| `Meta` | `MET` | `MET-01` |
+| `TipoAtencion` | `TIP` | `TIP-01` |
+| `SubAtencion` | `SUB` | `SUB-01` |
+| `Vecino` | `VEC` | `VEC-01` |
+| `Atencion` | `AT` | `AT-01` |
+
+El campo es `editable=False`, así que ningún formulario lo pide, y va como solo
+lectura en la API. Las migraciones de cada app agregan la columna y rellenan lo
+ya cargado en el mismo archivo.
+
 ### Desactivación, visibilidad y reactivación en CRUD
 
 `apps/common/soft_delete.py` y `apps/common/vistas_base.py`. Es la pieza que explica el diseño de ciclo de vida:
@@ -715,6 +747,8 @@ API está en inglés, con `source` en cada campo del serializer. Este es el
 glosario, el mismo que usa el cliente Android:
 
 - `Rol` → `role`: `codigo` → `code`, `nombre` → `name`, `descripcion` → `description`.
+- `referencia` → `reference_code` en **todas** las entidades: es el código visible
+  (`DEL-01`, `AT-01`…) y viaja como solo lectura, porque lo genera el servidor.
 - `Usuario` → `user`: `rol` → `role`, `delegacion` → `delegation`.
 - `Delegacion` → `delegation`: `codigo` → `code`, `nombre` → `name`,
   `direccion` → `address`, `comuna` → `commune`, `responsable` → `manager`.

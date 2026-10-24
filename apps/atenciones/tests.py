@@ -54,7 +54,7 @@ def test_registra_la_atencion_y_muestra_el_identificador(cliente, crear_usuario,
     atencion = Atencion.objects.get()
     assert atencion.delegacion == centro
     assert atencion.funcionario == usuario
-    assert f"N° {atencion.pk}" in respuesta.content.decode()
+    assert atencion.referencia in respuesta.content.decode()
 
 
 def test_rechaza_una_subatencion_de_otro_tipo(cliente, crear_usuario, centro):

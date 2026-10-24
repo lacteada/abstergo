@@ -4,35 +4,33 @@ Comprueban que el formulario acota la delegación a las autorizadas y que los
 campos código y estado se guardan.
 """
 
+from types import SimpleNamespace
+
 import pytest
 from django.urls import reverse
 
+from apps.catalogos.forms import MetaForm
 from apps.catalogos.models import Meta
 
 pytestmark = pytest.mark.django_db
 
 
-def test_la_meta_acota_la_delegacion_a_las_autorizadas(
-    cliente, crear_usuario, centro, mar
-):
+def test_el_formulario_acota_la_delegacion_a_las_autorizadas(crear_usuario, centro, mar):
+    """La regla se prueba en el formulario, que es donde vive.
+
+    Hoy solo un rol global puede escribir metas, así que el acotamiento no se
+    puede alcanzar por la vista: se verifica el `queryset` del campo, que es lo
+    que rechaza una delegación no autorizada si la petición la altera.
+    """
     usuario = crear_usuario(
-        "admin_centro@test.cl", codigo="admin", delegacion=centro, autorizadas=[centro]
-    )
-    cliente.force_login(usuario)
-
-    respuesta = cliente.post(
-        reverse("catalogos:metas_nueva"),
-        {
-            "codigo": "meta-x",
-            "nombre": "Meta X",
-            "descripcion": "",
-            "delegacion": mar.pk,
-            "estado": "activo",
-        },
+        "delegado@test.cl", codigo="delegado", delegacion=centro, autorizadas=[centro]
     )
 
-    assert respuesta.status_code == 200  # vuelve con el error del formulario
-    assert not Meta.objects.exists()
+    formulario = MetaForm(request=SimpleNamespace(user=usuario, session={}))
+
+    assert list(formulario.fields["delegacion"].queryset) == [centro]
+    assert formulario.fields["delegacion"].initial == centro.pk
+    assert mar not in formulario.fields["delegacion"].queryset
 
 
 def test_crea_la_meta_con_codigo_y_estado(cliente, crear_usuario, centro):

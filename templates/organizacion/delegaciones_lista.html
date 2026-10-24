@@ -1,7 +1,6 @@
 {% extends "listado.html" %}
 
 {% block encabezado %}
-  <th>#</th>
   <th>Código</th>
   <th>Nombre</th>
   <th>Dirección</th>
@@ -12,8 +11,7 @@
 {% endblock %}
 
 {% block fila %}
-  <td>{{ fila.id }}</td>
-  <td>{{ fila.codigo }}</td>
+  <td>{{ fila.referencia }}</td>
   <td>{{ fila.nombre }}</td>
   <td>{{ fila.direccion }}</td>
   <td>{{ fila.comuna }}</td>

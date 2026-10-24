@@ -36,7 +36,13 @@ class Listado(ListadoBase):
     titulo = "Atenciones"
     seccion = "atenciones"
     etiqueta_nueva = "Crear Atención"
-    busqueda = ("vecino__nombre", "vecino__rut", "motivo", "tipo_atencion__nombre")
+    busqueda = (
+        "referencia",
+        "vecino__nombre",
+        "vecino__rut",
+        "motivo",
+        "tipo_atencion__nombre",
+    )
     relacionadas = (
         "vecino",
         "tipo_atencion",
@@ -99,7 +105,7 @@ class CrearAtencion(LoginRequiredMixin, PermisoRequeridoMixin, View):
             registrar(request, "crear", atencion, "Alta desde Crear Atención")
             messages.success(
                 request,
-                f"Atención N° {atencion.pk} registrada para {vecino.nombre}.",
+                f"Atención {atencion.referencia} registrada para {vecino.nombre}.",
             )
             return redirect("atenciones:listado")
         return render(
@@ -160,7 +166,7 @@ class Consulta(ConsultaBase):
     seccion = "atenciones"
     url_listado = "atenciones:listado"
     consulta_campos = (
-        ("N° atención", "id"),
+        ("Código", "referencia"),
         ("Fecha", lambda a: a.fecha.strftime("%d-%m-%Y %H:%M") if a.fecha else ""),
         ("Solicitante", "vecino.nombre"),
         ("RUT", "vecino.rut"),

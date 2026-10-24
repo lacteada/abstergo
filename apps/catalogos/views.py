@@ -17,7 +17,7 @@ class MetasListado(ListadoBase):
     titulo = "Metas"
     seccion = "metas"
     etiqueta_nueva = "Nueva meta"
-    busqueda = ("codigo", "nombre", "descripcion", "delegacion__nombre")
+    busqueda = ("referencia", "codigo", "nombre", "descripcion", "delegacion__nombre")
     relacionadas = ("delegacion",)
     campo_delegacion = "delegacion"
     exportar_nombre = "metas"
@@ -68,7 +68,8 @@ class MetasConsulta(ConsultaBase):
     seccion = "metas"
     url_listado = "catalogos:metas"
     consulta_campos = (
-        ("Código", "codigo"),
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
         ("Nombre", "nombre"),
         ("Delegación", "delegacion.nombre"),
         ("Descripción", "descripcion"),
@@ -83,7 +84,7 @@ class TiposListado(ListadoBase):
     titulo = "Tipo de Atención"
     seccion = "tipos"
     etiqueta_nueva = "Nuevo tipo de atención"
-    busqueda = ("codigo", "nombre", "descripcion")
+    busqueda = ("referencia", "codigo", "nombre", "descripcion")
     exportar_nombre = "tipos_atencion"
     exportar_columnas = (
         ("Código", "codigo"),
@@ -131,7 +132,8 @@ class TiposConsulta(ConsultaBase):
     seccion = "tipos"
     url_listado = "catalogos:tipos"
     consulta_campos = (
-        ("Código", "codigo"),
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
         ("Nombre", "nombre"),
         ("Descripción", "descripcion"),
         ("Estado", "get_estado_display"),
@@ -145,7 +147,7 @@ class SubAtencionesListado(ListadoBase):
     titulo = "Sub Atención"
     seccion = "subatenciones"
     etiqueta_nueva = "Nueva sub atención"
-    busqueda = ("codigo", "nombre", "tipo_atencion__nombre")
+    busqueda = ("referencia", "codigo", "nombre", "tipo_atencion__nombre")
     relacionadas = ("tipo_atencion",)
     exportar_nombre = "sub_atenciones"
     exportar_columnas = (
@@ -194,7 +196,8 @@ class SubAtencionesConsulta(ConsultaBase):
     seccion = "subatenciones"
     url_listado = "catalogos:subatenciones"
     consulta_campos = (
-        ("Código", "codigo"),
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
         ("Nombre", "nombre"),
         ("Tipo de Atención", "tipo_atencion.nombre"),
         ("Estado", "get_estado_display"),

@@ -1,6 +1,7 @@
 from django.db import models
 
 from apps.common.estados import ConEstado
+from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
 from apps.common.validators import (
     validar_codigo,
@@ -10,7 +11,9 @@ from apps.common.validators import (
 )
 
 
-class Delegacion(ConEstado, BorradoLogico):
+class Delegacion(ConReferencia, ConEstado, BorradoLogico):
+    PREFIJO = "DEL"
+
     codigo = models.CharField(
         "código", max_length=40, unique=True, validators=[validar_codigo]
     )

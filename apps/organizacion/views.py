@@ -16,7 +16,7 @@ class Listado(ListadoBase):
     titulo = "Delegaciones Municipales"
     seccion = "delegaciones"
     etiqueta_nueva = "Nueva delegación"
-    busqueda = ("codigo", "nombre", "comuna", "responsable__first_name")
+    busqueda = ("referencia", "codigo", "nombre", "comuna", "responsable__first_name")
     relacionadas = ("responsable",)
     campo_delegacion = "pk"
     exportar_nombre = "delegaciones"
@@ -68,7 +68,8 @@ class Consulta(ConsultaBase):
     seccion = "delegaciones"
     url_listado = "organizacion:delegaciones"
     consulta_campos = (
-        ("Código", "codigo"),
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
         ("Nombre", "nombre"),
         ("Dirección", "direccion"),
         ("Comuna", "comuna"),

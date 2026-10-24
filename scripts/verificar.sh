@@ -154,6 +154,13 @@ assert cfunc.get("/atenciones/crear/").status_code == 200, "funcionario crea ate
 assert cfunc.get("/usuarios/").status_code == 403, "funcionario no ve usuarios"
 assert cfunc.get("/delegaciones/").status_code == 403, "funcionario no ve delegaciones"
 
+# Codigo visible: los listados muestran la referencia, no la clave interna.
+# Las atenciones no entran aca porque la carga de datos no crea ninguna: su
+# codigo lo cubre la prueba de apps/atenciones/tests.py.
+for ruta, prefijo in [("/vecinos/", "VEC-"), ("/delegaciones/", "DEL-"),
+                      ("/roles/", "ROL-"), ("/metas/", "MET-")]:
+    assert prefijo in c.get(ruta).content.decode(), f"{ruta} debe mostrar {prefijo}"
+
 # Ciclo de baja logica, validacion "en uso" y reactivacion
 from apps.organizacion.models import Delegacion
 from apps.catalogos.models import Meta
@@ -170,9 +177,9 @@ r_meta = c.post(f"/metas/{meta_test.pk}/eliminar/", follow=True)
 meta_test.refresh_from_db()
 assert meta_test.eliminado is not None, "meta debe quedar con timestamp de eliminado"
 assert meta_test.estado == "inactivo", "meta debe quedar en estado inactivo"
-# Sigue visible en el listado
+# Sigue visible en el listado, identificada por su codigo
 r_list = c.get("/metas/")
-assert "meta-test" in r_list.content.decode(), "meta inactiva debe ser visible en el listado"
+assert meta_test.referencia in r_list.content.decode(), "la meta inactiva debe verse con su codigo"
 
 # Reactivacion de la meta
 r_react = c.post(f"/metas/{meta_test.pk}/reactivar/", follow=True)
