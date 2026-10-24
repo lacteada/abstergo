@@ -1,12 +1,13 @@
 from django.db import models
 
+from apps.common.codigo import ConCodigoDerivado
 from apps.common.estados import ConEstado
 from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
 from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
 
 
-class Meta(ConReferencia, ConEstado, BorradoLogico):
+class Meta(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     PREFIJO = "MET"
 
     codigo = models.SlugField(
@@ -37,7 +38,7 @@ class Meta(ConReferencia, ConEstado, BorradoLogico):
         return f"{self.nombre} ({self.delegacion})"
 
 
-class TipoAtencion(ConReferencia, ConEstado, BorradoLogico):
+class TipoAtencion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     PREFIJO = "TIP"
 
     codigo = models.SlugField(
@@ -75,7 +76,7 @@ class TipoAtencion(ConReferencia, ConEstado, BorradoLogico):
         return f"El tipo de atención tiene {', '.join(detalles)}."
 
 
-class SubAtencion(ConReferencia, ConEstado, BorradoLogico):
+class SubAtencion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     PREFIJO = "SUB"
 
     codigo = models.SlugField(

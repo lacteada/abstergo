@@ -9,6 +9,7 @@ from apps.common.vistas_base import (
     AltaBase,
     BorradoBase,
     ConsultaBase,
+    DesactivarBase,
     EdicionBase,
     ListadoBase,
     PermisoRequeridoMixin,
@@ -62,6 +63,13 @@ class RolesEdicion(EdicionBase):
 class RolesBorrado(BorradoBase):
     model = Rol
     titulo = "Eliminar rol"
+    seccion = "roles"
+    url_listado = "cuentas:roles"
+
+
+class RolesDesactivar(DesactivarBase):
+    model = Rol
+    titulo = "Rol"
     seccion = "roles"
     url_listado = "cuentas:roles"
 
@@ -149,6 +157,13 @@ class UsuariosEdicion(EdicionBase):
 class UsuariosBorrado(BorradoBase):
     model = Usuario
     titulo = "Eliminar usuario"
+    seccion = "usuarios"
+    url_listado = "cuentas:usuarios"
+
+
+class UsuariosDesactivar(DesactivarBase):
+    model = Usuario
+    titulo = "Usuario"
     seccion = "usuarios"
     url_listado = "cuentas:usuarios"
 

@@ -12,6 +12,7 @@ from apps.common.validators import limpiar_rut
 from apps.common.vistas_base import (
     BorradoBase,
     ConsultaBase,
+    DesactivarBase,
     EdicionBase,
     ListadoBase,
     PermisoRequeridoMixin,
@@ -149,6 +150,13 @@ class Edicion(EdicionBase):
 class Borrado(BorradoBase):
     model = Atencion
     titulo = "Eliminar atención"
+    seccion = "atenciones"
+    url_listado = "atenciones:listado"
+
+
+class Desactivar(DesactivarBase):
+    model = Atencion
+    titulo = "Atención"
     seccion = "atenciones"
     url_listado = "atenciones:listado"
 

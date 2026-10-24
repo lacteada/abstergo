@@ -4,5 +4,6 @@ from apps.organizacion.models import Delegacion
 
 class DelegacionForm(FormularioCRUD):
     class Meta:
+        # El `codigo` no se pide: se deriva del nombre (apps/common/codigo.py).
         model = Delegacion
-        fields = ("codigo", "nombre", "direccion", "comuna", "responsable", "estado")
+        fields = ("nombre", "direccion", "comuna", "responsable", "estado")

@@ -24,8 +24,9 @@
       {% if fila.eliminado %}
         <li><a class="accion accion-icono" href="{% url 'atenciones:reactivar' fila.pk %}" data-reactivar title="Reactivar" aria-label="Reactivar">{% include 'iconos/activar.html' %}</a></li>
       {% else %}
-        <li><a class="accion accion-icono peligro" href="{% url 'atenciones:eliminar' fila.pk %}" data-eliminar title="Dar de baja" aria-label="Dar de baja">{% include 'iconos/eliminar.html' %}</a></li>
+        <li><a class="accion accion-icono" href="{% url 'atenciones:desactivar' fila.pk %}" data-desactivar title="Desactivar" aria-label="Desactivar">{% include 'iconos/desactivar.html' %}</a></li>
       {% endif %}
+      <li><a class="accion accion-icono peligro" href="{% url 'atenciones:eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
     </ul>
   </td>
 {% endblock %}

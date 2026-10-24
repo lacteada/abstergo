@@ -161,31 +161,47 @@ for ruta, prefijo in [("/vecinos/", "VEC-"), ("/delegaciones/", "DEL-"),
                       ("/roles/", "ROL-"), ("/metas/", "MET-")]:
     assert prefijo in c.get(ruta).content.decode(), f"{ruta} debe mostrar {prefijo}"
 
-# Ciclo de baja logica, validacion "en uso" y reactivacion
+# Ciclo de las acciones: desactivar (siempre), eliminar (si nadie la usa), reactivar
 from apps.organizacion.models import Delegacion
 from apps.catalogos.models import Meta
-del_test = Delegacion.objects.create(codigo="del-test", nombre="Delegacion Test")
-meta_test = Meta.objects.create(codigo="meta-test", nombre="Meta Test", delegacion=del_test)
-# Intento de baja sobre delegacion en uso -> debe fallar con mensaje de error
-r_del = c.post(f"/delegaciones/{del_test.pk}/eliminar/", follow=True)
+del_test = Delegacion.objects.create(nombre="Delegacion Test")
+meta_test = Meta.objects.create(nombre="Meta Test", delegacion=del_test)
+
+# Eliminar una delegacion en uso se bloquea: la fila sobrevive
+c.post(f"/delegaciones/{del_test.pk}/eliminar/", follow=True)
 del_test.refresh_from_db()
-assert del_test.eliminado is None, "no debe darse de baja una delegacion en uso"
-assert del_test.estado == "activo"
+assert Delegacion.todos.filter(pk=del_test.pk).exists(), "no debia borrarse"
 
-# Baja logica sobre meta sin dependencias -> se desactiva pero sigue visible
-r_meta = c.post(f"/metas/{meta_test.pk}/eliminar/", follow=True)
+# Desactivar esa misma delegacion SIEMPRE es posible: solo se marca
+c.post(f"/delegaciones/{del_test.pk}/desactivar/", follow=True)
+del_test.refresh_from_db()
+assert del_test.eliminado is not None, "debía quedar desactivada"
+assert del_test.estado == "inactivo"
+assert Delegacion.todos.filter(pk=del_test.pk).exists(), "desactivar no borra"
+
+# Reactivar la devuelve a circulacion
+c.post(f"/delegaciones/{del_test.pk}/reactivar/", follow=True)
+del_test.refresh_from_db()
+assert del_test.eliminado is None and del_test.estado == "activo"
+
+# La delegacion sigue en uso, asi que se desactiva la meta y despues se borra
+referencia_meta = meta_test.referencia
+c.post(f"/metas/{meta_test.pk}/desactivar/", follow=True)
 meta_test.refresh_from_db()
-assert meta_test.eliminado is not None, "meta debe quedar con timestamp de eliminado"
-assert meta_test.estado == "inactivo", "meta debe quedar en estado inactivo"
-# Sigue visible en el listado, identificada por su codigo
+assert meta_test.eliminado is not None, "meta desactivada"
 r_list = c.get("/metas/")
-assert meta_test.referencia in r_list.content.decode(), "la meta inactiva debe verse con su codigo"
+assert referencia_meta in r_list.content.decode(), "la meta desactivada debe verse con su codigo"
 
-# Reactivacion de la meta
-r_react = c.post(f"/metas/{meta_test.pk}/reactivar/", follow=True)
+c.post(f"/metas/{meta_test.pk}/reactivar/", follow=True)
 meta_test.refresh_from_db()
-assert meta_test.eliminado is None, "meta reactivada no debe tener eliminado"
-assert meta_test.estado == "activo", "meta reactivada debe quedar en estado activo"
+assert meta_test.eliminado is None and meta_test.estado == "activo"
+
+c.post(f"/metas/{meta_test.pk}/eliminar/", follow=True)
+assert not Meta.todos.filter(pk=meta_test.pk).exists(), "la meta sin uso debia borrarse"
+
+# El codigo se deriva del nombre: el alta no lo pide
+assert del_test.codigo == "delegacion-test", del_test.codigo
+assert referencia_meta.startswith("MET-"), referencia_meta
 
 # Registro público: el correo es el identificador y no se puede repetir. El
 # nombre y el apellido son obligatorios, y el correo se guarda en minúsculas.

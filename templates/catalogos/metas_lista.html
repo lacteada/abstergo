@@ -19,11 +19,12 @@
     <ul class="acciones-lista">
       <li><a class="accion accion-icono" href="{% url 'catalogos:metas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
       <li><a class="accion accion-icono" href="{% url 'catalogos:metas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
-      {% if fila.estado == 'inactivo' or fila.eliminado %}
+      {% if fila.eliminado or fila.estado == 'inactivo' %}
         <li><a class="accion accion-icono" href="{% url 'catalogos:metas_reactivar' fila.pk %}" data-reactivar title="Reactivar" aria-label="Reactivar">{% include 'iconos/activar.html' %}</a></li>
       {% else %}
-        <li><a class="accion accion-icono peligro" href="{% url 'catalogos:metas_eliminar' fila.pk %}" data-eliminar title="Dar de baja" aria-label="Dar de baja">{% include 'iconos/eliminar.html' %}</a></li>
+        <li><a class="accion accion-icono" href="{% url 'catalogos:metas_desactivar' fila.pk %}" data-desactivar title="Desactivar" aria-label="Desactivar">{% include 'iconos/desactivar.html' %}</a></li>
       {% endif %}
+      <li><a class="accion accion-icono peligro" href="{% url 'catalogos:metas_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
     </ul>
   </td>
 {% endblock %}

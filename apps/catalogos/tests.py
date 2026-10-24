@@ -33,14 +33,14 @@ def test_el_formulario_acota_la_delegacion_a_las_autorizadas(crear_usuario, cent
     assert mar not in formulario.fields["delegacion"].queryset
 
 
-def test_crea_la_meta_con_codigo_y_estado(cliente, crear_usuario, centro):
+def test_crea_la_meta_derivando_el_codigo_del_nombre(cliente, crear_usuario, centro):
+    """El alta no pide `codigo`: se deriva del nombre."""
     usuario = crear_usuario("admin@test.cl", codigo="admin", delegacion=centro)
     cliente.force_login(usuario)
 
     cliente.post(
         reverse("catalogos:metas_nueva"),
         {
-            "codigo": "meta-x",
             "nombre": "Meta X",
             "descripcion": "",
             "delegacion": centro.pk,

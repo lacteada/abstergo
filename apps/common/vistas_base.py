@@ -8,13 +8,14 @@ búsqueda, paginación, exportación a Excel y bitácora de auditoría.
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import ProtectedError, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from apps.common.delegaciones import acotar
+from apps.common.estados import ACTIVO, INACTIVO, ConEstado
 from apps.common.permisos import modulo_de, puede
 from apps.cumplimiento.auditoria import registrar
 
@@ -204,7 +205,28 @@ class EdicionBase(_FormularioBase, UpdateView):
         return respuesta
 
 
+def marcar_vigencia(objeto, vigente):
+    """Pone el registro en activo o inactivo, si tiene un estado binario.
+
+    Solo aplica a los modelos cuyo `estado` es el par activo/inactivo
+    (`ConEstado` y `Vecino`, que declara sus propios valores). Una `Atencion`
+    usa `estado` para su ciclo de vida —ingresada, cerrada…—, así que no se
+    toca: ahí la baja es solo la marca de `eliminado`.
+    """
+    if isinstance(objeto, ConEstado):
+        objeto.estado = ACTIVO if vigente else INACTIVO
+    elif hasattr(objeto, "ACTIVO") and hasattr(objeto, "INACTIVO"):
+        objeto.estado = objeto.ACTIVO if vigente else objeto.INACTIVO
+    if hasattr(objeto, "is_active"):
+        objeto.is_active = vigente
+
+
 class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
+    """Borra la fila de verdad. Solo si nadie la está usando.
+
+    Es la acción destructiva: la contraparte reversible es `DesactivarBase`.
+    """
+
     template_name = "confirmar.html"
 
     def get_queryset(self):
@@ -214,49 +236,83 @@ class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
 
     def form_valid(self, form):
         objeto = self.object
+
+        # Chequeo de negocio: da el mensaje más claro (qué la está usando).
         if hasattr(objeto, "esta_en_uso") and objeto.esta_en_uso():
             messages.error(
-                self.request,
-                f"No se puede dar de baja: {objeto.motivo_en_uso()}",
+                self.request, f"No se puede eliminar: {objeto.motivo_en_uso()}"
             )
             return redirect(self.url_listado)
 
-        # Se marca la fila en vez de borrarla físicamente.
-        objeto.eliminar()
-        if hasattr(objeto, "estado"):
-            objeto.estado = "inactivo"
-            objeto.save(update_fields=["estado"])
-        if hasattr(objeto, "is_active"):
-            objeto.is_active = False
-            objeto.save(update_fields=["is_active"])
+        try:
+            objeto.delete()
+        except ProtectedError as error:
+            # Red de seguridad: la base también defiende las referencias, y acá
+            # se traduce su error a un aviso entendible en vez de un 500.
+            bloqueos = sorted(
+                {str(vinculado._meta.verbose_name_plural) for vinculado in error.protected_objects}
+            )
+            messages.error(
+                self.request,
+                f"No se puede eliminar: lo usan {', '.join(bloqueos)}.",
+            )
+            return redirect(self.url_listado)
 
-        registrar(self.request, "eliminar", objeto)
-        messages.success(self.request, "Registro dado de baja.")
+        registrar(self.request, "eliminar", objeto, "Eliminación definitiva.")
+        messages.success(self.request, "Registro eliminado.")
         return redirect(self.url_listado)
 
 
-class ReactivarBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, View):
-    """Permite reactivar un registro inactivo o dado de baja."""
+class _AccionBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, View):
+    """Acción sobre un registro, por POST y sin formulario intermedio.
+
+    La comparten desactivar y reactivar: cambian la vigencia del registro y
+    vuelven al listado. La confirmación la pide el botón, en el navegador.
+    """
+
+    detalle = ""
+    mensaje = ""
 
     def post(self, request, pk, *args, **kwargs):
-        queryset = (
-            self.model.todos.all()
-            if hasattr(self.model, "todos")
-            else self.model.objects.all()
-        )
-        objeto = get_object_or_404(queryset, pk=pk)
+        objeto = self.get_objeto(pk)
+        self.aplicar(objeto)
+        objeto.save()
+        registrar(request, "editar", objeto, self.detalle)
+        messages.success(request, f"{self.titulo or 'Registro'} {self.mensaje}.")
+        return redirect(self.url_listado)
 
-        if hasattr(objeto, "estado"):
-            objeto.estado = getattr(objeto, "ACTIVO", "activo")
+    def get_objeto(self, pk):
+        # `todos` para llegar también a un registro ya desactivado.
+        gestor = getattr(self.model, "todos", self.model.objects)
+        return get_object_or_404(gestor.all(), pk=pk)
+
+
+class DesactivarBase(_AccionBase):
+    """Saca el registro de circulación sin borrarlo. Siempre es posible.
+
+    La fila queda marcada con `eliminado`, así que desaparece de los
+    desplegables y de las referencias nuevas, pero sigue visible en el listado
+    y se puede revertir con `ReactivarBase`.
+    """
+
+    detalle = "Desactivación de registro."
+    mensaje = "desactivado"
+
+    def aplicar(self, objeto):
+        objeto.eliminar()
+        marcar_vigencia(objeto, False)
+
+
+class ReactivarBase(_AccionBase):
+    """Devuelve el registro a circulación."""
+
+    detalle = "Reactivación de registro."
+    mensaje = "reactivado"
+
+    def aplicar(self, objeto):
         if hasattr(objeto, "eliminado"):
             objeto.eliminado = None
-        if hasattr(objeto, "is_active"):
-            objeto.is_active = True
-        objeto.save()
-
-        registrar(self.request, "editar", objeto, "Reactivación de registro.")
-        messages.success(self.request, f"{self.titulo or 'Registro'} reactivado correctamente.")
-        return redirect(self.url_listado)
+        marcar_vigencia(objeto, True)
 
 
 class ConsultaBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DetailView):

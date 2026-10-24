@@ -25,8 +25,9 @@ class FormularioLogin(AuthenticationForm):
 
 class RolForm(FormularioCRUD):
     class Meta:
+        # El `codigo` no se pide: se deriva del nombre (apps/common/codigo.py).
         model = Rol
-        fields = ("codigo", "nombre", "descripcion")
+        fields = ("nombre", "descripcion")
 
 
 class UsuarioForm(FormularioCRUD):

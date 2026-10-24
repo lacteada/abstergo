@@ -1,22 +1,25 @@
 from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
 from apps.common.forms import FormularioCRUD
 
+# En los tres, el `codigo` no se pide: se deriva del nombre
+# (apps/common/codigo.py) y lo genera el modelo al guardar.
+
 
 class MetaForm(FormularioCRUD):
     campo_delegacion = "delegacion"
 
     class Meta:
         model = Meta
-        fields = ("codigo", "nombre", "descripcion", "delegacion", "estado")
+        fields = ("nombre", "descripcion", "delegacion", "estado")
 
 
 class TipoAtencionForm(FormularioCRUD):
     class Meta:
         model = TipoAtencion
-        fields = ("codigo", "nombre", "descripcion", "estado")
+        fields = ("nombre", "descripcion", "estado")
 
 
 class SubAtencionForm(FormularioCRUD):
     class Meta:
         model = SubAtencion
-        fields = ("codigo", "nombre", "tipo_atencion", "estado")
+        fields = ("nombre", "tipo_atencion", "estado")

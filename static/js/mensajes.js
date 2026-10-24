@@ -42,17 +42,19 @@
   function confirmaciones() {
     document.addEventListener("click", function (evento) {
       const enlaceBaja = evento.target.closest("[data-eliminar], a.accion.peligro");
+      const enlaceDesactivar = evento.target.closest("[data-desactivar]");
       const enlaceReactivar = evento.target.closest("[data-reactivar]");
       const formulario = document.getElementById("form-baja");
+      if (!formulario || !window.Swal) return; // sigue el enlace normal
 
-      if (enlaceBaja && formulario && window.Swal) {
+      if (enlaceBaja) {
         evento.preventDefault();
         Swal.fire({
           icon: "warning",
-          title: "¿Confirmas dar de baja?",
-          text: "El registro pasará al estado inactivo.",
+          title: "¿Confirmas eliminar?",
+          text: "Se borra del sistema y no se puede deshacer.",
           showCancelButton: true,
-          confirmButtonText: "Dar de baja",
+          confirmButtonText: "Eliminar",
           cancelButtonText: "Cancelar",
           confirmButtonColor: "#8B1D19",
           cancelButtonColor: "#5b6169",
@@ -65,7 +67,27 @@
         return;
       }
 
-      if (enlaceReactivar && formulario && window.Swal) {
+      if (enlaceDesactivar) {
+        evento.preventDefault();
+        Swal.fire({
+          icon: "warning",
+          title: "¿Confirmas desactivar?",
+          text: "Deja de estar disponible, pero se puede reactivar.",
+          showCancelButton: true,
+          confirmButtonText: "Desactivar",
+          cancelButtonText: "Cancelar",
+          confirmButtonColor: "#8a5a00",
+          cancelButtonColor: "#5b6169",
+        }).then(function (resultado) {
+          if (resultado.isConfirmed) {
+            formulario.action = enlaceDesactivar.getAttribute("href");
+            formulario.submit();
+          }
+        });
+        return;
+      }
+
+      if (enlaceReactivar) {
         evento.preventDefault();
         Swal.fire({
           icon: "question",

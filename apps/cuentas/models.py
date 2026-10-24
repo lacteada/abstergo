@@ -6,12 +6,13 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils import timezone
 
+from apps.common.codigo import ConCodigoDerivado
 from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico, Eliminado
 from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
 
 
-class Rol(ConReferencia, BorradoLogico):
+class Rol(ConReferencia, ConCodigoDerivado, BorradoLogico):
     PREFIJO = "ROL"
 
     codigo = models.SlugField(

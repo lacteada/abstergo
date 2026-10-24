@@ -1,5 +1,6 @@
 from django.db import models
 
+from apps.common.codigo import ConCodigoDerivado
 from apps.common.estados import ConEstado
 from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
@@ -11,7 +12,7 @@ from apps.common.validators import (
 )
 
 
-class Delegacion(ConReferencia, ConEstado, BorradoLogico):
+class Delegacion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     PREFIJO = "DEL"
 
     codigo = models.CharField(
@@ -61,4 +62,4 @@ class Delegacion(ConReferencia, ConEstado, BorradoLogico):
             detalles.append("metas")
         if self.atenciones.filter(eliminado__isnull=True).exists():
             detalles.append("atenciones")
-        return f"La delegación tiene {', '.join(detalles)} vinculados."
+        return f"La delegación está en uso por {', '.join(detalles)}."

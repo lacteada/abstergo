@@ -200,13 +200,39 @@ El campo es `editable=False`, así que ningún formulario lo pide, y va como sol
 lectura en la API. Las migraciones de cada app agregan la columna y rellenan lo
 ya cargado en el mismo archivo.
 
-### Desactivación, visibilidad y reactivación en CRUD
+### Las tres acciones sobre un registro
 
-`apps/common/soft_delete.py` y `apps/common/vistas_base.py`. Es la pieza que explica el diseño de ciclo de vida:
+Fuente: `apps/common/vistas_base.py`. Cada fila del mantenedor ofrece el mismo
+juego, y las tres vuelven al listado:
 
-- **Desactivación sin pérdida de visibilidad**: Al dar de baja un registro (`BorradoBase`), el sistema cambia su estado a inactivo y registra la marca temporal de baja. Los listados (`ListadoBase`) muestran todos los registros (usando `model.todos.all()`) aplicando la clase visual `.fila-inactiva` (gris atenuado).
-- **Validación de dependencias en uso**: Antes de dar de baja o eliminar una entidad (ej. `Delegacion`, `TipoAtencion`, `Rol`), se ejecuta `objeto.esta_en_uso()`. Si tiene usuarios, vecinos, metas o atenciones activas vinculadas, la operación se bloquea y se muestra una alerta SweetAlert2 explicando los motivos.
-- **Botón de reactivación**: Cuando un registro está desactivado o inactivo, la tabla ofrece el botón «Reactivar» (`ReactivarBase`, `<pk>/reactivar/`), el cual restaura el registro a estado activo (`estado = 'activo'`, `is_active = True`, `eliminado = None`) previa confirmación SweetAlert2.
+- **Desactivar** (`DesactivarBase`, `<pk>/desactivar/`): saca el registro de
+  circulación **sin borrarlo**. Marca `eliminado` y deja el estado en inactivo.
+  **Siempre es posible**, aunque el registro esté en uso, y es reversible. La
+  fila sigue en el listado en gris (`.fila-inactiva`).
+- **Eliminar** (`BorradoBase`, `<pk>/eliminar/`): borra la fila de verdad
+  (`delete()`). Es la única acción destructiva. Se bloquea si el registro está
+  en uso: primero por negocio (`esta_en_uso()`), que da el mensaje con el
+  detalle, y después por la propia base (`ProtectedError`), cuyo error se
+  traduce a un aviso entendible en vez de un 500.
+- **Reactivar** (`ReactivarBase`, `<pk>/reactivar/`): limpia `eliminado` y
+  devuelve el estado a activo.
+
+El cambio de estado binario lo hace `marcar_vigencia(objeto, vigente)`, que solo
+toca los modelos cuyo `estado` es el par activo/inactivo (`ConEstado` y
+`Vecino`). Una `Atencion` usa `estado` para su ciclo de vida —ingresada,
+cerrada…—, así que ahí la vigencia es solo la marca de `eliminado`.
+
+**Visibilidad**: `ListadoBase` lista con `model.todos.all()`, así que lo
+desactivado se ve; `objects` (el gestor por defecto) sigue filtrando
+`eliminado__isnull=True`, así que no aparece en desplegables ni en referencias
+nuevas.
+
+### La clave técnica `codigo`
+
+El mantenedor **no pide** `codigo`: se deriva del nombre al guardar
+(`apps/common/codigo.py`, `ConCodigoDerivado`), con el mismo criterio con que
+las migraciones rellenaron lo ya cargado. Se ignora si viene indicado, porque
+`cargar_datos` lo trae en el JSON y la carga debe seguir siendo idempotente.
 
 `estado` (en `Vecino`) y `eliminado` son cosas distintas: `estado` es el estado
 del vecino (Activo/Inactivo); `eliminado` es la fila retirada del sistema.
