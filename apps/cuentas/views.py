@@ -219,7 +219,7 @@ class Recuperar(FormView):
 
     def form_valid(self, form):
         correo = form.cleaned_data["correo"]
-        otp.solicitar(correo)
+        otp.solicitar(correo, self.request)
         # El correo queda en la sesión solo para no volver a pedirlo. El código,
         # en cambio, vive en la tabla.
         self.request.session["recuperacion_correo"] = correo
@@ -256,7 +256,7 @@ class Reenviar(View):
     def post(self, request):
         correo = request.session.get("recuperacion_correo")
         if correo:
-            espera = otp.reenviar(correo)
+            espera = otp.reenviar(correo, request)
             if espera:
                 messages.warning(
                     request,
@@ -285,6 +285,45 @@ class NuevaPassword(FormView):
             form.add_error(None, errores)
             return self.form_invalid(form)
         self.request.session.pop("recuperacion_correo", None)
+        return super().form_valid(form)
+
+
+class RecuperarEnlace(FormView):
+    """Fija la contraseña desde el enlace del correo.
+
+    Es la otra puerta del mismo registro: no pide el código, pero se apoya en
+    él, así que el primero de los dos que se use anula al otro.
+    """
+
+    template_name = "cuentas/recuperar_enlace.html"
+    form_class = NuevaPasswordForm
+    success_url = reverse_lazy("cuentas:login")
+
+    def dispatch(self, request, *args, **kwargs):
+        self.usuario, self.recuperacion = otp.recuperacion_de_enlace(
+            kwargs["uidb64"], kwargs["token"]
+        )
+        self.valido = self.usuario is not None
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["valido"] = self.valido
+        contexto["nombre"] = self.usuario.first_name if self.usuario else ""
+        return contexto
+
+    def form_valid(self, form):
+        if not self.valido:
+            return self.form_invalid(form)
+        errores = otp.restablecer_enlace(
+            self.usuario, self.recuperacion, form.cleaned_data["password1"]
+        )
+        if errores:
+            form.add_error(None, errores)
+            return self.form_invalid(form)
+        messages.success(
+            self.request, "Tu contraseña quedó actualizada. Ya puedes iniciar sesión."
+        )
         return super().form_valid(form)
 
 

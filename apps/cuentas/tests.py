@@ -74,6 +74,83 @@ def test_el_reenvio_emite_tras_la_espera(usuario):
     assert RecuperacionPassword.objects.filter(usuario=usuario).count() == 2
 
 
+# -------------------------------------------- Restablecer por enlace (correo)
+def _enlace_recuperacion(usuario):
+    """La ruta del enlace, tal como sale en el correo (relativa)."""
+    recuperacion = RecuperacionPassword.objects.filter(usuario=usuario).latest("creado")
+    return otp.enlace(usuario, recuperacion)
+
+
+def test_el_enlace_cambia_la_contrasena(cliente, usuario):
+    otp.solicitar(usuario.email)
+    url = _enlace_recuperacion(usuario)
+
+    respuesta = cliente.post(
+        url, {"password1": "Otra.Clave.123", "password2": "Otra.Clave.123"}
+    )
+
+    usuario.refresh_from_db()
+    assert respuesta.status_code == 302
+    assert usuario.is_active is True
+    assert usuario.check_password("Otra.Clave.123")
+
+
+def test_validar_el_codigo_anula_el_enlace(cliente, usuario):
+    otp.solicitar(usuario.email)
+    recuperacion = RecuperacionPassword.objects.get(usuario=usuario)
+    url = otp.enlace(usuario, recuperacion)
+
+    otp.verificar(usuario.email, recuperacion.codigo)
+
+    assert cliente.get(url).context["valido"] is False
+
+
+def test_usar_el_enlace_anula_el_codigo(cliente, usuario):
+    otp.solicitar(usuario.email)
+    recuperacion = RecuperacionPassword.objects.get(usuario=usuario)
+    url = otp.enlace(usuario, recuperacion)
+
+    cliente.post(url, {"password1": "Otra.Clave.123", "password2": "Otra.Clave.123"})
+
+    assert otp.verificar(usuario.email, recuperacion.codigo) == [otp.CODIGO_INVALIDO]
+
+
+def test_un_enlace_vencido_no_sirve(cliente, usuario):
+    otp.solicitar(usuario.email)
+    recuperacion = RecuperacionPassword.objects.get(usuario=usuario)
+    url = otp.enlace(usuario, recuperacion)
+
+    recuperacion.expira = timezone.now() - timedelta(minutes=1)
+    recuperacion.save(update_fields=["expira"])
+
+    assert cliente.get(url).context["valido"] is False
+
+
+def test_un_enlace_con_token_malo_no_sirve(cliente, usuario):
+    otp.solicitar(usuario.email)
+    uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+
+    respuesta = cliente.get(
+        reverse("cuentas:recuperar_enlace", args=[uid, "token-malo"])
+    )
+
+    assert respuesta.context["valido"] is False
+
+
+def test_el_reenvio_anula_el_enlace_anterior(cliente, usuario):
+    otp.solicitar(usuario.email)
+    anterior = RecuperacionPassword.objects.get(usuario=usuario)
+    url_viejo = otp.enlace(usuario, anterior)
+
+    anterior.creado = timezone.now() - timedelta(
+        seconds=settings.OTP_REENVIO_SEGUNDOS + 1
+    )
+    anterior.save(update_fields=["creado"])
+    otp.reenviar(usuario.email)
+
+    assert cliente.get(url_viejo).context["valido"] is False
+
+
 # ------------------------------------------------------- Invitar una cuenta
 @pytest.fixture
 def correos(settings):

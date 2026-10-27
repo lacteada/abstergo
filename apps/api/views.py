@@ -129,7 +129,7 @@ class RecuperarPasswordView(APIView):
     def post(self, request):
         serializer = RecuperarSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        otp.solicitar(serializer.validated_data["email"])
+        otp.solicitar(serializer.validated_data["email"], request)
         return Response({"detail": "Si el correo existe, se envió un código."})
 
 

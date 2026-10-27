@@ -28,7 +28,7 @@ metas por territorio, catálogos de tipos de atención y vecinos.
 - Front-end con un listado por entidad, buscador en vivo y CRUD (alta, edición,
   baja).
 - Autenticación: login por correo, recuperar contraseña con código OTP de 6
-  dígitos y cambio de contraseña.
+  dígitos o enlace firmado al correo, y cambio de contraseña.
 
 ---
 
@@ -323,7 +323,7 @@ listado, alta, consulta, edición y borrado. Fuente: `apps/*/urls.py`.
 |---|---|
 | `panel` | `` → Inicio, `contexto/delegacion/` (cambiar delegación activa) |
 | `organizacion` | `delegaciones/`, `.../nueva/`, `.../<pk>/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
-| `cuentas` | `roles/...`, `usuarios/...`, `login/`, `logout/`, `recuperar/`, `validar/`, `reenviar/`, `nueva-password/` |
+| `cuentas` | `roles/...`, `usuarios/...`, `login/`, `logout/`, `recuperar/`, `recuperar/<uidb64>/<token>/`, `validar/`, `reenviar/`, `nueva-password/` |
 | `catalogos` | `metas/...`, `tipos-atencion/...`, `sub-atenciones/...` |
 | `ciudadanos` | `vecinos/...` |
 | `atenciones` | `atenciones/`, `atenciones/crear/`, `.../<pk>/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
@@ -412,25 +412,34 @@ Validadores de contraseña activos: `UserAttributeSimilarityValidator`,
 `RequisitosInstitucionalesValidator` (exige mayúscula, minúscula y un carácter
 especial).
 
-Flujo de recuperación en cuatro pasos (`apps/cuentas/views.py`):
+Flujo de recuperación (`apps/cuentas/views.py`). El correo lleva **dos** caminos
+para el mismo registro: el código de 6 dígitos y un enlace firmado. El primero
+que se use anula al otro.
 
-1. **Recuperar** (`FormView`): busca el usuario por correo; si existe, genera el
-   código y lo envía. La respuesta es la misma exista o no el correo, para no
-   revelar qué cuentas hay.
-2. **Validar** (`FormView`): si no hay código en sesión, redirige a recuperar.
-   Comprueba expiración y coincidencia; al acertar borra el código de la sesión
-   (sirve una sola vez) y marca `otp_validado`.
-3. **Reenviar** (`View`, POST): genera un código nuevo.
-4. **NuevaPassword** (`FormView`): exige `otp_validado`; cambia la contraseña con
-   `set_password` y limpia la sesión.
+1. **Recuperar** (`FormView`): busca el usuario por correo; si existe, genera un
+   registro, envía el código y el enlace, y deshabilita la cuenta. La respuesta
+   es la misma exista o no el correo, para no revelar qué cuentas hay.
+2. **Validar** (`FormView`): si no hay correo en sesión, redirige a recuperar.
+   Comprueba expiración y coincidencia; al acertar marca `validado` (sirve una
+   sola vez), y con eso el enlace queda inválido.
+3. **Reenviar** (`View`, POST): genera un registro nuevo respetando
+   `OTP_REENVIO_SEGUNDOS`. El enlace anterior deja de valer.
+4. **NuevaPassword** (`FormView`): exige un código ya validado; cambia la
+   contraseña y cierra el registro.
+5. **RecuperarEnlace** (`FormView`, `recuperar/<uidb64>/<token>/`): la otra
+   puerta. Valida el token del registro, pide la contraseña nueva y al guardarla
+   marca el registro como usado, con lo que el código deja de valer. Un enlace
+   vencido, ya usado o ya cerrado por el código muestra el aviso de inválido.
 
 Detalle de implementación del OTP (`apps/cuentas/otp.py`): el código se genera
 con `secrets.randbelow(1000000)` formateado a 6 dígitos y vive en la tabla
 `RecuperacionPassword`, con vencimiento de `OTP_EXPIRY_MINUTES` y tope de cinco
-intentos. El correo sale de las plantillas `correo/recuperacion.txt` y
-`correo/recuperacion.html`, que viajan juntas en un mismo mensaje
-(`send_mail(html_message=...)`). Al pedir el código la cuenta queda deshabilitada
-y se reactiva cuando se guarda la contraseña nueva.
+intentos. El enlace firma la clave del registro con `signing` y una sal propia
+(`SAL_ENLACE`), así que no vale para la invitación ni para otra recuperación, y
+vence con el registro, igual que el código. El correo sale de las plantillas
+`correo/recuperacion.txt` y `correo/recuperacion.html`, que viajan juntas en un
+mismo mensaje (`send_mail(html_message=...)`). Al pedir el código la cuenta queda
+deshabilitada y se reactiva cuando se guarda la contraseña nueva.
 
 ### 10.1 Alta de usuarios por invitación
 
@@ -444,6 +453,9 @@ Fuente: `apps/cuentas/invitaciones.py`, `apps/cuentas/views.py`.
   guardarla **deja de valer** (sirve una sola vez) y vence en `INVITACION_DIAS`
   (`PASSWORD_RESET_TIMEOUT`). Un enlace vencido o ya usado muestra el aviso de
   inválido.
+- No confundir con el enlace de **recuperación** (sección 10): este activa una
+  cuenta pendiente y vive días; aquel cierra un `RecuperacionPassword` y vive
+  los mismos minutos que el código, con sal propia (`SAL_ENLACE`).
 - La vista `Activar` reutiliza `NuevaPasswordForm`: valida la clave, la guarda y
   pone `is_active=True`. Desde ahí la persona inicia sesión normalmente.
 - Como el administrador no puede fijar la clave, el listado de Usuarios ofrece
@@ -572,7 +584,7 @@ Fuente: `templates/`.
 - `confirmar.html`: confirmación de baja lógica ("¿Confirmas dar de baja …?").
 - `inicio.html`: página de bienvenida.
 - `cuentas/base_auth.html` + `login.html`, `recuperar.html`, `validar.html`,
-  `nueva_password.html`: las pantallas de acceso.
+  `nueva_password.html`, `recuperar_enlace.html`: las pantallas de acceso.
 - Una lista por entidad en `templates/<app>/…_lista.html`, todas extendiendo
   `listado.html`.
 
@@ -746,10 +758,11 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
   devuelve `access` y `refresh`; `.../refresh/` renueva; `.../logout/` invalida el
   refresh (blacklist); `GET .../me/` devuelve el usuario.
 - Recuperación de contraseña: `.../recuperar/`, `.../validar/` y
-  `.../nueva-password/`. El código de 6 dígitos vive en
+  `.../nueva-password/`. El cliente móvil usa el código de 6 dígitos; el enlace
+  del correo es la vía de la web. El registro vive en
   `cuentas.RecuperacionPassword` (no en la sesión), con vencimiento, tope de 5
-  intentos y comparación en tiempo constante. Pedir recuperación **no** desactiva
-  la cuenta.
+  intentos y comparación en tiempo constante. Pedir recuperación deshabilita la
+  cuenta hasta que se guarde la contraseña nueva.
 - CRUD: un viewset por entidad (`roles`, `usuarios`, `delegaciones`, `metas`,
   `tipos-atencion`, `sub-atenciones`, `vecinos`, `atenciones`), con borrado lógico.
 

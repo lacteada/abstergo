@@ -27,7 +27,7 @@
           <td style="padding:24px 32px 0;">
             <h1 style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;line-height:1.3;font-weight:600;color:#111827;">Restablece tu contraseña</h1>
             <p style="margin:10px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#374151;">
-              {% if nombre %}Hola {{ nombre }}. {% endif %}Usa este código para continuar. Vence en {{ minutos }} minuto{{ minutos|pluralize }} y sirve una sola vez.
+              {% if nombre %}Hola {{ nombre }}. {% endif %}Ingresa este código o usa el botón para continuar. Vence en {{ minutos }} minuto{{ minutos|pluralize }} y sirve una sola vez.
             </p>
           </td>
         </tr>
@@ -40,6 +40,25 @@
                 </td>
               </tr>
             </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:22px 32px 0;">
+            <p style="margin:0 0 12px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#6b7280;text-align:center;">o restablécela directo con este botón</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+              <tr>
+                <td align="center" style="border-radius:8px;background-color:#C41230;">
+                  <a href="{{ enlace }}" style="display:inline-block;padding:13px 26px;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;">Restablecer contraseña</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 32px 0;">
+            <p style="margin:0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9ca3af;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+            <p style="margin:4px 0 0;word-break:break-all;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.6;color:#6b7280;">{{ enlace }}</p>
+            <p style="margin:10px 0 0;font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#9ca3af;">Sirve uno solo de los dos: el primero que uses anula al otro.</p>
           </td>
         </tr>
         <tr>

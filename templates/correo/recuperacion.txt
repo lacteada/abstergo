@@ -3,9 +3,15 @@ Abstergo · Sistema Municipal de Atención Ciudadana
 Restablece tu contraseña
 
 {% if nombre %}Hola {{ nombre }}.{% endif %}
-Usa este código para continuar. Vence en {{ minutos }} minuto{{ minutos|pluralize }} y sirve una sola vez.
+Ingresa este código o entra con el enlace de abajo. Vence en {{ minutos }} minuto{{ minutos|pluralize }} y sirve una sola vez.
 
     {{ codigo }}
+
+O restablécela directo con este enlace:
+
+{{ enlace }}
+
+Sirve uno solo de los dos: el primero que uses anula al otro.
 
 Por seguridad, tu cuenta quedó deshabilitada al pedir el código. Se reactiva cuando guardes la nueva contraseña.
 

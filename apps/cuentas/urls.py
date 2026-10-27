@@ -18,6 +18,11 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("recuperar/", views.Recuperar.as_view(), name="recuperar"),
+    path(
+        "recuperar/<uidb64>/<token>/",
+        views.RecuperarEnlace.as_view(),
+        name="recuperar_enlace",
+    ),
     path("validar/", views.Validar.as_view(), name="validar"),
     path("reenviar/", views.Reenviar.as_view(), name="reenviar"),
     path("nueva-password/", views.NuevaPassword.as_view(), name="nueva_password"),
