@@ -145,9 +145,9 @@ def recuperacion_de_enlace(uidb64, token):
     """
     try:
         pk = force_str(urlsafe_base64_decode(uidb64))
+        usuario = Usuario.vigentes().filter(pk=pk).first()
     except (TypeError, ValueError, OverflowError):
         return None, None
-    usuario = Usuario.vigentes().filter(pk=pk).first()
     if not usuario:
         return None, None
     try:

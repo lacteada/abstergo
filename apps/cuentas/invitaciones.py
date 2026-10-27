@@ -33,9 +33,9 @@ def usuario_de_enlace(uidb64):
     """El usuario del enlace, o None si el identificador no sirve."""
     try:
         pk = force_str(urlsafe_base64_decode(uidb64))
+        return Usuario.vigentes().filter(pk=pk).first()
     except (TypeError, ValueError, OverflowError):
         return None
-    return Usuario.vigentes().filter(pk=pk).first()
 
 
 def enlace_valido(usuario, token):

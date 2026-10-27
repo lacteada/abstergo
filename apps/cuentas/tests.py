@@ -137,6 +137,13 @@ def test_un_enlace_con_token_malo_no_sirve(cliente, usuario):
     assert respuesta.context["valido"] is False
 
 
+def test_un_identificador_basura_no_revienta(cliente):
+    respuesta = cliente.get(reverse("cuentas:recuperar_enlace", args=["AAAA", "BBB"]))
+
+    assert respuesta.status_code == 200
+    assert respuesta.context["valido"] is False
+
+
 def test_el_reenvio_anula_el_enlace_anterior(cliente, usuario):
     otp.solicitar(usuario.email)
     anterior = RecuperacionPassword.objects.get(usuario=usuario)
@@ -238,6 +245,13 @@ def test_un_enlace_invalido_no_cambia_nada(cliente, pendiente):
     assert respuesta.context["valido"] is False
     pendiente.refresh_from_db()
     assert pendiente.pendiente
+
+
+def test_un_identificador_basura_en_activar_no_revienta(cliente):
+    respuesta = cliente.get(reverse("cuentas:activar", args=["AAAA", "BBB"]))
+
+    assert respuesta.status_code == 200
+    assert respuesta.context["valido"] is False
 
 
 def test_reenviar_la_invitacion(cliente, crear_usuario, correos, pendiente):
