@@ -50,6 +50,10 @@ identifique el rol sin depender del nombre, que es editable.
 - El rol Funcionario habilita el flujo "Crear Atención" y el historial de vecinos.
 - El resto de roles solo ve los módulos que le correspondan en el dashboard.
 - El código ramifica por `rol.codigo`, nunca por `rol.nombre`.
+- El **cargo** (`Cargo`) es el puesto funcional dentro de la delegación: un
+  catálogo global aparte del rol. Suma permisos al rol y el permiso se resuelve
+  por unión (rol o cargo). Las funciones de cada cargo viven en
+  `documentacion/descriptor_cargos_delegaciones.md`.
 
 ---
 
@@ -65,7 +69,8 @@ Principios de diseño.
 ### 4.1 Tablas existentes (se conservan)
 
 - `Rol`: nombre único, descripción.
-- `Usuario`: correo como identificador, rol y delegación, activo/inactivo.
+- `Cargo`: nombre único, descripción (puesto funcional de la delegación).
+- `Usuario`: correo como identificador, rol, cargo y delegación, activo/inactivo.
 - `Delegacion`: código único, nombre, dirección, comuna.
 - `Meta`: nombre, descripción, delegación.
 - `TipoAtencion`: nombre, descripción.
@@ -76,6 +81,8 @@ Principios de diseño.
 ### 4.2 Cambios a tablas existentes
 
 - `Delegacion` suma `responsable`: FK a `Usuario`, `PROTECT`, un solo delegado.
+- `Usuario` suma `cargo`: FK a `Cargo`, `PROTECT`, opcional. El rol es el acceso
+  y el cargo el puesto funcional; el permiso se resuelve por unión de ambos.
 - `Rol` suma `codigo`: único y estable, para ramificar por rol sin depender del nombre.
 - En el formulario de delegación se pide nombre y responsable.
 - `Delegacion.responsable` se rotula "Delegado(a)" en la interfaz, para no

@@ -32,4 +32,20 @@ urlpatterns = [
         views.Reactivar.as_view(),
         name="delegaciones_reactivar",
     ),
+    # Cargos
+    path("cargos/", views.CargosListado.as_view(), name="cargos"),
+    path("cargos/nuevo/", views.CargosAlta.as_view(), name="cargos_nueva"),
+    path("cargos/<int:pk>/", views.CargosConsulta.as_view(), name="cargos_consultar"),
+    path("cargos/<int:pk>/editar/", views.CargosEdicion.as_view(), name="cargos_editar"),
+    path("cargos/<int:pk>/eliminar/", views.CargosBorrado.as_view(), name="cargos_eliminar"),
+    path(
+        "cargos/<int:pk>/desactivar/",
+        views.CargosDesactivar.as_view(),
+        name="cargos_desactivar",
+    ),
+    path(
+        "cargos/<int:pk>/reactivar/",
+        views.CargosReactivar.as_view(),
+        name="cargos_reactivar",
+    ),
 ]

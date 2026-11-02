@@ -8,6 +8,7 @@ from . import views
 
 router = DefaultRouter()
 router.register("roles", views.RolViewSet)
+router.register("positions", views.CargoViewSet)
 router.register("users", views.UsuarioViewSet)
 router.register("delegations", views.DelegacionViewSet)
 router.register("goals", views.MetaViewSet)

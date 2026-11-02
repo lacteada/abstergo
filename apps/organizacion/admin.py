@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.common.admin_base import AdminBase
-from apps.organizacion.models import Delegacion
+from apps.organizacion.models import Cargo, Delegacion
 
 
 @admin.register(Delegacion)
@@ -10,3 +10,9 @@ class DelegacionAdmin(AdminBase):
     search_fields = ("codigo", "nombre", "comuna", "responsable__first_name")
     list_filter = ("comuna",)
     autocomplete_fields = ("responsable",)
+
+
+@admin.register(Cargo)
+class CargoAdmin(AdminBase):
+    list_display = ("codigo", "nombre", "descripcion")
+    search_fields = ("codigo", "nombre", "descripcion")

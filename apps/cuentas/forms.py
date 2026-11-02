@@ -54,6 +54,7 @@ class UsuarioForm(FormularioCRUD):
         fields = (
             "email",
             "rol",
+            "cargo",
             "delegacion",
             "delegaciones_autorizadas",
             "is_active",
@@ -63,6 +64,7 @@ class UsuarioForm(FormularioCRUD):
         super().__init__(*args, **kwargs)
         self.creando = self.instance.pk is None
         self.fields["email"].label = "Correo electrónico"
+        self.fields["cargo"].label = "Cargo"
         self.fields["is_active"].label = "Activo"
         if self.creando:
             self.fields["email"].required = True

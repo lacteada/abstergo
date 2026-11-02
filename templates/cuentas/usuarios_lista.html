@@ -5,6 +5,7 @@
   <th>Nombre</th>
   <th>Correo</th>
   <th>Rol</th>
+  <th>Cargo</th>
   <th>Delegación</th>
   <th>Estado</th>
   <th>Acciones</th>
@@ -15,6 +16,7 @@
   <td>{{ fila.get_full_name|default:"—" }}</td>
   <td>{{ fila.email|default:"—" }}</td>
   <td>{{ fila.rol|default:"—" }}</td>
+  <td>{{ fila.cargo|default:"—" }}</td>
   <td>{{ fila.delegacion|default:"—" }}</td>
   <td>
     <span class="estado {{ fila.estado_texto|lower }}">{{ fila.estado_texto }}</span>

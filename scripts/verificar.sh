@@ -77,7 +77,7 @@ u.set_password("Clave.123"); u.save()
 
 c = Client()
 c.post("/login/", {"username": "admin@test.cl", "password": "Clave.123"}, follow=True)
-for ruta in ["/", "/delegaciones/", "/usuarios/", "/roles/", "/metas/",
+for ruta in ["/", "/delegaciones/", "/cargos/", "/usuarios/", "/roles/", "/metas/",
              "/tipos-atencion/", "/sub-atenciones/", "/vecinos/",
              "/atenciones/", "/atenciones/crear/", "/admin/"]:
     assert c.get(ruta).status_code == 200, ruta
@@ -87,6 +87,7 @@ assert c.get("/api/schema/").status_code == 200, "schema"
 esquema = c.get("/api/schema/").content.decode()
 for ruta_api in ["/api/v1/auth/recover/", "/api/v1/auth/verify/",
                  "/api/v1/auth/new-password/", "/api/v1/auth/register/",
+                 "/api/v1/positions/",
                  "/api/v1/neighbors/", "/api/v1/cases/"]:
     assert ruta_api in esquema, ruta_api
 
@@ -158,7 +159,7 @@ assert cfunc.get("/delegaciones/").status_code == 403, "funcionario no ve delega
 # Las atenciones no entran aca porque la carga de datos no crea ninguna: su
 # codigo lo cubre la prueba de apps/atenciones/tests.py.
 for ruta, prefijo in [("/vecinos/", "VEC-"), ("/delegaciones/", "DEL-"),
-                      ("/roles/", "ROL-"), ("/metas/", "MET-")]:
+                      ("/cargos/", "CRG-"), ("/roles/", "ROL-"), ("/metas/", "MET-")]:
     assert prefijo in c.get(ruta).content.decode(), f"{ruta} debe mostrar {prefijo}"
 
 # Ciclo de las acciones: desactivar (siempre), eliminar (si nadie la usa), reactivar

@@ -14,11 +14,12 @@ from apps.catalogos.models import SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
 from apps.cuentas import otp
 from apps.cuentas.models import Rol
-from apps.organizacion.models import Delegacion
+from apps.organizacion.models import Cargo, Delegacion
 
 from .permissions import PermisoPorRol
 from .serializers import (
     AtencionSerializer,
+    CargoSerializer,
     DelegacionSerializer,
     DetalleSerializer,
     LogoutSerializer,
@@ -52,6 +53,12 @@ class RolViewSet(BaseViewSet):
     queryset = Rol.objects.all()
     serializer_class = RolSerializer
     modulo = "roles"
+
+
+class CargoViewSet(BaseViewSet):
+    queryset = Cargo.objects.all()
+    serializer_class = CargoSerializer
+    modulo = "positions"
 
 
 class UsuarioViewSet(BaseViewSet):

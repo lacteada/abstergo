@@ -38,6 +38,10 @@
         <a class="nav-sub{% if seccion == 'delegaciones' %} activo{% endif %}"
            href="{% url 'organizacion:delegaciones' %}">Delegaciones Municipales</a>
         {% endif %}
+        {% if 'positions' in modulos_lectura %}
+        <a class="nav-sub{% if seccion == 'cargos' %} activo{% endif %}"
+           href="{% url 'organizacion:cargos' %}">Cargos</a>
+        {% endif %}
         {% if 'users' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'usuarios' %} activo{% endif %}"
            href="{% url 'cuentas:usuarios' %}">Usuarios</a>

@@ -25,7 +25,7 @@ class UsuarioCrearForm(CorreoNulo, BaseUserCreationForm):
 
     class Meta(BaseUserCreationForm.Meta):
         model = Usuario
-        fields = ("email", "first_name", "last_name", "rol", "delegacion")
+        fields = ("email", "first_name", "last_name", "rol", "cargo", "delegacion")
 
 
 class UsuarioEditarForm(CorreoNulo, UserChangeForm):
@@ -38,6 +38,7 @@ class UsuarioEditarForm(CorreoNulo, UserChangeForm):
             "first_name",
             "last_name",
             "rol",
+            "cargo",
             "delegacion",
             "is_active",
             "is_staff",
@@ -62,17 +63,18 @@ class UsuarioAdmin(AdminBase, BaseUserAdmin):
         "first_name",
         "last_name",
         "rol",
+        "cargo",
         "delegacion",
         "is_active",
     )
     search_fields = ("email", "first_name", "last_name")
-    list_filter = ("rol", "delegacion", "is_active")
-    autocomplete_fields = ("rol", "delegacion")
+    list_filter = ("rol", "cargo", "delegacion", "is_active")
+    autocomplete_fields = ("rol", "cargo", "delegacion")
     ordering = ("first_name", "last_name")
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         ("Datos personales", {"fields": ("first_name", "last_name")}),
-        ("Asignación", {"fields": ("rol", "delegacion")}),
+        ("Asignación", {"fields": ("rol", "cargo", "delegacion")}),
         (
             "Permisos",
             {
@@ -97,6 +99,7 @@ class UsuarioAdmin(AdminBase, BaseUserAdmin):
                     "first_name",
                     "last_name",
                     "rol",
+                    "cargo",
                     "delegacion",
                     "password1",
                     "password2",

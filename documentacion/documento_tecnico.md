@@ -22,7 +22,7 @@ metas por territorio, catálogos de tipos de atención y vecinos.
 
 **Funcionalidades implementadas**
 
-- 7 entidades modeladas con el ORM de Django, con llaves foráneas y borrado lógico.
+- 8 entidades modeladas con el ORM de Django, con llaves foráneas y borrado lógico.
 - Carga de datos desde JSON con un comando de management idempotente.
 - Django Admin con CRUD completo y borrado lógico.
 - Front-end con un listado por entidad, buscador en vivo y CRUD (alta, edición,
@@ -118,18 +118,19 @@ usuario.
 | # | Entidad | App | Tabla | Campos propios |
 |---|---|---|---|---|
 | 1 | `Delegacion` | organizacion | `organizacion_delegacion` | `codigo` (único), `nombre`, `direccion`, `comuna`, `responsable`, `estado` |
-| 2 | `Rol` | cuentas | `cuentas_rol` | `nombre` (único), `descripcion`, `codigo` (único) |
-| 3 | `Usuario` | cuentas | `cuentas_usuario` | `email` (único, nulo), `rol`, `delegacion`, `delegaciones_autorizadas` (M2M) + campos de `AbstractUser` |
-| 4 | `Meta` | catalogos | `catalogos_meta` | `codigo` (único), `nombre`, `descripcion`, `delegacion`, `estado` |
-| 5 | `TipoAtencion` | catalogos | `catalogos_tipoatencion` | `codigo` (único), `nombre`, `descripcion`, `estado` |
-| 6 | `SubAtencion` | catalogos | `catalogos_subatencion` | `codigo` (único), `nombre`, `tipo_atencion`, `estado` |
-| 7 | `Vecino` | ciudadanos | `ciudadanos_vecino` | `nombre`, `rut` (único), `direccion`, `telefono`, `territorio`, `tipo_gestion`, `estado` |
+| 2 | `Cargo` | organizacion | `organizacion_cargo` | `codigo` (único), `nombre` (único), `descripcion` |
+| 3 | `Rol` | cuentas | `cuentas_rol` | `nombre` (único), `descripcion`, `codigo` (único) |
+| 4 | `Usuario` | cuentas | `cuentas_usuario` | `email` (único, nulo), `rol`, `cargo`, `delegacion`, `delegaciones_autorizadas` (M2M) + campos de `AbstractUser` |
+| 5 | `Meta` | catalogos | `catalogos_meta` | `codigo` (único), `nombre`, `descripcion`, `delegacion`, `estado` |
+| 6 | `TipoAtencion` | catalogos | `catalogos_tipoatencion` | `codigo` (único), `nombre`, `descripcion`, `estado` |
+| 7 | `SubAtencion` | catalogos | `catalogos_subatencion` | `codigo` (único), `nombre`, `tipo_atencion`, `estado` |
+| 8 | `Vecino` | ciudadanos | `ciudadanos_vecino` | `nombre`, `rut` (único), `direccion`, `telefono`, `territorio`, `tipo_gestion`, `estado` |
 
 Toda entidad lleva además la columna `eliminado` (`DateTimeField`, nulo) que
 aporta el borrado lógico, y —salvo `Usuario` y `Vecino`, que tienen su propio
-`estado`— la columna `estado` (`Activo`/`Inactivo`) que aporta `ConEstado`
-(`apps/common/estados.py`). `estado` es el dato de negocio; `eliminado` es la
-fila retirada del sistema.
+`estado`, y `Rol` y `Cargo`, que no lo usan— la columna `estado`
+(`Activo`/`Inactivo`) que aporta `ConEstado` (`apps/common/estados.py`).
+`estado` es el dato de negocio; `eliminado` es la fila retirada del sistema.
 
 ### Relaciones (llaves foráneas)
 
@@ -138,6 +139,7 @@ Todas con `on_delete=models.PROTECT`:
 | Desde | Hacia | Nulo | `related_name` |
 |---|---|---|---|
 | `Usuario.rol` | `Rol` | sí | `usuarios` |
+| `Usuario.cargo` | `Cargo` | sí | `usuarios` |
 | `Usuario.delegacion` | `Delegacion` | sí | `usuarios` |
 | `Meta.delegacion` | `Delegacion` | no | `metas` |
 | `SubAtencion.tipo_atencion` | `TipoAtencion` | no | `sub_atenciones` |
@@ -161,12 +163,24 @@ Todas con `on_delete=models.PROTECT`:
 
 ### Matriz de permisos RBAC
 
-Fuente: `apps/common/permisos.py`.
+Fuente: `apps/common/permisos.py`. La autorización tiene dos ejes: el **rol**
+(categoría de acceso al sistema) y el **cargo** (puesto funcional dentro de la
+delegación). Un usuario puede tener ambos y el permiso se resuelve por **unión**:
+pasa si concede el rol **o** el cargo.
 
-- **`admin` (superadministrador)**: Acceso total de lectura y escritura en todos los módulos (delegaciones, roles, usuarios globales, catálogos, vecinos y atenciones).
+Roles (`Rol.codigo`):
+
+- **`admin` (superadministrador)**: Acceso total de lectura y escritura en todos los módulos (delegaciones, cargos, roles, usuarios globales, catálogos, vecinos y atenciones).
 - **`delegado`**: Gestión de usuarios acotada a su delegación (`campo_delegacion = "delegacion"`), consulta de vecinos y creación/gestión de atenciones en su territorio. Sin acceso a delegaciones globales ni roles.
 - **`funcionario`**: Consulta de lista de vecinos con su historial de atenciones y registro/creación de atenciones en terreno. Sin acceso a gestión de usuarios ni delegaciones.
 - **`consulta` / `verificador`**: Lectura restringida de auditoría y catálogos.
+
+Cargos (`Cargo.codigo`, `MATRIZ_CARGO`): suman permisos al rol sobre los
+módulos operativos. Los siete cargos del descriptor y sus permisos —casos,
+vecinos, metas y catálogos de atención— son una segunda matriz con la misma
+forma que la de roles. El detalle de funciones de cada cargo está en
+`documentacion/descriptor_cargos_delegaciones.md`. El módulo `positions`
+(catálogo de cargos) queda reservado al `admin`.
 
 ### El código visible (`referencia`)
 
@@ -188,6 +202,7 @@ es buscable: `referencia` está en la tupla `busqueda` de cada listado.
 | Entidad | Prefijo | Ejemplo |
 |---|---|---|
 | `Delegacion` | `DEL` | `DEL-01` |
+| `Cargo` | `CRG` | `CRG-01` |
 | `Rol` | `ROL` | `ROL-01` |
 | `Usuario` | `USU` | `USU-01` |
 | `Meta` | `MET` | `MET-01` |
@@ -403,7 +418,7 @@ Configuración:
 LOGIN_URL = "cuentas:login"
 LOGIN_REDIRECT_URL = "panel:inicio"
 LOGOUT_REDIRECT_URL = "cuentas:login"
-OTP_EXPIRY_MINUTES = 10
+OTP_EXPIRY_MINUTES = 5
 ```
 
 Validadores de contraseña activos: `UserAttributeSimilarityValidator`,
@@ -474,7 +489,7 @@ Fuente: `apps/common/admin_base.py` y los `admin.py` de cada app.
   borrar una fila que otra referencia muestra un error en vez de arrastrar a las
   dependientes.
 
-Las 7 entidades están registradas, con `list_display`, `search_fields` y
+Las 8 entidades están registradas, con `list_display`, `search_fields` y
 `list_filter`:
 
 | Admin | Registra | Notas |
@@ -504,13 +519,14 @@ claves coinciden con los campos del modelo.
 | Archivo | Filas |
 |---|---|
 | `delegaciones.json` | 6 |
+| `cargos.json` | 7 |
 | `roles.json` | 6 |
 | `usuarios.json` | 6 |
 | `metas.json` | 6 |
 | `tipos_atencion.json` | 4 |
 | `sub_atenciones.json` | 8 |
 | `vecinos.json` | 10 |
-| **Total** | **46** |
+| **Total** | **53** |
 
 ### 12.2 El comando `cargar_datos`
 
@@ -522,8 +538,8 @@ Fuente: `apps/panel/management/commands/cargar_datos.py`.
 - Usa el gestor `todos` y limpia `eliminado = None`: recargar el JSON **restaura**
   lo que estaba dado de baja.
 - Todo el `handle` corre dentro de `@transaction.atomic`.
-- Recorre las entidades en orden de dependencia: delegaciones y roles → usuarios
-  → metas, tipos y sub atenciones → vecinos.
+- Recorre las entidades en orden de dependencia: delegaciones, cargos y roles →
+  usuarios → metas, tipos y sub atenciones → vecinos.
 - Informa `N creados, M actualizados`.
 
 El caso de `Usuario` es propio (`cargar_usuarios`): la llave de idempotencia es
@@ -535,7 +551,7 @@ Ejecución:
 
 ```bash
 python manage.py cargar_datos
-# Listo: 46 creados, 0 actualizados.
+# Listo: 53 creados, 0 actualizados.
 ```
 
 ### 12.3 Por qué un comando y no `loaddata`
@@ -638,7 +654,7 @@ EMAIL_USE_TLS=True
 DEFAULT_FROM_EMAIL=no-reply@muniserena.cl
 
 # Autenticación
-OTP_EXPIRY_MINUTES=10
+OTP_EXPIRY_MINUTES=5
 PASSWORD_MIN_LENGTH=8
 USUARIOS_PASSWORD_INICIAL=
 
@@ -708,11 +724,11 @@ En producción, el servidor WSGI es `gunicorn` (`gunicorn` está en
 | `apps/cuentas/forms.py` | Formularios de login, mantenedor y OTP |
 | `apps/cuentas/validators.py` | `RequisitosInstitucionalesValidator` |
 | `apps/cuentas/admin.py` | `RolAdmin`, `UsuarioAdmin` |
-| `apps/organizacion/models.py` | `Delegacion` |
+| `apps/organizacion/models.py` | `Delegacion`, `Cargo` |
 | `apps/catalogos/models.py` | `Meta`, `TipoAtencion`, `SubAtencion` |
 | `apps/ciudadanos/models.py` | `Vecino` |
 | `apps/panel/management/commands/cargar_datos.py` | Comando de carga |
-| `datos_nuevos/*.json` | Datos de importación (46 filas) |
+| `datos_nuevos/*.json` | Datos de importación (53 filas) |
 | `templates/` | Armazón, listados, formularios y acceso |
 | `static/js/busqueda.js` | Buscador en vivo |
 
@@ -763,14 +779,18 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
   `cuentas.RecuperacionPassword` (no en la sesión), con vencimiento, tope de 5
   intentos y comparación en tiempo constante. Pedir recuperación deshabilita la
   cuenta hasta que se guarde la contraseña nueva.
-- CRUD: un viewset por entidad (`roles`, `usuarios`, `delegaciones`, `metas`,
-  `tipos-atencion`, `sub-atenciones`, `vecinos`, `atenciones`), con borrado lógico.
+- CRUD: un viewset por entidad (`roles`, `positions`, `usuarios`, `delegaciones`,
+  `metas`, `tipos-atencion`, `sub-atenciones`, `vecinos`, `atenciones`), con
+  borrado lógico.
 
-### 18.2 Permisos por rol
+### 18.2 Permisos por rol y cargo
 
-- La política vive una sola vez en `apps/common/permisos.py`: una matriz
-  `módulo → {lectura, escritura}` sobre los códigos de `Rol.codigo`. Cambiarla es
-  editar ese archivo.
+- La política vive una sola vez en `apps/common/permisos.py`: la matriz
+  `módulo → {lectura, escritura}` sobre los códigos de `Rol.codigo` y la
+  `MATRIZ_CARGO` con la misma forma sobre los códigos de `Cargo.codigo`.
+  Cambiarla es editar ese archivo.
+- El permiso se resuelve por **unión**: `puede()` concede si el rol **o** el
+  cargo autoriza; `modulos_de()` une los módulos de ambos.
 - La web la aplica con `PermisoRequeridoMixin`: el anónimo va al login y el
   autenticado sin permiso recibe 403.
 - La API la aplica con `PermisoPorRol`, que lee el atributo `modulo` de cada
@@ -786,9 +806,12 @@ API está en inglés, con `source` en cada campo del serializer. Este es el
 glosario, el mismo que usa el cliente Android:
 
 - `Rol` → `role`: `codigo` → `code`, `nombre` → `name`, `descripcion` → `description`.
+- `Cargo` → `position`: `codigo` → `code`, `nombre` → `name`,
+  `descripcion` → `description`.
 - `referencia` → `reference_code` en **todas** las entidades: es el código visible
   (`DEL-01`, `AT-01`…) y viaja como solo lectura, porque lo genera el servidor.
-- `Usuario` → `user`: `rol` → `role`, `delegacion` → `delegation`.
+- `Usuario` → `user`: `rol` → `role`, `cargo` → `position`,
+  `delegacion` → `delegation`.
 - `Delegacion` → `delegation`: `codigo` → `code`, `nombre` → `name`,
   `direccion` → `address`, `comuna` → `commune`, `responsable` → `manager`.
 - `Meta` → `goal`: `nombre` → `name`, `descripcion` → `description`,
@@ -804,11 +827,12 @@ glosario, el mismo que usa el cliente Android:
   `funcionario` → `staff`, `fecha` → `date`, `motivo` → `reason`,
   `detalle` → `detail`, `estado` → `status`, `canal` → `channel`.
 - `Perfil` → `profile`: `rol_codigo` → `role_code`,
-  `modulos_lectura` → `read_modules`, `modulos_escritura` → `write_modules`.
+  `cargo_codigo` → `position_code`, `modulos_lectura` → `read_modules`,
+  `modulos_escritura` → `write_modules`.
 - En la recuperación, `codigo` → `code`. `email`, `password`, `refresh` y
   `detail` se mantienen.
 - Rutas: `auth/recover/`, `auth/verify/`, `auth/new-password/`; y los recursos
-  `roles`, `users`, `delegations`, `goals`, `attention-types`,
+  `roles`, `positions`, `users`, `delegations`, `goals`, `attention-types`,
   `attention-subtypes`, `neighbors`, `cases`.
 - Las claves de módulo de la matriz (§18.2) viajan en `read_modules` y
   `write_modules`, así que también están en inglés.

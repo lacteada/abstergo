@@ -5,6 +5,7 @@ from apps.common.estados import ConEstado
 from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
 from apps.common.validators import (
+    validar_catalogo,
     validar_codigo,
     validar_comuna,
     validar_direccion,
@@ -63,3 +64,44 @@ class Delegacion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
         if self.atenciones.filter(eliminado__isnull=True).exists():
             detalles.append("atenciones")
         return f"La delegación está en uso por {', '.join(detalles)}."
+
+
+class Cargo(ConReferencia, ConCodigoDerivado, BorradoLogico):
+    """El puesto funcional dentro de una delegación.
+
+    Es un catálogo global (tipos de puesto), distinto de `Rol`: el `rol` es la
+    categoría de acceso al sistema y el `cargo` describe la función que cumple
+    la persona en su delegación. Sus funciones detalladas viven en
+    `documentacion/descriptor_cargos_delegaciones.md`.
+    """
+
+    PREFIJO = "CRG"
+
+    codigo = models.SlugField(
+        "código",
+        max_length=40,
+        unique=True,
+        null=True,
+        blank=True,
+        validators=[validar_codigo],
+    )
+    nombre = models.CharField(
+        "nombre", max_length=80, unique=True, validators=[validar_nombre]
+    )
+    descripcion = models.CharField(
+        "descripción", max_length=200, blank=True, validators=[validar_catalogo]
+    )
+
+    class Meta:
+        verbose_name = "cargo"
+        verbose_name_plural = "cargos"
+        ordering = ["nombre"]
+
+    def __str__(self):
+        return self.nombre
+
+    def esta_en_uso(self):
+        return self.usuarios.filter(is_active=True, eliminado__isnull=True).exists()
+
+    def motivo_en_uso(self):
+        return "El cargo tiene usuarios activos asignados."

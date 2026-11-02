@@ -97,6 +97,17 @@ class Usuario(ConReferencia, AbstractUser, Eliminado):
         related_name="usuarios",
         verbose_name="delegación",
     )
+    # El puesto funcional dentro de la delegación. Distinto de `rol`: el rol es
+    # la categoría de acceso al sistema y el cargo describe la función. Los
+    # permisos del cargo los resuelve `apps/common/permisos.py`.
+    cargo = models.ForeignKey(
+        "organizacion.Cargo",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="usuarios",
+        verbose_name="cargo",
+    )
     # Cuando el perfil trabaja en más de un territorio. `delegacion` sigue
     # siendo la principal; esta es la lista completa de las autorizadas que el
     # selector de contexto puede ofrecer.

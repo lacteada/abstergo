@@ -7,8 +7,8 @@ from apps.common.vistas_base import (
     ListadoBase,
     ReactivarBase,
 )
-from apps.organizacion.forms import DelegacionForm
-from apps.organizacion.models import Delegacion
+from apps.organizacion.forms import CargoForm, DelegacionForm
+from apps.organizacion.models import Cargo, Delegacion
 
 
 class Listado(ListadoBase):
@@ -83,4 +83,72 @@ class Consulta(ConsultaBase):
         ("Comuna", "comuna"),
         ("Responsable", "responsable.get_full_name"),
         ("Estado", "get_estado_display"),
+    )
+
+
+# ------------------------------------------------------------------ Cargos
+class CargosListado(ListadoBase):
+    model = Cargo
+    template_name = "organizacion/cargos_lista.html"
+    titulo = "Cargos"
+    seccion = "cargos"
+    etiqueta_nueva = "Nuevo cargo"
+    busqueda = ("referencia", "codigo", "nombre", "descripcion")
+    exportar_nombre = "cargos"
+    exportar_columnas = (
+        ("Código", "codigo"),
+        ("Nombre", "nombre"),
+        ("Descripción", "descripcion"),
+    )
+    url_nueva = "organizacion:cargos_nueva"
+    url_listado = "organizacion:cargos"
+
+
+class CargosAlta(AltaBase):
+    model = Cargo
+    form_class = CargoForm
+    titulo = "Nuevo cargo"
+    seccion = "cargos"
+    url_listado = "organizacion:cargos"
+
+
+class CargosEdicion(EdicionBase):
+    model = Cargo
+    form_class = CargoForm
+    titulo = "Editar cargo"
+    seccion = "cargos"
+    url_listado = "organizacion:cargos"
+
+
+class CargosBorrado(BorradoBase):
+    model = Cargo
+    titulo = "Eliminar cargo"
+    seccion = "cargos"
+    url_listado = "organizacion:cargos"
+
+
+class CargosDesactivar(DesactivarBase):
+    model = Cargo
+    titulo = "Cargo"
+    seccion = "cargos"
+    url_listado = "organizacion:cargos"
+
+
+class CargosReactivar(ReactivarBase):
+    model = Cargo
+    titulo = "Cargo"
+    seccion = "cargos"
+    url_listado = "organizacion:cargos"
+
+
+class CargosConsulta(ConsultaBase):
+    model = Cargo
+    titulo = "Consultar cargo"
+    seccion = "cargos"
+    url_listado = "organizacion:cargos"
+    consulta_campos = (
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
+        ("Nombre", "nombre"),
+        ("Descripción", "descripcion"),
     )

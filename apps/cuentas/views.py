@@ -102,7 +102,7 @@ class UsuariosListado(ListadoBase):
     seccion = "usuarios"
     etiqueta_nueva = "Nuevo usuario"
     busqueda = ("referencia", "first_name", "last_name", "email")
-    relacionadas = ("rol", "delegacion")
+    relacionadas = ("rol", "cargo", "delegacion")
     campo_delegacion = "delegacion"
     auditar_lectura = True
     exportar_nombre = "usuarios"
@@ -110,6 +110,7 @@ class UsuariosListado(ListadoBase):
         ("Nombre", "get_full_name"),
         ("Correo", "email"),
         ("Rol", "rol.nombre"),
+        ("Cargo", "cargo.nombre"),
         ("Delegación", "delegacion.nombre"),
         ("Delegaciones autorizadas", "delegaciones_texto"),
         ("Activo", lambda u: "Sí" if u.is_active else "No"),
@@ -185,6 +186,7 @@ class UsuariosConsulta(ConsultaBase):
         ("Nombre", "get_full_name"),
         ("Correo", "email"),
         ("Rol", "rol.nombre"),
+        ("Cargo", "cargo.nombre"),
         ("Delegación", "delegacion.nombre"),
         ("Delegaciones autorizadas", "delegaciones_texto"),
         ("Estado", "estado_texto"),

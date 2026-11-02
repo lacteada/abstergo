@@ -1,0 +1,37 @@
+[
+  {
+    "codigo": "delegado",
+    "nombre": "DELEGADO",
+    "descripcion": "Representa a la alcaldía en su territorio y gestiona las soluciones locales de la delegación."
+  },
+  {
+    "codigo": "gestor-social",
+    "nombre": "GESTOR SOCIAL",
+    "descripcion": "Desarrolla acciones comunitarias y atención de casos para el bienestar de los vecinos."
+  },
+  {
+    "codigo": "apoyo-administrativo",
+    "nombre": "APOYO ADMINISTRATIVO",
+    "descripcion": "Gestión documental, atención ciudadana y agenda de la delegación."
+  },
+  {
+    "codigo": "organizaciones-comunitarias",
+    "nombre": "ORGANIZACIONES COMUNITARIAS",
+    "descripcion": "Registro OROC y asesoría a juntas de vecinos y agrupaciones (leyes 19.418 y 20.500)."
+  },
+  {
+    "codigo": "gestor-de-compras-y-proyectos",
+    "nombre": "GESTOR DE COMPRAS Y PROYECTOS",
+    "descripcion": "Tramita los requerimientos de compras y proyectos de la delegación."
+  },
+  {
+    "codigo": "gestion-y-planificacion",
+    "nombre": "GESTION Y PLANIFICACION",
+    "descripcion": "Alinea la estrategia con la operación y monitorea indicadores de gestión."
+  },
+  {
+    "codigo": "coordinador-de-servicios-comunitarios",
+    "nombre": "COORDINADOR DE SERVICIOS COMUNITARIOS",
+    "descripcion": "Planifica y ejecuta iniciativas de aseo, ornato y medio ambiente."
+  }
+]

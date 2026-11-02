@@ -14,7 +14,7 @@ from apps.atenciones.models import Atencion
 from apps.catalogos.models import Meta as MetaModel
 from apps.catalogos.models import SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
-from apps.common.permisos import codigo_de, modulos_de
+from apps.common.permisos import cargo_de, codigo_de, modulos_de
 from apps.common.validators import (
     validar_catalogo,
     validar_codigo,
@@ -25,7 +25,7 @@ from apps.common.validators import (
     validar_telefono,
 )
 from apps.cuentas.models import Rol
-from apps.organizacion.models import Delegacion
+from apps.organizacion.models import Cargo, Delegacion
 
 Usuario = get_user_model()
 
@@ -62,9 +62,34 @@ class RolSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         fields = ["id", "reference_code", "code", "name", "description"]
 
 
+class CargoSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+    code = serializers.CharField(
+        source="codigo",
+        max_length=40,
+        allow_null=True,
+        required=False,
+        validators=[validar_codigo],
+    )
+    name = serializers.CharField(source="nombre", max_length=80, validators=[validar_nombre])
+    description = serializers.CharField(
+        source="descripcion",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
+    )
+
+    class Meta:
+        model = Cargo
+        fields = ["id", "reference_code", "code", "name", "description"]
+
+
 class UsuarioSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     role = serializers.PrimaryKeyRelatedField(
         source="rol", queryset=Rol.objects.all(), allow_null=True, required=False
+    )
+    position = serializers.PrimaryKeyRelatedField(
+        source="cargo", queryset=Cargo.objects.all(), allow_null=True, required=False
     )
     delegation = serializers.PrimaryKeyRelatedField(
         source="delegacion",
@@ -83,6 +108,7 @@ class UsuarioSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
             "first_name",
             "last_name",
             "role",
+            "position",
             "delegation",
             "is_active",
             "password",
@@ -118,18 +144,23 @@ class PerfilSerializer(UsuarioSerializer):
     """El usuario más lo que puede hacer, para que el cliente no repita la matriz."""
 
     role_code = serializers.SerializerMethodField()
+    position_code = serializers.SerializerMethodField()
     read_modules = serializers.SerializerMethodField()
     write_modules = serializers.SerializerMethodField()
 
     class Meta(UsuarioSerializer.Meta):
         fields = UsuarioSerializer.Meta.fields + [
             "role_code",
+            "position_code",
             "read_modules",
             "write_modules",
         ]
 
     def get_role_code(self, obj) -> str | None:
         return codigo_de(obj)
+
+    def get_position_code(self, obj) -> str | None:
+        return cargo_de(obj)
 
     def get_read_modules(self, obj) -> list[str]:
         return sorted(modulos_de(obj))

@@ -15,7 +15,7 @@ from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
 from apps.common.validators import normalizar_rut
 from apps.cuentas.models import Rol, Usuario
-from apps.organizacion.models import Delegacion
+from apps.organizacion.models import Cargo, Delegacion
 
 DATOS = Path(settings.BASE_DIR) / "datos_nuevos"
 
@@ -71,6 +71,12 @@ class Command(BaseCommand):
         self.cargar(
             "roles",
             Rol,
+            "codigo",
+            lambda f: {"nombre": f["nombre"], "descripcion": f["descripcion"]},
+        )
+        self.cargar(
+            "cargos",
+            Cargo,
             "codigo",
             lambda f: {"nombre": f["nombre"], "descripcion": f["descripcion"]},
         )

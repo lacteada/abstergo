@@ -35,6 +35,7 @@ Se ejecutan con `bash scripts/verificar.sh`, que corre `check`, migraciones,
 | 18 | Enlace de un solo uso | cuentas | Enlace ya usado | El mismo enlace deja de valer | Aprobado | `apps/cuentas/tests.py` |
 | 19 | Enlace inválido | cuentas | Token alterado | No cambia nada y avisa inválido | Aprobado | `apps/cuentas/tests.py` |
 | 20 | Reenviar invitación | cuentas | Cuenta pendiente | Reenvía el correo desde el listado | Aprobado | `apps/cuentas/tests.py` |
+| 21 | Permisos por cargo | organizacion / common | Rol + cargo | El cargo suma permisos al rol; no abre módulos de administración; la API reserva `positions` al admin | Aprobado | `apps/common/tests.py`, `apps/organizacion/tests.py` |
 
 Comando:
 
