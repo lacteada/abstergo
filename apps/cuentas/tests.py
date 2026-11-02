@@ -5,6 +5,7 @@ from datetime import timedelta
 import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.auth.tokens import default_token_generator
 from django.core import mail
 from django.urls import reverse
@@ -262,3 +263,34 @@ def test_reenviar_la_invitacion(cliente, crear_usuario, correos, pendiente):
 
     assert len(correos) == 1
     assert "/activar/" in correos[0].body
+
+
+# ------------------------------------------------ Grupos espejo del rol
+def test_crear_un_rol_crea_su_grupo():
+    Rol.objects.create(codigo="admin", nombre="ADMIN")
+    assert Group.objects.filter(name="ADMIN").exists()
+
+
+def test_el_grupo_del_admin_tiene_permisos():
+    Rol.objects.create(codigo="admin", nombre="ADMIN")
+    codenames = set(
+        Group.objects.get(name="ADMIN").permissions.values_list("codename", flat=True)
+    )
+    assert {"view_usuario", "add_usuario", "change_rol"} <= codenames
+
+
+def test_un_rol_sin_acceso_no_recibe_permisos():
+    Rol.objects.create(codigo="consulta", nombre="CONSULTA")
+    assert not Group.objects.get(name="CONSULTA").permissions.exists()
+
+
+def test_el_usuario_queda_en_el_grupo_de_su_rol(crear_usuario):
+    usuario = crear_usuario("grupo@test.cl", codigo="funcionario")
+    assert list(usuario.groups.values_list("name", flat=True)) == ["FUNCIONARIO"]
+
+
+def test_cambiar_de_rol_mueve_al_usuario_de_grupo(crear_usuario):
+    usuario = crear_usuario("mueve@test.cl", codigo="funcionario")
+    usuario.rol = Rol.objects.create(codigo="delegado", nombre="DELEGADO")
+    usuario.save(update_fields=["rol"])
+    assert list(usuario.groups.values_list("name", flat=True)) == ["DELEGADO"]

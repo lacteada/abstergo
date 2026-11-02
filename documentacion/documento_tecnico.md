@@ -798,6 +798,10 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
 - La barra lateral muestra solo los módulos con lectura permitida, vía el context
   processor `apps.common.contexto.permisos`.
 - El superusuario cuenta como `admin`.
+- **Grupos espejo**: cada `Rol` se refleja como un `auth.Group` con los permisos
+  de Django correspondientes (`apps/cuentas/grupos.py`, señales en
+  `apps/cuentas/signals.py`). Es solo un espejo para cumplir y demostrar
+  "permisos y grupos": la autorización real sigue siendo la matriz.
 
 ### 18.3 El contrato está en inglés
 

@@ -18,7 +18,7 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - **Config por entorno** `config/settings/{base,dev,prod}.py`, todo desde env, sin secretos. — **ausente**.
 - **Usuario propio** desde la migración 1, identidad única, `USERNAME_FIELD`. — **hecho** (`cuentas.Usuario`).
 - **Autenticación**: sesión web + token con refresh para móvil, endpoints login/refresh/logout y `/me`. — **hecho** (JWT con refresh y blacklist; falta HTTPS).
-- **RBAC centralizado**: roles como dato (`Rol.codigo`) + una matriz rol × permiso + un mixin o clase que la aplica. — **hecho** (`apps/common/permisos.py`; web y API la consultan). Desde 2026 suma una segunda matriz **cargo × módulo** (`Cargo`, `MATRIZ_CARGO`): el rol es el acceso y el cargo el puesto funcional, y el permiso se resuelve por unión.
+- **RBAC centralizado**: roles como dato (`Rol.codigo`) + una matriz rol × permiso + un mixin o clase que la aplica. — **hecho** (`apps/common/permisos.py`; web y API la consultan). Desde 2026 suma una segunda matriz **cargo × módulo** (`Cargo`, `MATRIZ_CARGO`): el rol es el acceso y el cargo el puesto funcional, y el permiso se resuelve por unión. Cada rol se refleja además como `auth.Group` espejo (`apps/cuentas/grupos.py`).
 - **Validación en el borde**: validadores de campo + cruce en serializer/form + restricciones en la base. — **parcial** (serializers en la API; faltan restricciones en la base).
 - **Errores uniformes** 400/401/403/404/500. — **ausente**.
 - **Auditoría central** por señal o middleware. — **parcial y mal ubicada** (se llama desde las vistas).

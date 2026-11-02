@@ -186,6 +186,7 @@ class UsuariosConsulta(ConsultaBase):
         ("Nombre", "get_full_name"),
         ("Correo", "email"),
         ("Rol", "rol.nombre"),
+        ("Grupo", lambda u: ", ".join(u.groups.values_list("name", flat=True))),
         ("Cargo", "cargo.nombre"),
         ("Delegación", "delegacion.nombre"),
         ("Delegaciones autorizadas", "delegaciones_texto"),
