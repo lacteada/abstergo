@@ -170,10 +170,11 @@ pasa si concede el rol **o** el cargo.
 
 Roles (`Rol.codigo`):
 
-- **`admin` (superadministrador)**: Acceso total de lectura y escritura en todos los módulos (delegaciones, cargos, roles, usuarios globales, catálogos, vecinos y atenciones).
-- **`delegado`**: Gestión de usuarios acotada a su delegación (`campo_delegacion = "delegacion"`), consulta de vecinos y creación/gestión de atenciones en su territorio. Sin acceso a delegaciones globales ni roles.
-- **`funcionario`**: Consulta de lista de vecinos con su historial de atenciones y registro/creación de atenciones en terreno. Sin acceso a gestión de usuarios ni delegaciones.
-- **`consulta` / `verificador`**: Lectura restringida de auditoría y catálogos.
+- **`admin` (Administrador)**: acceso total de lectura y escritura en todos los módulos.
+- **`coordinador` (Supervisor)**: **visualización total**; lee todos los módulos y no escribe ninguno. No se acota a una delegación (alcance global de lectura).
+- **`delegado` (Administrativo)**: CRUD de atenciones y vecinos en su delegación; lee los catálogos de atención. Sin acceso a usuarios, roles ni delegaciones.
+- **`funcionario`**: consulta de vecinos con su historial y registro/creación de atenciones en terreno.
+- **`consulta` / `verificador`**: sin permisos operativos por ahora.
 
 Cargos (`Cargo.codigo`, `MATRIZ_CARGO`): suman permisos al rol sobre los
 módulos operativos. Los siete cargos del descriptor y sus permisos —casos,

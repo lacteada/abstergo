@@ -4,7 +4,7 @@
 
 {% block contenido %}
 
-  <h1 class="titulo">Bienvenido</h1>
+  <h1 class="titulo">{{ titulo_panel }}</h1>
   <p class="subtitulo">
     {{ user.get_full_name|default:user.email }} · {{ user.rol|default:"sin rol" }}
   </p>

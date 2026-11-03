@@ -67,3 +67,19 @@ def test_sin_cargo_no_cambia_nada():
     assert modulos_de(UsuarioFalso("funcionario")) == modulos_de(
         UsuarioFalso("funcionario", cargo=None)
     )
+
+
+def test_el_supervisor_lee_todo_y_no_escribe():
+    usuario = UsuarioFalso("coordinador")
+    assert modulos_de(usuario) == set(MATRIZ)
+    assert modulos_de(usuario, escritura=True) == set()
+    assert puede(usuario, "users") is True
+    assert puede(usuario, "roles", escritura=True) is False
+
+
+def test_el_delegado_gestiona_atenciones_y_vecinos():
+    usuario = UsuarioFalso("delegado")
+    assert puede(usuario, "cases", escritura=True) is True
+    assert puede(usuario, "neighbors", escritura=True) is True
+    assert puede(usuario, "users") is False
+    assert puede(usuario, "roles") is False

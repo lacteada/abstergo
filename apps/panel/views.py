@@ -6,7 +6,7 @@ from django.views.generic import TemplateView
 
 from apps.common.delegaciones import CLAVE_SESION, autorizadas
 from apps.common.permisos import codigo_de
-from apps.panel.servicios import acciones_del_rol, estadisticas
+from apps.panel.servicios import acciones_del_rol, estadisticas, titulo_panel
 
 
 class Inicio(LoginRequiredMixin, TemplateView):
@@ -17,6 +17,7 @@ class Inicio(LoginRequiredMixin, TemplateView):
         usuario = self.request.user
         contexto["seccion"] = "inicio"
         contexto["codigo_rol"] = codigo_de(usuario)
+        contexto["titulo_panel"] = titulo_panel(usuario)
         contexto["acciones"] = acciones_del_rol(usuario)
         contexto.update(estadisticas(usuario))
         return contexto

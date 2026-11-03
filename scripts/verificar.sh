@@ -138,9 +138,21 @@ cdel.post("/login/", {"username": "delegado@test.cl", "password": "Clave.123"}, 
 assert cdel.get("/vecinos/").status_code == 200, "delegado ve vecinos"
 assert cdel.get("/atenciones/").status_code == 200, "delegado ve atenciones"
 assert cdel.get("/atenciones/crear/").status_code == 200, "delegado crea atencion"
-assert cdel.get("/usuarios/").status_code == 200, "delegado ve usuarios de su delegacion"
+assert cdel.get("/usuarios/").status_code == 403, "delegado ya no gestiona usuarios"
 assert cdel.get("/delegaciones/").status_code == 403, "delegado no ve delegaciones globales"
 assert cdel.get("/roles/").status_code == 403, "delegado no ve roles"
+
+# Rol Coordinador (supervisor): lectura total, sin escritura
+rol_coord, _ = Rol.objects.get_or_create(codigo="coordinador", defaults={"nombre": "COORDINADOR"})
+u_coord, _ = U.objects.get_or_create(email="coordinador@test.cl",
+    defaults={"first_name": "Co", "last_name": "Ordinador"})
+u_coord.rol = rol_coord; u_coord.set_password("Clave.123"); u_coord.is_active = True; u_coord.save()
+cc = Client()
+cc.post("/login/", {"username": "coordinador@test.cl", "password": "Clave.123"}, follow=True)
+assert cc.get("/vecinos/").status_code == 200, "coordinador ve vecinos"
+assert cc.get("/atenciones/").status_code == 200, "coordinador ve atenciones"
+assert cc.get("/roles/").status_code == 200, "coordinador ve roles (lectura)"
+assert cc.post("/atenciones/crear/", {}).status_code == 403, "coordinador no crea (solo lectura)"
 
 # Rol Funcionario: ve vecinos y gestiona atenciones
 rol_func, _ = Rol.objects.get_or_create(codigo="funcionario", defaults={"nombre": "FUNCIONARIO"})

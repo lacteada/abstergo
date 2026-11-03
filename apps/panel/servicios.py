@@ -5,8 +5,29 @@ from django.utils import timezone
 
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
-from apps.common.permisos import DELEGADO, FUNCIONARIO, codigo_de, modulos_de
+from apps.common.permisos import (
+    ADMIN,
+    COORDINADOR,
+    DELEGADO,
+    FUNCIONARIO,
+    codigo_de,
+    modulos_de,
+)
 from apps.organizacion.models import Delegacion
+
+# Título del panel por rol: le da identidad a cada dashboard.
+TITULOS_PANEL = {
+    ADMIN: "Panel de administración",
+    COORDINADOR: "Panel de supervisión · solo lectura",
+    DELEGADO: "Panel de delegación",
+    FUNCIONARIO: "Panel de atención",
+}
+
+
+def titulo_panel(usuario):
+    """El título del dashboard según el rol."""
+    return TITULOS_PANEL.get(codigo_de(usuario), "Panel")
+
 
 # (título, nombre de ruta, descripción, módulo, requiere escritura)
 CATALOGO_ACCIONES = [

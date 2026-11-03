@@ -44,48 +44,49 @@ CARGOS = [
 ]
 
 # Los que ven por encima de las delegaciones: no se acotan a un territorio.
-ALCANCE_GLOBAL = {ADMIN}
+ALCANCE_GLOBAL = {ADMIN, COORDINADOR}
 
 # Matriz de permisos por módulo:
-# - admin: acceso total (delegaciones, roles, usuarios globales, catálogos, atenciones, vecinos).
-# - delegado: gestiona usuarios en su delegación, consulta vecinos y atenciones.
-# - funcionario: consulta vecinos con su historial y crea/gestiona atenciones.
-# - coordinador, verificador, consulta: sin permisos operativos por ahora (inútiles/deshabilitados).
+# - admin: acceso total (lee y escribe en todos los módulos).
+# - coordinador: visualización total; lee todos los módulos, no escribe ninguno.
+# - delegado: gestiona atenciones y vecinos; lee los catálogos de atención.
+# - funcionario: consulta vecinos y crea/gestiona atenciones.
+# - verificador, consulta: sin permisos operativos por ahora.
 MATRIZ = {
     "cases": {
-        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
         "write": {ADMIN, DELEGADO, FUNCIONARIO},
     },
     "neighbors": {
-        "read": {ADMIN, DELEGADO, FUNCIONARIO},
-        "write": {ADMIN, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
     },
     "delegations": {
-        "read": {ADMIN},
+        "read": {ADMIN, COORDINADOR},
         "write": {ADMIN},
     },
     "goals": {
-        "read": {ADMIN},
+        "read": {ADMIN, COORDINADOR},
         "write": {ADMIN},
     },
     "attention_types": {
-        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
         "write": {ADMIN},
     },
     "attention_subtypes": {
-        "read": {ADMIN, DELEGADO, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
         "write": {ADMIN},
     },
     "users": {
-        "read": {ADMIN, DELEGADO},
-        "write": {ADMIN, DELEGADO},
+        "read": {ADMIN, COORDINADOR},
+        "write": {ADMIN},
     },
     "roles": {
-        "read": {ADMIN},
+        "read": {ADMIN, COORDINADOR},
         "write": {ADMIN},
     },
     "positions": {
-        "read": {ADMIN},
+        "read": {ADMIN, COORDINADOR},
         "write": {ADMIN},
     },
 }
