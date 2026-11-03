@@ -69,11 +69,13 @@ def test_sin_cargo_no_cambia_nada():
     )
 
 
-def test_el_supervisor_lee_todo_y_no_escribe():
+def test_el_supervisor_lee_todo_y_solo_escribe_metas():
     usuario = UsuarioFalso("coordinador")
     assert modulos_de(usuario) == set(MATRIZ)
-    assert modulos_de(usuario, escritura=True) == set()
+    assert modulos_de(usuario, escritura=True) == {"goals"}
     assert puede(usuario, "users") is True
+    assert puede(usuario, "goals", escritura=True) is True
+    assert puede(usuario, "cases", escritura=True) is False
     assert puede(usuario, "roles", escritura=True) is False
 
 

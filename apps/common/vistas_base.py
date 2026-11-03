@@ -110,6 +110,7 @@ class Comun:
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
+        modulo = modulo_de(getattr(self, "model", None))
         contexto.update(
             titulo=self.titulo,
             subtitulo=self.subtitulo,
@@ -118,6 +119,9 @@ class Comun:
             url_listado=self.url_listado,
             url_nueva=reverse(self.url_nueva) if self.url_nueva else "",
             permite_exportar=self.permite_exportar,
+            # La plantilla oculta los botones de CRUD si el perfil no escribe.
+            puede_escribir=bool(modulo)
+            and puede(self.request.user, modulo, escritura=True),
         )
         return contexto
 

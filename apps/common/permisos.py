@@ -44,11 +44,11 @@ CARGOS = [
 ]
 
 # Los que ven por encima de las delegaciones: no se acotan a un territorio.
-ALCANCE_GLOBAL = {ADMIN, COORDINADOR}
+ALCANCE_GLOBAL = {ADMIN}
 
 # Matriz de permisos por módulo:
 # - admin: acceso total (lee y escribe en todos los módulos).
-# - coordinador: visualización total; lee todos los módulos, no escribe ninguno.
+# - coordinador: lee todos los módulos y escribe solo metas; acotado a su delegación.
 # - delegado: gestiona atenciones y vecinos; lee los catálogos de atención.
 # - funcionario: consulta vecinos y crea/gestiona atenciones.
 # - verificador, consulta: sin permisos operativos por ahora.
@@ -67,7 +67,7 @@ MATRIZ = {
     },
     "goals": {
         "read": {ADMIN, COORDINADOR},
-        "write": {ADMIN},
+        "write": {ADMIN, COORDINADOR},
     },
     "attention_types": {
         "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},

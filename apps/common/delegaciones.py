@@ -5,8 +5,9 @@ perfil trabaja en más de un territorio, un conjunto de autorizadas
 (`Usuario.delegaciones_autorizadas`). La **delegación activa** es la que el
 usuario eligió con el selector; si no eligió ninguna válida, es la principal.
 
-Los roles de alcance global (admin y coordinador) no se acotan a un territorio:
-su delegación activa es "todas" y ven el sistema completo.
+Los roles de alcance global (solo `admin`) no se acotan a un territorio: su
+delegación activa es "todas" y ven el sistema completo. El resto (coordinador,
+delegado, funcionario) trabaja solo con las delegaciones que tiene autorizadas.
 """
 
 from apps.common.permisos import alcance_global

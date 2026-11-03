@@ -171,7 +171,7 @@ pasa si concede el rol **o** el cargo.
 Roles (`Rol.codigo`):
 
 - **`admin` (Administrador)**: acceso total de lectura y escritura en todos los módulos.
-- **`coordinador` (Supervisor)**: **visualización total**; lee todos los módulos y no escribe ninguno. No se acota a una delegación (alcance global de lectura).
+- **`coordinador` (Supervisor)**: lee todos los módulos y escribe **solo metas**; acotado a su delegación.
 - **`delegado` (Administrativo)**: CRUD de atenciones y vecinos en su delegación; lee los catálogos de atención. Sin acceso a usuarios, roles ni delegaciones.
 - **`funcionario`**: consulta de vecinos con su historial y registro/creación de atenciones en terreno.
 - **`consulta` / `verificador`**: sin permisos operativos por ahora.
@@ -797,7 +797,9 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
 - La API la aplica con `PermisoPorRol`, que lee el atributo `modulo` de cada
   viewset.
 - La barra lateral muestra solo los módulos con lectura permitida, vía el context
-  processor `apps.common.contexto.permisos`.
+  processor `apps.common.contexto.permisos`; y cada listado oculta los botones de
+  CRUD (nuevo, editar, eliminar, desactivar) cuando el perfil no escribe ese
+  módulo (`puede_escribir`).
 - El superusuario cuenta como `admin`.
 - **Grupos espejo**: cada `Rol` se refleja como un `auth.Group` con los permisos
   de Django correspondientes (`apps/cuentas/grupos.py`, señales en

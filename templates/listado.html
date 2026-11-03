@@ -5,10 +5,12 @@
 
   <div class="cabecera">
     <h1 class="titulo">{{ titulo }}</h1>
+    {% if puede_escribir %}
     <button type="button" class="btn-muni btn-icono" data-modal="{{ url_nueva }}"
             title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
       {% include 'iconos/nuevo.html' %}
     </button>
+    {% endif %}
   </div>
   {% if subtitulo %}<p class="subtitulo">{{ subtitulo }}</p>{% endif %}
 

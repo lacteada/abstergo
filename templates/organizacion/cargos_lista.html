@@ -14,6 +14,7 @@
   <td class="acciones">
     <ul class="acciones-lista">
       <li><a class="accion accion-icono" href="{% url 'organizacion:cargos_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
+      {% if puede_escribir %}
       <li><a class="accion accion-icono" href="{% url 'organizacion:cargos_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
       {% if fila.eliminado %}
         <li><a class="accion accion-icono" href="{% url 'organizacion:cargos_reactivar' fila.pk %}" data-reactivar title="Reactivar" aria-label="Reactivar">{% include 'iconos/activar.html' %}</a></li>
@@ -21,6 +22,7 @@
         <li><a class="accion accion-icono" href="{% url 'organizacion:cargos_desactivar' fila.pk %}" data-desactivar title="Desactivar" aria-label="Desactivar">{% include 'iconos/desactivar.html' %}</a></li>
       {% endif %}
       <li><a class="accion accion-icono peligro" href="{% url 'organizacion:cargos_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
+      {% endif %}
     </ul>
   </td>
 {% endblock %}

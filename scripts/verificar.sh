@@ -142,7 +142,7 @@ assert cdel.get("/usuarios/").status_code == 403, "delegado ya no gestiona usuar
 assert cdel.get("/delegaciones/").status_code == 403, "delegado no ve delegaciones globales"
 assert cdel.get("/roles/").status_code == 403, "delegado no ve roles"
 
-# Rol Coordinador (supervisor): lectura total, sin escritura
+# Rol Coordinador (supervisor): lectura total y CRUD de metas
 rol_coord, _ = Rol.objects.get_or_create(codigo="coordinador", defaults={"nombre": "COORDINADOR"})
 u_coord, _ = U.objects.get_or_create(email="coordinador@test.cl",
     defaults={"first_name": "Co", "last_name": "Ordinador"})

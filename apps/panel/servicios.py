@@ -10,6 +10,7 @@ from apps.common.permisos import (
     COORDINADOR,
     DELEGADO,
     FUNCIONARIO,
+    alcance_global,
     codigo_de,
     modulos_de,
 )
@@ -55,9 +56,9 @@ def acciones_del_rol(usuario):
 
 
 def _atenciones_visibles(usuario, codigo):
-    """Un funcionario o delegado solo ve las atenciones de su delegación."""
+    """Un perfil acotado solo ve las atenciones de su delegación."""
     atenciones = Atencion.objects.all()
-    if codigo in (FUNCIONARIO, DELEGADO) and usuario.delegacion_id:
+    if codigo in (FUNCIONARIO, DELEGADO, COORDINADOR) and usuario.delegacion_id:
         atenciones = atenciones.filter(delegacion_id=usuario.delegacion_id)
     return atenciones
 
@@ -66,11 +67,16 @@ def estadisticas(usuario):
     """Los conteos del dashboard, ya acotados al alcance del rol."""
     codigo = codigo_de(usuario)
     atenciones = _atenciones_visibles(usuario, codigo)
+    vecinos = Vecino.objects.all()
+    delegaciones = Delegacion.objects.all()
+    if not alcance_global(usuario) and usuario.delegacion_id:
+        vecinos = vecinos.filter(territorio_id=usuario.delegacion_id)
+        delegaciones = delegaciones.filter(pk=usuario.delegacion_id)
     datos = {
         "total_atenciones": atenciones.count(),
         "atenciones_hoy": atenciones.filter(fecha__date=timezone.localdate()).count(),
-        "total_vecinos": Vecino.objects.count(),
-        "total_delegaciones": Delegacion.objects.count(),
+        "total_vecinos": vecinos.count(),
+        "total_delegaciones": delegaciones.count(),
     }
     if codigo == FUNCIONARIO:
         datos["mis_atenciones"] = Atencion.objects.filter(funcionario=usuario).count()
