@@ -19,7 +19,7 @@ from apps.organizacion.models import Delegacion
 # Título del panel por rol: le da identidad a cada dashboard.
 TITULOS_PANEL = {
     ADMIN: "Panel de administración",
-    COORDINADOR: "Panel de supervisión · solo lectura",
+    COORDINADOR: "Panel de supervisión",
     DELEGADO: "Panel de delegación",
     FUNCIONARIO: "Panel de atención",
 }
