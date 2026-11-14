@@ -6,7 +6,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.tubo.models import Carta, TareaTubo
+from apps.tubo.models import TareaTubo
 
 pytestmark = pytest.mark.django_db
 
@@ -75,11 +75,3 @@ def test_la_api_de_tareas_responde_al_admin(cliente, crear_usuario):
     consulta = crear_usuario("con@test.cl", codigo="consulta")
     cliente.force_login(consulta)
     assert cliente.get("/api/v1/tasks/").status_code == 403
-
-
-def test_la_carta_deriva_su_referencia(centro):
-    carta = Carta.objects.create(
-        delegacion=centro, asunto="Solicitud de poda", destinatario="Dirección de Aseo"
-    )
-    assert carta.referencia.startswith("CAR-")
-    assert carta.estado == "pendiente"

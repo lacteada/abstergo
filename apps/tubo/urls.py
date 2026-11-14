@@ -20,20 +20,4 @@ urlpatterns = [
         views.Historial.as_view(),
         name="tareas_historial",
     ),
-    # Cartas
-    path("tubo/cartas/", views.CartasListado.as_view(), name="cartas"),
-    path("tubo/cartas/nueva/", views.CartasAlta.as_view(), name="cartas_nueva"),
-    path("tubo/cartas/<int:pk>/", views.CartasConsulta.as_view(), name="cartas_consultar"),
-    path("tubo/cartas/<int:pk>/editar/", views.CartasEdicion.as_view(), name="cartas_editar"),
-    path("tubo/cartas/<int:pk>/eliminar/", views.CartasBorrado.as_view(), name="cartas_eliminar"),
-    path(
-        "tubo/cartas/<int:pk>/desactivar/",
-        views.CartasDesactivar.as_view(),
-        name="cartas_desactivar",
-    ),
-    path(
-        "tubo/cartas/<int:pk>/reactivar/",
-        views.CartasReactivar.as_view(),
-        name="cartas_reactivar",
-    ),
 ]

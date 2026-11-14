@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -40,6 +41,14 @@ class Atencion(ConReferencia, BorradoLogico):
         related_name="atenciones",
         verbose_name="vecino",
     )
+    caso = models.ForeignKey(
+        "casos.CasoSocial",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="atenciones",
+        verbose_name="caso social",
+    )
     tipo_atencion = models.ForeignKey(
         "catalogos.TipoAtencion",
         on_delete=models.PROTECT,
@@ -81,3 +90,11 @@ class Atencion(ConReferencia, BorradoLogico):
 
     def __str__(self):
         return f"Atención {self.pk} · {self.vecino} · {self.fecha:%d-%m-%Y}"
+
+    def clean(self):
+        from apps.casos.models import MAX_GESTIONES
+
+        if self.caso_id and self.pk is None and self.caso.atenciones.count() >= MAX_GESTIONES:
+            raise ValidationError(
+                {"caso": f"Un caso admite hasta {MAX_GESTIONES} atenciones."}
+            )

@@ -38,13 +38,6 @@ UNIDADES = [
     ("porcentaje", "Porcentaje"),
 ]
 
-FORMAS = [
-    ("dinero", "Dinero"),
-    ("material", "Material"),
-    ("documento", "Documento"),
-    ("aporte", "Aporte"),
-]
-
 CONDUCTAS = [
     ("reclamo", "Reclamo"),
     ("felicitacion", "Felicitación"),
@@ -353,23 +346,6 @@ class RegistroGestion(ConReferencia, BorradoLogico):
         related_name="registros_sgr",
         verbose_name="vecino",
     )
-    tipo_atencion = models.ForeignKey(
-        "catalogos.TipoAtencion",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="registros_sgr",
-        verbose_name="tipo de atención",
-    )
-    sub_atencion = models.ForeignKey(
-        "catalogos.SubAtencion",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="registros_sgr",
-        verbose_name="sub atención",
-    )
-    forma = models.CharField("forma", max_length=12, choices=FORMAS, blank=True)
     funcionario = models.ForeignKey(
         "cuentas.Usuario",
         on_delete=models.PROTECT,
@@ -405,12 +381,20 @@ class RegistroGestion(ConReferencia, BorradoLogico):
         related_name="registros_sgr",
         verbose_name="organización",
     )
+    compromiso = models.ForeignKey(
+        "tubo.TareaTubo",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="actividades",
+        verbose_name="compromiso",
+    )
     # Concurrencia optimista (RF-034/RNF-002): cambia en cada guardado.
     version = models.PositiveIntegerField("versión", default=1)
 
     class Meta:
-        verbose_name = "registro de gestión"
-        verbose_name_plural = "registros de gestión"
+        verbose_name = "actividad"
+        verbose_name_plural = "actividades"
         ordering = ["-fecha", "-pk"]
 
     def __str__(self):
@@ -566,9 +550,7 @@ class Evidencia(ConReferencia, BorradoLogico):
         related_name="evidencias",
         verbose_name="registro",
     )
-    archivo = models.FileField(
-        "archivo", upload_to="evidencias/", null=True, blank=True
-    )
+    archivo = models.FileField("archivo", upload_to="evidencias/", null=True)
     vinculo = models.URLField("vínculo", max_length=300, blank=True)
     autor = models.ForeignKey(
         "cuentas.Usuario",
@@ -593,9 +575,9 @@ class Evidencia(ConReferencia, BorradoLogico):
         return f"{self.referencia} · {self.registro}"
 
     def clean(self):
-        if not self.archivo and not self.vinculo:
+        if not self.archivo:
             raise ValidationError(
-                {"archivo": "Adjunta un archivo o un vínculo como evidencia."}
+                {"archivo": "La evidencia debe incluir un archivo."}
             )
 
 
@@ -659,6 +641,10 @@ class Validacion(ConReferencia, BorradoLogico):
         else:
             registro.estado = "rechazada"
         registro.save(update_fields=["estado"])
+        # Al aprobar la evidencia, el compromiso de origen queda realizado (RF-020).
+        if self.decision == "aprobada" and registro.compromiso_id:
+            registro.compromiso.estado = "realizada"
+            registro.compromiso.save(update_fields=["estado"])
 
 
 class Comentario(ConReferencia, BorradoLogico):

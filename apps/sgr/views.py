@@ -328,11 +328,11 @@ class RegistrosConsulta(_Registros, ConsultaBase):
         ("Área", "area.nombre"),
         ("Indicador", "indicador.nombre"),
         ("Vecino", "vecino.nombre"),
-        ("Tipo de atención", "tipo_atencion.nombre"),
-        ("Sub atención", "sub_atencion.nombre"),
-        ("Forma", "get_forma_display"),
         ("Funcionario", "funcionario.get_full_name"),
         ("Cantidad", "cantidad"),
+        ("Actividad", "get_actividad_display"),
+        ("Compromiso", "compromiso.referencia"),
+        ("Acción", "accion"),
         ("Detalle", "detalle"),
     )
 

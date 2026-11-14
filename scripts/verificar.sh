@@ -16,6 +16,7 @@ DATABASES = {"default": {
     "ENGINE": "django.db.backends.sqlite3",
     "NAME": os.path.join(os.path.dirname(__file__), "verif.sqlite3"),
 }}
+MEDIA_ROOT = os.path.join(os.path.dirname(__file__), "media")
 PY
 
 export DJANGO_SETTINGS_MODULE=settings_verif
@@ -83,8 +84,8 @@ for ruta in ["/", "/delegaciones/", "/cargos/", "/territorios/", "/usuarios/", "
              "/organizaciones/", "/sgr/", "/sgr/global/", "/sgr/periodos/", "/sgr/registros/",
              "/sgr/evidencias/", "/sgr/validaciones/", "/sgr/ausencias/",
              "/sgr/comentarios/", "/sgr/alertas/",
-             "/tubo/", "/tubo/tareas/", "/tubo/cartas/",
-             "/casos/", "/gestiones/", "/llamadas/", "/admin/"]:
+             "/tubo/", "/tubo/tareas/",
+             "/casos/", "/admin/"]:
     assert c.get(ruta).status_code == 200, ruta
 
 # API v1: esquema, login por token, y las rutas del contrato en inglés.
@@ -97,8 +98,8 @@ for ruta_api in ["/api/v1/auth/recover/", "/api/v1/auth/verify/",
                  "/api/v1/community-organizations/", "/api/v1/sgr-periods/",
                  "/api/v1/sgr-records/", "/api/v1/tasks/",
                  "/api/v1/evidence/", "/api/v1/validations/",
-                 "/api/v1/social-cases/", "/api/v1/letters/",
-                 "/api/v1/comments/", "/api/v1/alerts/", "/api/v1/preventive-calls/"]:
+                 "/api/v1/social-cases/",
+                 "/api/v1/comments/", "/api/v1/alerts/"]:
     assert ruta_api in esquema, ruta_api
 
 a = Client()

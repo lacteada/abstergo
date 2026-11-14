@@ -30,9 +30,12 @@
       <div class="grupo">
         <span class="grupo-titulo">Trabajo</span>
 
+        {% if 'cases' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'atenciones:listado' %}">Atenciones</a>
+        {% endif %}
         {% if 'tasks' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'tubo' %} activo{% endif %}"
-           href="{% url 'tubo:tablero' %}">Tubo de trabajo</a>
+           href="{% url 'tubo:tablero' %}">Compromisos</a>
         {% endif %}
         {% if 'sgr_records' in modulos_lectura %}
         <a class="nav-sub" href="{% url 'sgr:registros' %}">Actividades</a>
@@ -49,10 +52,6 @@
         {% endif %}
         {% if 'social_cases' in modulos_lectura %}
         <a class="nav-sub" href="{% url 'casos:casos' %}">Casos sociales</a>
-        <a class="nav-sub" href="{% url 'casos:llamadas' %}">Llamadas</a>
-        {% endif %}
-        {% if 'letters' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'tubo:cartas' %}">Cartas</a>
         {% endif %}
         {% if 'community' in modulos_lectura %}
         <a class="nav-sub" href="{% url 'comunidad:organizaciones' %}">Organizaciones</a>

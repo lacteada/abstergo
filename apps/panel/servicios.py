@@ -41,7 +41,8 @@ ACCIONES_TRABAJO = [
         True,
     ),
     ("Mis actividades", "sgr:registros", "Lo que has registrado.", "sgr_records", False),
-    ("Tubo de trabajo", "tubo:tablero", "Las tareas de la delegación.", "tasks", False),
+    ("Registrar atención", "atenciones:crear", "Anotar una atención al vecino.", "cases", True),
+    ("Compromisos", "tubo:tablero", "Las promesas a los vecinos.", "tasks", False),
     (
         "Mis evidencias",
         "sgr:evidencias",
@@ -58,8 +59,6 @@ ACCIONES_TRABAJO = [
     ),
     ("Tablero SGR", "sgr:tablero", "Cómo va el cumplimiento.", "sgr", False),
     ("Casos sociales", "casos:casos", "Acompañamiento a vecinos.", "social_cases", False),
-    ("Llamadas preventivas", "casos:llamadas", "La cola de llamadas.", "social_cases", False),
-    ("Cartas", "tubo:cartas", "El tubo de cartas.", "letters", False),
     (
         "Organizaciones comunitarias",
         "comunidad:organizaciones",

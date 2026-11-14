@@ -786,7 +786,7 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
   `community-organizations`, `territories`, `sgr-periods`, `sgr-areas`,
   `sgr-indicators`, `sgr-targets`, `sgr-records`, `sgr-conducts`,
   `sgr-absences`, `tasks`, `evidence`, `validations`, `social-cases`,
-  `case-managements`, `preventive-calls`, `comments`, `alerts` y `letters`.
+  `comments` y `alerts`.
 
 ### 18.2 Permisos por rol y cargo
 
@@ -858,11 +858,10 @@ glosario, el mismo que usa el cliente Android:
 - `MetaIndicador` → `sgr_target`: `periodo` → `period`, `area` se mantiene,
   `indicador` → `indicator`, `ponderador` → `weight`, `meta` → `target`,
   `funcionario` → `staff`, `vigente_desde` → `effective_from`.
-- `RegistroGestion` → `sgr_record`: `fecha` → `date`, `area` se mantiene,
-  `indicador` → `indicator`, `vecino` → `neighbor`, `tipo_atencion` →
-  `attention_type`, `sub_atencion` → `attention_subtype`, `forma` → `form`,
-  `funcionario` → `staff`, `cantidad` → `quantity`, `detalle` → `detail`,
-  `etapa` → `stage`, `tipo_solicitante` → `requester_type`,
+- `RegistroGestion` (la actividad) → `sgr_record`: `fecha` → `date`,
+  `area` se mantiene, `indicador` → `indicator`, `vecino` → `neighbor`,
+  `compromiso` → `commitment`, `funcionario` → `staff`, `cantidad` → `quantity`,
+  `detalle` → `detail`, `etapa` → `stage`, `tipo_solicitante` → `requester_type`,
   `contacto_nombre` → `contact_name`, `contacto_telefono` → `contact_phone`,
   `puntua` → `scores`, `motivo_no_puntua` → `no_score_reason`,
   `estado` → `status`, `accion` → `action`, `actividad` → `activity`,
@@ -877,25 +876,16 @@ glosario, el mismo que usa el cliente Android:
   `estado_revision` → `review_status`.
 - `Validacion` → `validation`: `evidencia` → `evidence`,
   `verificador` → `reviewer`, `decision` se mantiene, `observacion` → `observation`.
-- `TareaTubo` → `task`: `titulo` → `title`, `descripcion` → `description`,
-  `estado` → `status`, `delegacion` → `delegation`, `territorio` → `territory`,
-  `tipo` → `kind`, `solicitante` → `requester`, `responsable` → `assignee`,
-  `apoyo` → `support`, `vecino` → `neighbor`, `avance` → `progress`,
-  `vencida` → `overdue`, `fecha_ingreso` → `created_at`,
-  `fecha_compromiso` → `due_date`.
-- `Carta` → `letter`: `delegacion` → `delegation`, `asunto` → `subject`,
-  `destinatario` → `addressee`, `fecha` → `date`, `estado` → `status`,
-  `responsable` → `assignee`, `respuesta` → `reply`.
+- `TareaTubo` (el compromiso) → `task`: `titulo` → `title`,
+  `descripcion` → `description`, `estado` → `status`, `delegacion` → `delegation`,
+  `territorio` → `territory`, `tipo` → `kind`, `solicitante` → `requester`,
+  `responsable` → `assignee`, `apoyo` → `support`, `vecino` → `neighbor`,
+  `atencion` → `attention`, `avance` → `progress`, `vencida` → `overdue`,
+  `fecha_ingreso` → `created_at`, `fecha_compromiso` → `due_date`.
 - `CasoSocial` → `social_case`: `vecino` → `neighbor`, `responsable` → `manager`,
   `fecha_apertura` → `opened_at`, `motivo` → `reason`, `estado` → `status`,
   `reingreso` → `is_reentry`, `caso_anterior` → `previous_case`,
   `observaciones` → `notes`.
-- `GestionCaso` → `case_management`: `caso` → `case`, `fecha` → `date`,
-  `tipo` → `kind`, `hito` → `milestone`, `plazo` → `deadline`,
-  `detalle` → `detail`.
-- `Llamada` → `preventive_call`: `vecino` → `neighbor`, `motivo` → `reason`,
-  `fecha_programada` → `scheduled_at`, `estado` → `status`,
-  `responsable` → `manager`, `resultado` → `result`.
 - `Comentario` → `comment`: `registro` → `record`, `autor` → `author`,
   `texto` → `text`, `fecha` → `date`.
 - `Alerta` → `alert`: `tipo` → `kind`, `severidad` → `severity`,
@@ -910,7 +900,7 @@ glosario, el mismo que usa el cliente Android:
   `attention-subtypes`, `neighbors`, `cases`, `community-organizations`,
   `territories`, `sgr-periods`, `sgr-areas`, `sgr-indicators`, `sgr-targets`,
   `sgr-records`, `sgr-conducts`, `sgr-absences`, `tasks`, `evidence`, `validations`,
-  `social-cases`, `case-managements`, `preventive-calls`, `comments`, `alerts`, `letters`.
+  `social-cases`, `comments`, `alerts`.
 - Las exportaciones `.xlsx` respetan el filtro y agregan una fila de título con
   la **fecha de generación** (RF-033).
 - Las claves de módulo de la matriz (§18.2) viajan en `read_modules` y
@@ -1058,15 +1048,12 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   tarjeta (RF-053); `Mover` (POST) cambia el estado al arrastrar
   (`static/js/tubo.js`). El **historial** se ve en `/tubo/tareas/<pk>/historial/`.
   Visible para el rol `delegado` (y admin, coordinador y funcionario).
-- `Carta` (tubo de cartas, RF-054): asunto, destinatario, fecha, estado
-  (pendiente/enviada/entregada), responsable y respuesta; mantenedor en
-  `/tubo/cartas/`.
 
 ### 20.4 Permisos de los módulos nuevos
 
 - Claves nuevas de la matriz (§18.2): `community`, `territories`, `sgr`
-  (configuración), `sgr_records` (registros), `sgr_adjustments` (conductas y
-  días), `tasks`, `letters`, `comments`, `alerts`, `evidence`, `validation` y
+  (configuración), `sgr_records` (actividades), `sgr_adjustments` (conductas y
+  días), `tasks`, `comments`, `alerts`, `evidence`, `validation` y
   `social_cases`.
 
 ### 20.5 Descriptor de cargos y catálogo de atención
@@ -1078,12 +1065,17 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
 
 ### 20.6 Casos sociales (`apps/casos`)
 
-- `CasoSocial` (RF-015/051/052): vecino, responsable, apertura, motivo, estado
-  (abierto/seguimiento/cerrado) y reingreso con `caso_anterior`.
-- `GestionCaso`: hasta **tres gestiones** por caso (`MAX_GESTIONES`), con tipo,
-  hito y plazo.
-- `Llamada` (llamadas preventivas, RF-050): vecino, motivo, fecha programada,
-  estado (pendiente/realizada/no-contesta/reagendada) y resultado; cola en
-  `/llamadas/`.
-- Mantenedores web en `/casos/`, `/gestiones/` y `/llamadas/`; API
-  `social-cases`, `case-managements` y `preventive-calls` (módulo `social_cases`).
+- `CasoSocial` (RF-015/051/052): agrupa hasta **tres atenciones** del mismo vecino
+  (`MAX_GESTIONES`, validado en `Atencion.clean`); vecino, responsable, apertura,
+  motivo, estado (abierto/seguimiento/cerrado) y reingreso con `caso_anterior`.
+- `Atencion.caso` enlaza cada atención con su caso.
+- Mantenedor web en `/casos/` y API `social-cases` (módulo `social_cases`).
+
+### 20.7 Flujo principal
+
+- **Atención → Compromiso → Actividad con evidencia → Validación → Meta**: la
+  atención registra lo que pide el vecino; el compromiso es la promesa (con
+  responsable y fecha); la actividad es lo ejecutado, enlazada al compromiso y a
+  su ítem, justificada con un archivo de evidencia.
+- Al aprobar la evidencia, el verificador hace que la actividad sume una sola vez
+  al puntaje y el compromiso quede **realizado**.

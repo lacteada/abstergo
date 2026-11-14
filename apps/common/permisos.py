@@ -124,11 +124,6 @@ MATRIZ = {
         "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
         "write": {ADMIN, DELEGADO, FUNCIONARIO},
     },
-    # Cartas del tubo de la delegación.
-    "letters": {
-        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
-        "write": {ADMIN, DELEGADO, FUNCIONARIO},
-    },
     # Comentarios sobre registros.
     "comments": {
         "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
@@ -213,10 +208,6 @@ MATRIZ_CARGO = {
         "read": set(CARGOS),
         "write": {CARGO_GESTOR_SOCIAL, CARGO_DELEGADO},
     },
-    "letters": {
-        "read": set(CARGOS),
-        "write": set(CARGOS),
-    },
     "comments": {
         "read": set(CARGOS),
         "write": set(CARGOS),
@@ -235,11 +226,8 @@ MODELO_A_MODULO = {
     "Delegacion": "delegations",
     "Territorio": "territories",
     "CasoSocial": "social_cases",
-    "GestionCaso": "social_cases",
-    "Carta": "letters",
     "Comentario": "comments",
     "Alerta": "alerts",
-    "Llamada": "social_cases",
     "Cargo": "positions",
     "Meta": "goals",
     "TipoAtencion": "attention_types",

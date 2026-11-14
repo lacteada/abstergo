@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.atenciones.models import Atencion
-from apps.casos.models import CasoSocial, GestionCaso, Llamada
+from apps.casos.models import CasoSocial
 from apps.catalogos.models import Meta as MetaModel
 from apps.catalogos.models import SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
@@ -30,7 +30,7 @@ from apps.sgr.models import (
     RegistroGestion,
     Validacion,
 )
-from apps.tubo.models import Carta, TareaTubo
+from apps.tubo.models import TareaTubo
 
 from .permissions import PermisoPorRol
 from .serializers import (
@@ -40,15 +40,12 @@ from .serializers import (
     AtencionSerializer,
     AusenciaSerializer,
     CargoSerializer,
-    CartaSerializer,
     CasoSocialSerializer,
     ComentarioSerializer,
     DelegacionSerializer,
     DetalleSerializer,
     EvidenciaSerializer,
-    GestionCasoSerializer,
     IndicadorSerializer,
-    LlamadaSerializer,
     LogoutSerializer,
     MetaIndicadorSerializer,
     MetaSerializer,
@@ -201,27 +198,9 @@ class TareaTuboViewSet(BaseViewSet):
     modulo = "tasks"
 
 
-class CartaViewSet(BaseViewSet):
-    queryset = Carta.objects.select_related("delegacion", "responsable")
-    serializer_class = CartaSerializer
-    modulo = "letters"
-
-
 class CasoSocialViewSet(BaseViewSet):
     queryset = CasoSocial.objects.select_related("vecino", "responsable")
     serializer_class = CasoSocialSerializer
-    modulo = "social_cases"
-
-
-class GestionCasoViewSet(BaseViewSet):
-    queryset = GestionCaso.objects.select_related("caso")
-    serializer_class = GestionCasoSerializer
-    modulo = "social_cases"
-
-
-class LlamadaViewSet(BaseViewSet):
-    queryset = Llamada.objects.select_related("vecino", "responsable")
-    serializer_class = LlamadaSerializer
     modulo = "social_cases"
 
 

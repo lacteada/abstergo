@@ -21,8 +21,8 @@ from apps.common.vistas_base import (
     ReactivarBase,
 )
 from apps.cuentas.models import Usuario
-from apps.tubo.forms import CartaForm, TareaTuboForm
-from apps.tubo.models import ESTADOS, Carta, TareaTubo
+from apps.tubo.forms import TareaTuboForm
+from apps.tubo.models import ESTADOS, TareaTubo
 
 
 class _Tubo:
@@ -34,8 +34,8 @@ class _Tubo:
 
 class Listado(_Tubo, ListadoBase):
     template_name = "tubo/tareas_lista.html"
-    titulo = "Tareas del tubo"
-    etiqueta_nueva = "Nueva tarea"
+    titulo = "Compromisos"
+    etiqueta_nueva = "Nuevo compromiso"
     busqueda = ("referencia", "titulo", "descripcion", "responsable__first_name")
     relacionadas = ("delegacion", "responsable", "vecino")
     campo_delegacion = "delegacion"
@@ -53,15 +53,15 @@ class Listado(_Tubo, ListadoBase):
 
 
 class Alta(_Tubo, AltaBase):
-    titulo = "Nueva tarea"
+    titulo = "Nuevo compromiso"
 
 
 class Edicion(_Tubo, EdicionBase):
-    titulo = "Editar tarea"
+    titulo = "Editar compromiso"
 
 
 class Borrado(_Tubo, BorradoBase):
-    titulo = "Eliminar tarea"
+    titulo = "Eliminar compromiso"
 
 
 class Desactivar(_Tubo, DesactivarBase):
@@ -73,7 +73,7 @@ class Reactivar(_Tubo, ReactivarBase):
 
 
 class Consulta(_Tubo, ConsultaBase):
-    titulo = "Consultar tarea"
+    titulo = "Consultar compromiso"
     consulta_campos = (
         ("Código", "referencia"),
         ("Título", "titulo"),
@@ -85,6 +85,7 @@ class Consulta(_Tubo, ConsultaBase):
         ("Solicitante", "solicitante"),
         ("Responsable", "responsable.get_full_name"),
         ("Apoyo", "apoyo.get_full_name"),
+        ("Atención", "atencion.referencia"),
         ("Avance", "avance"),
         ("Vecino", "vecino.nombre"),
         ("Fecha de ingreso", "fecha_ingreso"),
@@ -97,7 +98,7 @@ class Tablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
 
     template_name = "tubo/tablero.html"
     model = TareaTubo
-    titulo = "Tubo de trabajo"
+    titulo = "Compromisos"
     seccion = "tubo"
     url_listado = "tubo:tablero"
 
@@ -180,62 +181,3 @@ class Reasignar(LoginRequiredMixin, PermisoRequeridoMixin, View):
         tarea.responsable_id = request.POST.get("responsable") or None
         tarea.save(update_fields=["responsable"])
         return JsonResponse({"pk": tarea.pk, "responsable": tarea.responsable_id})
-
-
-# -------------------------------------------------------------------- Cartas
-class _Cartas:
-    model = Carta
-    form_class = CartaForm
-    seccion = "tubo"
-    url_listado = "tubo:cartas"
-
-
-class CartasListado(_Cartas, ListadoBase):
-    template_name = "tubo/cartas_lista.html"
-    titulo = "Tubo de cartas"
-    etiqueta_nueva = "Nueva carta"
-    busqueda = ("referencia", "asunto", "destinatario")
-    relacionadas = ("delegacion", "responsable")
-    campo_delegacion = "delegacion"
-    exportar_nombre = "tubo_cartas"
-    exportar_columnas = (
-        ("Código", "referencia"),
-        ("Asunto", "asunto"),
-        ("Destinatario", "destinatario"),
-        ("Estado", "get_estado_display"),
-        ("Fecha", "fecha"),
-    )
-    url_nueva = "tubo:cartas_nueva"
-
-
-class CartasAlta(_Cartas, AltaBase):
-    titulo = "Nueva carta"
-
-
-class CartasEdicion(_Cartas, EdicionBase):
-    titulo = "Editar carta"
-
-
-class CartasBorrado(_Cartas, BorradoBase):
-    titulo = "Eliminar carta"
-
-
-class CartasDesactivar(_Cartas, DesactivarBase):
-    pass
-
-
-class CartasReactivar(_Cartas, ReactivarBase):
-    pass
-
-
-class CartasConsulta(_Cartas, ConsultaBase):
-    titulo = "Consultar carta"
-    consulta_campos = (
-        ("Código", "referencia"),
-        ("Asunto", "asunto"),
-        ("Destinatario", "destinatario"),
-        ("Estado", "get_estado_display"),
-        ("Fecha", "fecha"),
-        ("Responsable", "responsable.get_full_name"),
-        ("Respuesta", "respuesta"),
-    )

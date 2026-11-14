@@ -11,7 +11,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from apps.atenciones.models import Atencion
-from apps.casos.models import CasoSocial, GestionCaso, Llamada
+from apps.casos.models import CasoSocial
 from apps.catalogos.models import FORMAS, SubAtencion, TipoAtencion
 from apps.catalogos.models import Meta as MetaModel
 from apps.ciudadanos.models import Vecino
@@ -43,8 +43,7 @@ from apps.sgr.models import (
     RegistroGestion,
     Validacion,
 )
-from apps.tubo.models import ESTADOS as ESTADOS_TUBO
-from apps.tubo.models import Carta, TareaTubo
+from apps.tubo.models import TareaTubo
 
 Usuario = get_user_model()
 
@@ -585,20 +584,8 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
     neighbor = serializers.PrimaryKeyRelatedField(
         source="vecino", queryset=Vecino.objects.all(), allow_null=True, required=False
     )
-    attention_type = serializers.PrimaryKeyRelatedField(
-        source="tipo_atencion",
-        queryset=TipoAtencion.objects.all(),
-        allow_null=True,
-        required=False,
-    )
-    attention_subtype = serializers.PrimaryKeyRelatedField(
-        source="sub_atencion",
-        queryset=SubAtencion.objects.all(),
-        allow_null=True,
-        required=False,
-    )
-    form = serializers.ChoiceField(
-        source="forma", choices=FORMAS, allow_blank=True, required=False
+    commitment = serializers.PrimaryKeyRelatedField(
+        source="compromiso", queryset=TareaTubo.objects.all(), allow_null=True, required=False
     )
     staff = serializers.PrimaryKeyRelatedField(
         source="funcionario", queryset=Usuario.objects.all()
@@ -649,9 +636,6 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
             "area",
             "indicator",
             "neighbor",
-            "attention_type",
-            "attention_subtype",
-            "form",
             "staff",
             "quantity",
             "detail",
@@ -665,6 +649,7 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
             "action",
             "activity",
             "organization",
+            "commitment",
             "version",
         ]
 
@@ -742,7 +727,7 @@ class EvidenciaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     record = serializers.PrimaryKeyRelatedField(
         source="registro", queryset=RegistroGestion.objects.all()
     )
-    file = serializers.FileField(source="archivo", allow_null=True, required=False)
+    file = serializers.FileField(source="archivo", required=False)
     link = serializers.CharField(source="vinculo", allow_blank=True, required=False)
     author = serializers.PrimaryKeyRelatedField(
         source="autor", queryset=Usuario.objects.all()
@@ -797,7 +782,9 @@ class TareaTuboSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     description = serializers.CharField(
         source="descripcion", allow_blank=True, required=False
     )
-    status = serializers.ChoiceField(source="estado", choices=ESTADOS_TUBO)
+    status = serializers.ChoiceField(
+        source="estado", choices=TareaTubo._meta.get_field("estado").choices
+    )
     delegation = serializers.PrimaryKeyRelatedField(
         source="delegacion", queryset=Delegacion.objects.all()
     )
@@ -887,55 +874,6 @@ class CasoSocialSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class GestionCasoSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
-    case = serializers.PrimaryKeyRelatedField(
-        source="caso", queryset=CasoSocial.objects.all()
-    )
-    date = serializers.DateField(source="fecha")
-    kind = serializers.ChoiceField(
-        source="tipo", choices=GestionCaso._meta.get_field("tipo").choices
-    )
-    milestone = serializers.BooleanField(source="hito", required=False)
-    deadline = serializers.DateField(source="plazo", allow_null=True, required=False)
-    detail = serializers.CharField(source="detalle", allow_blank=True, required=False)
-
-    class Meta:
-        model = GestionCaso
-        fields = ["id", "reference_code", "case", "date", "kind", "milestone", "deadline", "detail"]
-
-
-class CartaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
-    delegation = serializers.PrimaryKeyRelatedField(
-        source="delegacion", queryset=Delegacion.objects.all()
-    )
-    subject = serializers.CharField(source="asunto", max_length=160, validators=[validar_texto])
-    addressee = serializers.CharField(
-        source="destinatario", max_length=160, validators=[validar_texto]
-    )
-    date = serializers.DateField(source="fecha")
-    status = serializers.ChoiceField(
-        source="estado", choices=Carta._meta.get_field("estado").choices
-    )
-    assignee = serializers.PrimaryKeyRelatedField(
-        source="responsable", queryset=Usuario.objects.all(), allow_null=True, required=False
-    )
-    reply = serializers.CharField(source="respuesta", allow_blank=True, required=False)
-
-    class Meta:
-        model = Carta
-        fields = [
-            "id",
-            "reference_code",
-            "delegation",
-            "subject",
-            "addressee",
-            "date",
-            "status",
-            "assignee",
-            "reply",
-        ]
-
-
 class ComentarioSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     record = serializers.PrimaryKeyRelatedField(
         source="registro", queryset=RegistroGestion.objects.all()
@@ -966,32 +904,6 @@ class AlertaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
     class Meta:
         model = Alerta
         fields = ["id", "reference_code", "kind", "severity", "message", "area", "solved", "date"]
-
-
-class LlamadaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
-    neighbor = serializers.PrimaryKeyRelatedField(
-        source="vecino", queryset=Vecino.objects.all()
-    )
-    reason = serializers.CharField(source="motivo", max_length=200, validators=[validar_texto])
-    scheduled_at = serializers.DateField(source="fecha_programada")
-    status = serializers.ChoiceField(source="estado", choices=Llamada.ESTADOS)
-    manager = serializers.PrimaryKeyRelatedField(
-        source="responsable", queryset=Usuario.objects.all(), allow_null=True, required=False
-    )
-    result = serializers.CharField(source="resultado", allow_blank=True, required=False)
-
-    class Meta:
-        model = Llamada
-        fields = [
-            "id",
-            "reference_code",
-            "neighbor",
-            "reason",
-            "scheduled_at",
-            "status",
-            "manager",
-            "result",
-        ]
 
 
 class DetalleSerializer(serializers.Serializer):

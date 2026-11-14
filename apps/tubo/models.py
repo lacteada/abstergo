@@ -23,12 +23,6 @@ ESTADOS = [
 
 TIPOS = [("externo", "Externo"), ("interno", "Interno")]
 
-ESTADOS_CARTA = [
-    ("pendiente", "Pendiente"),
-    ("enviada", "Enviada"),
-    ("entregada", "Entregada"),
-]
-
 # Transiciones permitidas entre estados (RF-018).
 TRANSICIONES = {
     "ingresada": {"pendiente", "en_proceso"},
@@ -88,14 +82,22 @@ class TareaTubo(ConReferencia, BorradoLogico):
         related_name="tareas_tubo",
         verbose_name="vecino",
     )
+    atencion = models.ForeignKey(
+        "atenciones.Atencion",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="compromisos",
+        verbose_name="atención de origen",
+    )
     avance = models.PositiveIntegerField("avance (%)", default=0)
     fecha_ingreso = models.DateTimeField("fecha de ingreso", default=timezone.now)
     fecha_compromiso = models.DateField("fecha de compromiso", null=True, blank=True)
     orden = models.PositiveIntegerField("orden", default=0)
 
     class Meta:
-        verbose_name = "tarea del tubo"
-        verbose_name_plural = "tareas del tubo"
+        verbose_name = "compromiso"
+        verbose_name_plural = "compromisos"
         ordering = ["orden", "-fecha_ingreso"]
 
     def __str__(self):
@@ -176,39 +178,3 @@ class HistorialEstado(ConReferencia, BorradoLogico):
 
     def __str__(self):
         return f"{self.tarea} · {self.anterior} → {self.estado}"
-
-
-class Carta(ConReferencia, BorradoLogico):
-    """Una carta del tubo de cartas de la delegación (RF-054)."""
-
-    PREFIJO = "CAR"
-
-    delegacion = models.ForeignKey(
-        "organizacion.Delegacion",
-        on_delete=models.PROTECT,
-        related_name="cartas_tubo",
-        verbose_name="delegación",
-    )
-    asunto = models.CharField("asunto", max_length=160, validators=[validar_texto])
-    destinatario = models.CharField("destinatario", max_length=160, validators=[validar_texto])
-    fecha = models.DateField("fecha", default=timezone.localdate)
-    estado = models.CharField(
-        "estado", max_length=12, choices=ESTADOS_CARTA, default="pendiente"
-    )
-    responsable = models.ForeignKey(
-        "cuentas.Usuario",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        related_name="cartas_tubo",
-        verbose_name="responsable",
-    )
-    respuesta = models.TextField("respuesta", blank=True)
-
-    class Meta:
-        verbose_name = "carta"
-        verbose_name_plural = "cartas"
-        ordering = ["-fecha"]
-
-    def __str__(self):
-        return f"{self.referencia} · {self.asunto}"

@@ -79,9 +79,6 @@ class RegistroGestionForm(FormularioCRUD):
             "area",
             "indicador",
             "vecino",
-            "tipo_atencion",
-            "sub_atencion",
-            "forma",
             "funcionario",
             "cantidad",
             "detalle",
@@ -92,6 +89,7 @@ class RegistroGestionForm(FormularioCRUD):
             "accion",
             "actividad",
             "organizacion",
+            "compromiso",
             "estado",
         )
 
