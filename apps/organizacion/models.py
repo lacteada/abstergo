@@ -91,6 +91,7 @@ class Cargo(ConReferencia, ConCodigoDerivado, BorradoLogico):
     descripcion = models.CharField(
         "descripción", max_length=200, blank=True, validators=[validar_catalogo]
     )
+    funciones = models.TextField("funciones", blank=True)
 
     class Meta:
         verbose_name = "cargo"
@@ -105,3 +106,28 @@ class Cargo(ConReferencia, ConCodigoDerivado, BorradoLogico):
 
     def motivo_en_uso(self):
         return "El cargo tiene usuarios activos asignados."
+
+
+class Territorio(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
+    """Un sector dentro de una delegación (barrio, población, localidad)."""
+
+    PREFIJO = "TER"
+
+    codigo = models.CharField(
+        "código", max_length=40, unique=True, validators=[validar_codigo]
+    )
+    nombre = models.CharField("nombre", max_length=120, validators=[validar_nombre])
+    delegacion = models.ForeignKey(
+        Delegacion,
+        on_delete=models.PROTECT,
+        related_name="territorios",
+        verbose_name="delegación",
+    )
+
+    class Meta:
+        verbose_name = "territorio"
+        verbose_name_plural = "territorios"
+        ordering = ["delegacion", "nombre"]
+
+    def __str__(self):
+        return f"{self.nombre} ({self.delegacion})"

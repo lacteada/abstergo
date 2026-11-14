@@ -345,6 +345,10 @@ body {
 .accion-cuadro strong { color: var(--muni-base); }
 .accion-cuadro span { font-size: 12px; color: #8a9099; }
 
+/* Los mantenedores quedan secundarios frente a las acciones de trabajo. */
+.acciones-cuadricula.mantenedores .accion-cuadro { padding: 10px 14px; background: #fafbfc; }
+.acciones-cuadricula.mantenedores .accion-cuadro span { font-size: 11px; }
+
 /* ---------- Acciones de fila como lista ---------- */
 .acciones-lista {
   list-style: none; display: flex; gap: 8px; margin: 0; padding: 0;

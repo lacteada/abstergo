@@ -89,6 +89,66 @@ MATRIZ = {
         "read": {ADMIN, COORDINADOR},
         "write": {ADMIN},
     },
+    # Organizaciones comunitarias: juntas de vecinos y agrupaciones (OROC).
+    "community": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO},
+    },
+    # Matriz SGR: configuración (periodos, áreas, indicadores, metas).
+    "sgr": {
+        "read": {ADMIN, COORDINADOR},
+        "write": {ADMIN, COORDINADOR},
+    },
+    # Matriz SGR: registro diario de gestiones.
+    "sgr_records": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
+    },
+    # Matriz SGR: reclamos, felicitaciones y ajuste de días del semáforo.
+    "sgr_adjustments": {
+        "read": {ADMIN, COORDINADOR, DELEGADO},
+        "write": {ADMIN, DELEGADO},
+    },
+    # Tubo de trabajo: tareas de la delegación (kanban).
+    "tasks": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
+    },
+    # Territorios (sectores) por delegación.
+    "territories": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN},
+    },
+    # Casos sociales (acompañamiento al vecino).
+    "social_cases": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
+    },
+    # Cartas del tubo de la delegación.
+    "letters": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
+    },
+    # Comentarios sobre registros.
+    "comments": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+    },
+    # Alertas del sistema.
+    "alerts": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "write": {ADMIN, COORDINADOR},
+    },
+    # Evidencias: las sube quien registra.
+    "evidence": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, VERIFICADOR},
+        "write": {ADMIN, DELEGADO, FUNCIONARIO},
+    },
+    # Validación de evidencias: la ejerce el verificador (quien registra no valida).
+    "validation": {
+        "read": {ADMIN, COORDINADOR, DELEGADO, VERIFICADOR},
+        "write": {ADMIN, VERIFICADOR},
+    },
 }
 
 # Matriz de permisos por cargo, con la misma forma que `MATRIZ`: por módulo,
@@ -121,6 +181,50 @@ MATRIZ_CARGO = {
         "read": {CARGO_DELEGADO, CARGO_GESTOR_SOCIAL},
         "write": set(),
     },
+    "community": {
+        "read": set(CARGOS),
+        "write": {CARGO_DELEGADO, CARGO_ORGANIZACIONES_COMUNITARIAS},
+    },
+    "sgr": {
+        "read": {CARGO_GESTION_PLANIFICACION},
+        "write": {CARGO_GESTION_PLANIFICACION},
+    },
+    "sgr_records": {
+        "read": set(CARGOS),
+        "write": set(CARGOS),
+    },
+    "tasks": {
+        "read": set(CARGOS),
+        "write": set(CARGOS),
+    },
+    "evidence": {
+        "read": set(CARGOS),
+        "write": set(CARGOS),
+    },
+    "validation": {
+        "read": set(CARGOS),
+        "write": set(),
+    },
+    "territories": {
+        "read": set(CARGOS),
+        "write": set(),
+    },
+    "social_cases": {
+        "read": set(CARGOS),
+        "write": {CARGO_GESTOR_SOCIAL, CARGO_DELEGADO},
+    },
+    "letters": {
+        "read": set(CARGOS),
+        "write": set(CARGOS),
+    },
+    "comments": {
+        "read": set(CARGOS),
+        "write": set(CARGOS),
+    },
+    "alerts": {
+        "read": set(CARGOS),
+        "write": set(),
+    },
 }
 
 # Modelo -> módulo. Las vistas web no repiten la asignación: la derivan del
@@ -129,12 +233,30 @@ MODELO_A_MODULO = {
     "Atencion": "cases",
     "Vecino": "neighbors",
     "Delegacion": "delegations",
+    "Territorio": "territories",
+    "CasoSocial": "social_cases",
+    "GestionCaso": "social_cases",
+    "Carta": "letters",
+    "Comentario": "comments",
+    "Alerta": "alerts",
+    "Llamada": "social_cases",
     "Cargo": "positions",
     "Meta": "goals",
     "TipoAtencion": "attention_types",
     "SubAtencion": "attention_subtypes",
     "Usuario": "users",
     "Rol": "roles",
+    "Organizacion": "community",
+    "Periodo": "sgr",
+    "Area": "sgr",
+    "Indicador": "sgr",
+    "MetaIndicador": "sgr",
+    "RegistroGestion": "sgr_records",
+    "AjusteConducta": "sgr_adjustments",
+    "Ausencia": "sgr_adjustments",
+    "TareaTubo": "tasks",
+    "Evidencia": "evidence",
+    "Validacion": "validation",
 }
 
 

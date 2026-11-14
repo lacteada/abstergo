@@ -22,4 +22,4 @@ class TipoAtencionForm(FormularioCRUD):
 class SubAtencionForm(FormularioCRUD):
     class Meta:
         model = SubAtencion
-        fields = ("nombre", "tipo_atencion", "estado")
+        fields = ("nombre", "tipo_atencion", "forma", "estado")

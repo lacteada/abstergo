@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    {% if vencidas %}<span class="estado rojo">{{ vencidas }} vencidas</span>{% endif %}
+    {% if puede_escribir %}
+      <a class="btn-muni btn-icono" href="{% url url_nueva %}" data-modal
+         title="Nueva tarea" aria-label="Nueva tarea">{% include 'iconos/nuevo.html' %}</a>
+    {% endif %}
+  </div>
+
+  <div class="kanban" data-kanban>
+    {% for columna in columnas %}
+      <section class="kanban-columna" data-estado="{{ columna.codigo }}">
+        <header class="kanban-cabecera">
+          <h2>{{ columna.etiqueta }}</h2>
+          <span class="kanban-contador">{{ columna.tareas|length }}</span>
+        </header>
+        <ul class="kanban-lista" data-lista="{{ columna.codigo }}">
+          {% for tarea in columna.tareas %}
+            <li class="kanban-tarjeta{% if tarea.vencida %} kanban-vencida{% endif %}"
+                draggable="true" data-pk="{{ tarea.pk }}"
+                data-vencida="{{ tarea.vencida|yesno:'1,0' }}"
+                data-mover="{% url 'tubo:tareas_mover' tarea.pk %}">
+              <a class="kanban-titulo" href="{% url 'tubo:tareas_consultar' tarea.pk %}" data-modal>{{ tarea.titulo }}</a>
+              <span class="kanban-responsable">
+                {% if tarea.responsable %}{{ tarea.responsable.get_full_name }}{% else %}Sin responsable{% endif %}
+              </span>
+              {% if tarea.vencida %}
+                <span class="estado rojo" title="Vencida hace {{ tarea.dias_atraso }} días">
+                  Vencida · {{ tarea.fecha_compromiso }}
+                </span>
+              {% endif %}
+              <div class="kanban-acciones">
+                <a href="{% url 'tubo:tareas_historial' tarea.pk %}" data-modal>Historial</a>
+                <form class="kanban-reasignar" method="post"
+                      action="{% url 'tubo:tareas_reasignar' tarea.pk %}">
+                  {% csrf_token %}
+                  <select name="responsable" aria-label="Reasignar responsable">
+                    {% for usuario in usuarios %}
+                      <option value="{{ usuario.pk }}"
+                        {% if tarea.responsable and usuario.pk == tarea.responsable.pk %}selected{% endif %}>
+                        {{ usuario.get_full_name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit">Reasignar</button>
+                </form>
+              </div>
+            </li>
+          {% empty %}
+            <li class="kanban-vacio">Sin tareas</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+
+  <p class="pie"><a href="{% url 'tubo:tareas' %}">Ver como listado</a></p>
+
+  <script src="{% static 'js/tubo.js' %}"></script>
+
+{% endblock %}

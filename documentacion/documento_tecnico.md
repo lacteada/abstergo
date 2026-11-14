@@ -782,7 +782,11 @@ Fuente: `apps/api/`, `apps/common/permisos.py`, `config/urls.py`.
   cuenta hasta que se guarde la contraseña nueva.
 - CRUD: un viewset por entidad (`roles`, `positions`, `usuarios`, `delegaciones`,
   `metas`, `tipos-atencion`, `sub-atenciones`, `vecinos`, `atenciones`), con
-  borrado lógico.
+  borrado lógico. Desde 2026 suma los recursos de los módulos nuevos:
+  `community-organizations`, `territories`, `sgr-periods`, `sgr-areas`,
+  `sgr-indicators`, `sgr-targets`, `sgr-records`, `sgr-conducts`,
+  `sgr-absences`, `tasks`, `evidence`, `validations`, `social-cases`,
+  `case-managements`, `preventive-calls`, `comments`, `alerts` y `letters`.
 
 ### 18.2 Permisos por rol y cargo
 
@@ -814,7 +818,7 @@ glosario, el mismo que usa el cliente Android:
 
 - `Rol` → `role`: `codigo` → `code`, `nombre` → `name`, `descripcion` → `description`.
 - `Cargo` → `position`: `codigo` → `code`, `nombre` → `name`,
-  `descripcion` → `description`.
+  `descripcion` → `description`, `funciones` → `functions`.
 - `referencia` → `reference_code` en **todas** las entidades: es el código visible
   (`DEL-01`, `AT-01`…) y viaja como solo lectura, porque lo genera el servidor.
 - `Usuario` → `user`: `rol` → `role`, `cargo` → `position`,
@@ -825,7 +829,7 @@ glosario, el mismo que usa el cliente Android:
   `delegacion` → `delegation`.
 - `TipoAtencion` → `attention_type`: `nombre` → `name`, `descripcion` → `description`.
 - `SubAtencion` → `attention_subtype`: `nombre` → `name`,
-  `tipo_atencion` → `attention_type`.
+  `tipo_atencion` → `attention_type`, `forma` → `form`.
 - `Vecino` → `neighbor`: `nombre` → `name`, `rut` se mantiene,
   `direccion` → `address`, `telefono` → `phone`, `territorio` → `territory`,
   `tipo_gestion` → `management_type`, `estado` → `status`.
@@ -833,6 +837,69 @@ glosario, el mismo que usa el cliente Android:
   `sub_atencion` → `attention_subtype`, `delegacion` → `delegation`,
   `funcionario` → `staff`, `fecha` → `date`, `motivo` → `reason`,
   `detalle` → `detail`, `estado` → `status`, `canal` → `channel`.
+- `Organizacion` → `community_organization`: `nombre` → `name`,
+  `domicilio_legal` → `legal_address`, `territorio` → `territory`,
+  `tipo` → `organization_type`, `subtipo` → `subtype`, `situacion` → `situation`,
+  `verificacion` → `verification`, `socios_activos` → `active_members`,
+  `fecha_constitucion` → `constitution_date`, `registro_pj` → `pj_registry`,
+  `fecha_inscripcion` → `registration_date`, `registro_dir` → `directive_registry`,
+  `estado` → `status`.
+- `Territorio` → `territory`: `nombre` → `name`, `delegacion` → `delegation`,
+  `estado` → `status`.
+- `Periodo` → `sgr_period`: `nombre` → `name`, `inicio` → `start`,
+  `termino` → `end`, `dias` → `days`, `situacion` → `situation`,
+  `umbral_minimo` → `min_threshold`, `umbral_ambar` → `amber_threshold`,
+  `tope_item` → `item_cap`, `tope_total` → `total_cap`, `estado` → `status`.
+- `Area` → `sgr_area`: `nombre` → `name`, `grupo` → `group`, `cargo` → `position`,
+  `responsable` → `manager`, `delegacion` → `delegation`, `estado` → `status`.
+- `Indicador` → `sgr_indicator`: `nombre` → `name`, `grupo` → `group`,
+  `unidad` → `unit`, `cargo` → `position`, `tipo_calculo` → `calculation_type`,
+  `requiere_evidencia` → `requires_evidence`, `estado` → `status`.
+- `MetaIndicador` → `sgr_target`: `periodo` → `period`, `area` se mantiene,
+  `indicador` → `indicator`, `ponderador` → `weight`, `meta` → `target`,
+  `funcionario` → `staff`, `vigente_desde` → `effective_from`.
+- `RegistroGestion` → `sgr_record`: `fecha` → `date`, `area` se mantiene,
+  `indicador` → `indicator`, `vecino` → `neighbor`, `tipo_atencion` →
+  `attention_type`, `sub_atencion` → `attention_subtype`, `forma` → `form`,
+  `funcionario` → `staff`, `cantidad` → `quantity`, `detalle` → `detail`,
+  `etapa` → `stage`, `tipo_solicitante` → `requester_type`,
+  `contacto_nombre` → `contact_name`, `contacto_telefono` → `contact_phone`,
+  `puntua` → `scores`, `motivo_no_puntua` → `no_score_reason`,
+  `estado` → `status`, `accion` → `action`, `actividad` → `activity`,
+  `organizacion` → `organization`, `version` se mantiene.
+- `AjusteConducta` → `sgr_conduct`: `area` se mantiene, `tipo` → `kind`,
+  `fecha` → `date`, `respaldo` → `backing`, `medio` → `medium`, `valor` → `value`,
+  `periodo` → `period`.
+- `Ausencia` → `absence`: `area` se mantiene, `periodo` → `period`,
+  `tipo` → `kind`, `desde` → `start`, `hasta` → `end`, `dias` → `days`.
+- `Evidencia` → `evidence`: `registro` → `record`, `archivo` → `file`,
+  `vinculo` → `link`, `autor` → `author`, `tipo` → `kind`,
+  `estado_revision` → `review_status`.
+- `Validacion` → `validation`: `evidencia` → `evidence`,
+  `verificador` → `reviewer`, `decision` se mantiene, `observacion` → `observation`.
+- `TareaTubo` → `task`: `titulo` → `title`, `descripcion` → `description`,
+  `estado` → `status`, `delegacion` → `delegation`, `territorio` → `territory`,
+  `tipo` → `kind`, `solicitante` → `requester`, `responsable` → `assignee`,
+  `apoyo` → `support`, `vecino` → `neighbor`, `avance` → `progress`,
+  `vencida` → `overdue`, `fecha_ingreso` → `created_at`,
+  `fecha_compromiso` → `due_date`.
+- `Carta` → `letter`: `delegacion` → `delegation`, `asunto` → `subject`,
+  `destinatario` → `addressee`, `fecha` → `date`, `estado` → `status`,
+  `responsable` → `assignee`, `respuesta` → `reply`.
+- `CasoSocial` → `social_case`: `vecino` → `neighbor`, `responsable` → `manager`,
+  `fecha_apertura` → `opened_at`, `motivo` → `reason`, `estado` → `status`,
+  `reingreso` → `is_reentry`, `caso_anterior` → `previous_case`,
+  `observaciones` → `notes`.
+- `GestionCaso` → `case_management`: `caso` → `case`, `fecha` → `date`,
+  `tipo` → `kind`, `hito` → `milestone`, `plazo` → `deadline`,
+  `detalle` → `detail`.
+- `Llamada` → `preventive_call`: `vecino` → `neighbor`, `motivo` → `reason`,
+  `fecha_programada` → `scheduled_at`, `estado` → `status`,
+  `responsable` → `manager`, `resultado` → `result`.
+- `Comentario` → `comment`: `registro` → `record`, `autor` → `author`,
+  `texto` → `text`, `fecha` → `date`.
+- `Alerta` → `alert`: `tipo` → `kind`, `severidad` → `severity`,
+  `mensaje` → `message`, `resuelta` → `solved`, `fecha` → `date`.
 - `Perfil` → `profile`: `rol_codigo` → `role_code`,
   `cargo_codigo` → `position_code`, `modulos_lectura` → `read_modules`,
   `modulos_escritura` → `write_modules`.
@@ -840,7 +907,12 @@ glosario, el mismo que usa el cliente Android:
   `detail` se mantienen.
 - Rutas: `auth/recover/`, `auth/verify/`, `auth/new-password/`; y los recursos
   `roles`, `positions`, `users`, `delegations`, `goals`, `attention-types`,
-  `attention-subtypes`, `neighbors`, `cases`.
+  `attention-subtypes`, `neighbors`, `cases`, `community-organizations`,
+  `territories`, `sgr-periods`, `sgr-areas`, `sgr-indicators`, `sgr-targets`,
+  `sgr-records`, `sgr-conducts`, `sgr-absences`, `tasks`, `evidence`, `validations`,
+  `social-cases`, `case-managements`, `preventive-calls`, `comments`, `alerts`, `letters`.
+- Las exportaciones `.xlsx` respetan el filtro y agregan una fila de título con
+  la **fecha de generación** (RF-033).
 - Las claves de módulo de la matriz (§18.2) viajan en `read_modules` y
   `write_modules`, así que también están en inglés.
 
@@ -901,3 +973,117 @@ Fuente: `apps/common/delegaciones.py`, `apps/common/contexto.py`,
   exportación, consulta, catálogos, ingreso de atención y recuperación.
 - El registro de resultados, con evidencias y la prueba de carga, vive en
   `documentacion/pruebas.md`; la carga la corre `scripts/estres.py`.
+
+---
+
+## 20. Módulos de la matriz SGR, organizaciones y tubo (implementado)
+
+Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
+
+### 20.1 Matriz SGR (`apps/sgr`)
+
+- Modelos: `Periodo` (trimestre, con `situacion` abierto/cerrado/reabierto y
+  topes/umbrales configurables), `Area` (puesto: cargo, responsable,
+  delegación), `Indicador` (con `cargo`, `tipo_calculo` y `requiere_evidencia`),
+  `MetaIndicador` (ponderador y meta por área/indicador/período, con
+  sobrescritura por `funcionario`), `RegistroGestion` (la gestión diaria),
+  `AjusteConducta` (reclamo o felicitación), `Ausencia` (licencia, vacaciones,
+  emergencia, compensatorio), `Evidencia` y `Validacion`.
+- Cálculo puro en `apps/sgr/calculos.py`: `porcentaje` (recortado en el
+  `tope_item` del período, por defecto 1.2), `ponderado`, `semaforo` y
+  `total_ponderado` (`tope_total`, por defecto 1.5). El semáforo compara el
+  avance contra la **meta al día**: VERDE si `avance ≥ objetivo`, NARANJA si
+  `avance ≥ umbral_ambar·objetivo` (0.6), ROJO si no.
+- Reglas del 4° trimestre en `apps/sgr/validaciones.py` y en
+  `RegistroGestion.save/clean`: solo puntúa la etapa **ejecutada**, no la
+  preparatoria; el solicitante **delegado** es otra gestión; sin **nombre ni
+  teléfono** no puntúa; máximo **7 registros por día** por funcionario; sólo la
+  **semana en curso**; y un **período cerrado** bloquea el ingreso.
+- **Evidencia y verificación**: `Evidencia` adjunta archivo o vínculo a un
+  registro; `Validacion` la aprueba/rechaza/corrige y actualiza el estado del
+  registro. Quien registra no valida lo suyo (RNF-004). Un ítem con
+  `requiere_evidencia` solo suma cuando el registro está **aprobado** (RN-010).
+- **Ausencias**: `Ausencia` (por área, con `desde`/`hasta`) descuenta días de la
+  meta al día (`apps/sgr/servicios.py`), que se topa en 100 % (RN-008).
+- **Conductas**: `AjusteConducta` (reclamo o felicitación) guarda `medio` y
+  exige **respaldo** en las felicitaciones (doc 1). El `valor` por defecto es
+  0.1 y el del reclamo depende del cargo (−0.3 en Apoyo Administrativo, −0.2 en
+  el resto); más de **2 reclamos** en el período marca alerta a RR.HH.
+- **Comentarios y alertas**: `Comentario` cuelga de un registro (RF-035); `Alerta`
+  (tipo, severidad, mensaje, resuelta) se genera con
+  `manage.py generar_alertas` a partir de tareas vencidas, ítems bajo umbral,
+  **ingresos sospechosos** (teléfono muy repetido o cantidad inusual) y
+  **organizaciones sin visita** (RF-037/044/060).
+- **Concurrencia optimista**: `RegistroGestion.version` sube en cada guardado; el
+  formulario de edición envía la versión y avisa si otro usuario ya la cambió
+  (RF-034/RNF-002).
+- Mantenedores web en
+  `/sgr/{periodos,areas,indicadores,metas,registros,conductas,ausencias,evidencias,validaciones,comentarios,alertas}/`.
+- **Tableros**: `Tablero` (`/sgr/`) por área con logrado, meta al día, semáforo,
+  alerta de reclamos y el total/promedio de la delegación (RF-029/049);
+  `FichaPersonal` (`/sgr/personal/<pk>/`) por persona, con marcas de **bajo
+  umbral** y **en tope** (RF-028/045); y `TableroGlobal` (`/sgr/global/`)
+  consolidado por cargo (RF-031).
+
+### 20.2 Organizaciones comunitarias (`apps/comunidad`)
+
+- Modelo `Organizacion` (OROC): nombre, domicilio legal, territorio
+  (delegación), `tipo`/`subtipo` (territorial o funcional), `situacion`
+  (vigente/inactiva/cerrada), `verificacion` (sin-verificar/verificada), socios
+  activos y datos del registro de personalidad jurídica.
+- **Vínculo de actividades** (RF-059): `RegistroGestion.actividad`
+  (visita/reunión/taller/conformación/otra) y su `organizacion` enlazan la
+  actividad con la organización; `Organizacion.ultima_visita` la resume.
+- **Sin visita** (RF-060): `Organizacion.sin_visita` marca las que llevan más de
+  `MESES_SIN_VISITA` (6) sin una visita, y el generador de alertas las avisa.
+- Mantenedor web en `/organizaciones/` y comando
+  `manage.py importar_jjvv [--archivo …] [--informe …]`: carga la base de JJVV
+  **sin descartar filas** (las dudosas quedan `sin-verificar`) y escribe
+  `informe_calidad_jjvv.md` (territorios vacíos o fuera de lista, duplicados,
+  socios no numéricos). El territorio **Alfalfares** se agregó a
+  `datos_nuevos/delegaciones.json`.
+
+### 20.3 Tubo de trabajo (`apps/tubo`)
+
+- Modelo `TareaTubo`: título, descripción, estado
+  (`ingresada → pendiente → en_proceso → realizada`), delegación, territorio
+  (sector), tipo (externo/interno), solicitante, responsable, apoyo, avance y
+  fechas. Exige responsable y fecha de compromiso (RF-017).
+- `HistorialEstado` registra cada cambio de estado (RF-018); `TareaTubo.save`
+  lo crea al detectar el cambio. Las transiciones entre estados están
+  controladas (`puede_pasar_a`), y `vencida`/`dias_atraso` marcan las tareas
+  atrasadas (RF-019).
+- El tablero `/tubo/` es un **kanban** de la delegación activa, con una columna
+  por estado, contador de vencidas y **reasignación** de responsable en la
+  tarjeta (RF-053); `Mover` (POST) cambia el estado al arrastrar
+  (`static/js/tubo.js`). El **historial** se ve en `/tubo/tareas/<pk>/historial/`.
+  Visible para el rol `delegado` (y admin, coordinador y funcionario).
+- `Carta` (tubo de cartas, RF-054): asunto, destinatario, fecha, estado
+  (pendiente/enviada/entregada), responsable y respuesta; mantenedor en
+  `/tubo/cartas/`.
+
+### 20.4 Permisos de los módulos nuevos
+
+- Claves nuevas de la matriz (§18.2): `community`, `territories`, `sgr`
+  (configuración), `sgr_records` (registros), `sgr_adjustments` (conductas y
+  días), `tasks`, `letters`, `comments`, `alerts`, `evidence`, `validation` y
+  `social_cases`.
+
+### 20.5 Descriptor de cargos y catálogo de atención
+
+- `Cargo.funciones` guarda el detalle del *Descriptor de funciones para los
+  cargos de las Delegaciones* (la descripción corta sigue en `descripcion`).
+- `SubAtencion.forma` (dinero/material/documento/aporte) se suma al catálogo, con
+  las sub atenciones del gestor social (Informes sociales, Gestión de subsidios).
+
+### 20.6 Casos sociales (`apps/casos`)
+
+- `CasoSocial` (RF-015/051/052): vecino, responsable, apertura, motivo, estado
+  (abierto/seguimiento/cerrado) y reingreso con `caso_anterior`.
+- `GestionCaso`: hasta **tres gestiones** por caso (`MAX_GESTIONES`), con tipo,
+  hito y plazo.
+- `Llamada` (llamadas preventivas, RF-050): vecino, motivo, fecha programada,
+  estado (pendiente/realizada/no-contesta/reagendada) y resultado; cola en
+  `/llamadas/`.
+- Mantenedores web en `/casos/`, `/gestiones/` y `/llamadas/`; API
+  `social-cases`, `case-managements` y `preventive-calls` (módulo `social_cases`).

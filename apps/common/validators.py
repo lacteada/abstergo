@@ -14,6 +14,8 @@ PATRON_DIRECCION = re.compile(r"^[A-Za-z0-9ÁÉÍÓÚÑáéíóúñ°#.,\- ]{5,2
 PATRON_COMUNA = re.compile(r"^[A-Za-zÁÉÍÓÚÑáéíóúñ' ]{3,80}$")
 PATRON_CODIGO = re.compile(r"^[A-Za-z0-9-]{2,40}$")
 PATRON_CATALOGO = re.compile(r"^.{2,120}$")
+# Texto largo: nombres de organizaciones, indicadores y títulos de tareas.
+PATRON_TEXTO = re.compile(r"^.{2,200}$")
 PATRON_RUT = re.compile(r"^\d{7,8}-[\dkK]$")
 
 
@@ -40,6 +42,10 @@ def validar_codigo(valor):
 
 def validar_catalogo(valor):
     _validar(valor, PATRON_CATALOGO, "Debe tener entre 2 y 120 caracteres.")
+
+
+def validar_texto(valor):
+    _validar(valor, PATRON_TEXTO, "Debe tener entre 2 y 200 caracteres.")
 
 
 def validar_telefono(valor):

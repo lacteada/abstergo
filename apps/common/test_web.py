@@ -91,8 +91,9 @@ def test_la_exportacion_respeta_el_filtro(cliente, crear_usuario, centro):
     assert "spreadsheetml" in respuesta["Content-Type"]
     hoja = load_workbook(BytesIO(respuesta.content)).active
     filas = list(hoja.iter_rows(values_only=True))
-    assert len(filas) == 2  # encabezado + la única coincidencia
-    assert filas[1][0] == "Rosa Alvarado"
+    assert len(filas) == 3  # fila de título + encabezado + la única coincidencia
+    assert "generado el" in filas[0][0]
+    assert filas[2][0] == "Rosa Alvarado"
 
 
 def test_la_ficha_de_consulta_muestra_el_registro(cliente, crear_usuario, centro):

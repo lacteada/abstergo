@@ -57,6 +57,10 @@ INSTALLED_APPS = [
     "apps.ciudadanos",
     "apps.atenciones",
     "apps.cumplimiento",
+    "apps.casos",
+    "apps.comunidad",
+    "apps.sgr",
+    "apps.tubo",
     "apps.panel",
     "apps.api",
 ]
@@ -142,6 +146,10 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Evidencias (RNF-009): fuera del estático y servidas por permiso.
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 
 # MAILERS reemplaza a EMAIL_BACKEND desde Django 6.0. Las OPTIONS se pasan
 # como argumentos al backend, y cada backend rechaza las que no conoce, así
@@ -171,7 +179,7 @@ LOGOUT_REDIRECT_URL = "cuentas:login"
 
 # Validez del código OTP, en minutos, y espera mínima entre reenvíos, en
 # segundos. Los valores de los diseños del PDF son referenciales.
-OTP_EXPIRY_MINUTES = int(env("OTP_EXPIRY_MINUTES", "10"))
+OTP_EXPIRY_MINUTES = int(env("OTP_EXPIRY_MINUTES", "5"))
 OTP_REENVIO_SEGUNDOS = int(env("OTP_REENVIO_SEGUNDOS", "45"))
 
 # Días de vigencia del enlace con que se invita a una cuenta nueva a fijar su

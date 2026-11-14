@@ -45,7 +45,7 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 ## 3. Módulos (variable, paralelizable)
 - Un módulo = una entidad de dominio: modelo, migración, serializer/form, vista, permiso, tests, import/export.
 - Se cuelgan del esqueleto y se pueden repartir entre agentes.
-- Lista: usuarios/roles, cargos de delegación, delegaciones, metas, tipos y sub-atenciones, vecinos, atenciones, y las tablas de cumplimiento.
+- Lista: usuarios/roles, cargos de delegación, delegaciones, metas, tipos y sub-atenciones, vecinos, atenciones, organizaciones comunitarias, la matriz SGR (períodos, áreas, indicadores, metas, registros) y el tubo de trabajo (kanban), y las tablas de cumplimiento.
 
 ## 4. Front
 - Web: existe (plantillas + framework institucional).
@@ -91,6 +91,8 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - Permisos por rol en `apps/common/permisos.py` (matriz rol × módulo), aplicados en la web, la API y el menú. Usuario de MariaDB con contraseña rotada.
 - Pendiente inmediato de documentación: `documentacion/documento_tecnico.md` (sección de API y permisos) y `.env.example` (variables de JWT y paginación).
 - **Segunda evaluación**: `estado` y `codigo` en los catálogos (`ConEstado`, migración de datos `catalogos.0004`), multi-delegación (`Usuario.delegaciones_autorizadas`), contexto de delegación en la cabecera con selector (`apps/common/delegaciones.py`), acotado de listados y formularios al alcance del perfil, vista de consulta en los CRUD (`ConsultaBase`), dependencia Tipo → Sub Atención con validación en servidor, identificador de atención, estados de interfaz y espera entre reenvíos del código (`OTP_REENVIO_SEGUNDOS`). Pruebas en `conftest.py` y `apps/*/tests.py`; registro en `documentacion/pruebas.md`; carga con `scripts/estres.py`; despliegue en `documentacion/despliegue_aws.md`.
+- **2026-11-13 · Módulos SGR, organizaciones y tubo**: apps nuevas `apps/comunidad` (juntas de vecinos y agrupaciones, CRUD + API, sin importar aún los 2.709 registros), `apps/sgr` (períodos, áreas, indicadores, metas, registros, reclamos/felicitaciones y ajuste de días; cálculo puro en `calculos.py`, reglas del 4° trimestre y tablero con semáforo) y `apps/tubo` (kanban de tareas por delegación, visible al delegado). Se suman las claves de permiso `community`, `sgr`, `sgr_records`, `sgr_adjustments` y `tasks`; `Cargo.funciones` con el descriptor 2026; `SubAtencion.forma` y las sub atenciones del gestor social; y la Delegación **Alfalfares**. Actualizados `documento_tecnico.md` (§20) y `scripts/verificar.sh`.
+- **2026-11-13 · Cierre de brechas SGR, bloque 1 (P1)**: `Periodo` con `situacion` y topes/umbrales configurables; `Indicador` con cargo/tipo de cálculo/requiere evidencia; `MetaIndicador` con sobrescritura por funcionario; `RegistroGestion` con etapa, tipo de solicitante, contacto, `puntua`+motivo y estado; reglas C1/C2/C5 en `validaciones.evaluar_puntaje`; `Evidencia` + `Validacion` + módulos `evidence`/`validation` (quien registra no valida); `Ausencia` con rango que descuenta la meta al día (tope 100 %). Migraciones `sgr/0002`, `sgr/0003` y `sgr/0004`. Contracto de API ampliado (`evidence`, `validations`, `sgr-absences`).
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

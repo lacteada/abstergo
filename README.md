@@ -38,6 +38,9 @@ contraseña; al crear un usuario, el sistema le envía un correo con un enlace
 | Ingreso de atención | Operativo | Dependencia tipo → subatención, delegación del contexto e identificador |
 | Consulta de registros | Operativo | Ficha de solo lectura en cada mantenedor |
 | Exportar a Excel | Operativo | Respeta el filtro y todas las páginas |
+| CRUD Organizaciones comunitarias | Operativo | Juntas de vecinos y agrupaciones (OROC), con territorio |
+| Matriz SGR | Operativo | Períodos, áreas, indicadores, metas, registros y tablero con semáforo |
+| Tubo de trabajo | Operativo | Kanban de tareas por delegación, visible al delegado |
 | Dashboard por rol | Parcial | Estadísticas y accesos según el rol |
 | API v1 (cliente móvil) | Operativo | JWT, CRUD y recuperación; esquema en `/api/docs/` |
 | Ley 21.719 | Parcial | Modelos implementados; gestión desde el Admin |
@@ -137,6 +140,9 @@ abstergo/
 │   ├── ciudadanos/   Vecino
 │   ├── atenciones/   Atencion
 │   ├── cumplimiento/ tablas de la Ley 21.719
+│   ├── comunidad/    Organizacion (OROC)
+│   ├── sgr/          Matriz SGR (períodos, áreas, indicadores, metas, registros)
+│   ├── tubo/         TareaTubo (kanban de la delegación)
 │   ├── api/          API v1 (DRF)
 │   └── panel/        Inicio, contexto de delegación y comando cargar_datos
 ├── datos_nuevos/     JSON de importación, uno por entidad

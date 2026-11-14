@@ -78,7 +78,11 @@ class Command(BaseCommand):
             "cargos",
             Cargo,
             "codigo",
-            lambda f: {"nombre": f["nombre"], "descripcion": f["descripcion"]},
+            lambda f: {
+                "nombre": f["nombre"],
+                "descripcion": f["descripcion"],
+                "funciones": f.get("funciones", ""),
+            },
         )
         self.cargar_usuarios()
         self.cargar(
@@ -109,6 +113,7 @@ class Command(BaseCommand):
             lambda f: {
                 "nombre": f["nombre"],
                 "tipo_atencion": TipoAtencion.objects.get(nombre=f["tipo_atencion"]),
+                "forma": f.get("forma", ""),
                 "estado": f.get("estado", "activo"),
             },
         )

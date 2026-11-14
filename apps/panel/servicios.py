@@ -1,9 +1,8 @@
-"""Las acciones y las estadísticas del dashboard, fuera de la vista."""
+"""Las acciones y las estadísticas del panel, fuera de la vista."""
 
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
 from apps.common.permisos import (
     ADMIN,
@@ -14,14 +13,16 @@ from apps.common.permisos import (
     codigo_de,
     modulos_de,
 )
-from apps.organizacion.models import Delegacion
+from apps.comunidad.models import Organizacion
+from apps.sgr.models import Alerta, RegistroGestion
+from apps.tubo.models import TareaTubo
 
 # Título del panel por rol: le da identidad a cada dashboard.
 TITULOS_PANEL = {
     ADMIN: "Panel de administración",
     COORDINADOR: "Panel de supervisión",
     DELEGADO: "Panel de delegación",
-    FUNCIONARIO: "Panel de atención",
+    FUNCIONARIO: "Mi jornada",
 }
 
 
@@ -30,54 +31,109 @@ def titulo_panel(usuario):
     return TITULOS_PANEL.get(codigo_de(usuario), "Panel")
 
 
-# (título, nombre de ruta, descripción, módulo, requiere escritura)
-CATALOGO_ACCIONES = [
-    ("Crear Atención", "atenciones:crear", "Registrar una atención.", "cases", True),
-    ("Atenciones", "atenciones:listado", "Atenciones registradas.", "cases", False),
+# Lo importante del día a día (título, ruta, descripción, módulo, escritura).
+ACCIONES_TRABAJO = [
+    (
+        "Registrar actividad",
+        "sgr:registros_nueva",
+        "Anotar lo que hiciste hoy.",
+        "sgr_records",
+        True,
+    ),
+    ("Mis actividades", "sgr:registros", "Lo que has registrado.", "sgr_records", False),
+    ("Tubo de trabajo", "tubo:tablero", "Las tareas de la delegación.", "tasks", False),
+    (
+        "Mis evidencias",
+        "sgr:evidencias",
+        "Archivos que respaldan lo hecho.",
+        "evidence",
+        False,
+    ),
+    (
+        "Evidencias por validar",
+        "sgr:validaciones",
+        "Revisar lo que falta aprobar.",
+        "validation",
+        False,
+    ),
+    ("Tablero SGR", "sgr:tablero", "Cómo va el cumplimiento.", "sgr", False),
+    ("Casos sociales", "casos:casos", "Acompañamiento a vecinos.", "social_cases", False),
+    ("Llamadas preventivas", "casos:llamadas", "La cola de llamadas.", "social_cases", False),
+    ("Cartas", "tubo:cartas", "El tubo de cartas.", "letters", False),
+    (
+        "Organizaciones comunitarias",
+        "comunidad:organizaciones",
+        "Juntas de vecinos y agrupaciones.",
+        "community",
+        False,
+    ),
+    ("Alertas", "sgr:alertas", "Avisos que requieren atención.", "alerts", False),
+]
+
+# Los CRUD y catálogos: administrativos, van aparte.
+ACCIONES_MANTENEDORES = [
+    (
+        "Delegaciones",
+        "organizacion:delegaciones",
+        "Delegaciones municipales.",
+        "delegations",
+        False,
+    ),
+    ("Territorios", "organizacion:territorios", "Sectores por delegación.", "territories", False),
+    ("Cargos", "organizacion:cargos", "Cargos de la delegación.", "positions", False),
     ("Vecinos", "ciudadanos:vecinos", "Mantenedor de vecinos.", "neighbors", False),
-    ("Delegaciones", "organizacion:delegaciones", "Delegaciones.", "delegations", False),
     ("Usuarios", "cuentas:usuarios", "Mantenedor de usuarios.", "users", False),
     ("Roles", "cuentas:roles", "Mantenedor de roles.", "roles", False),
-    ("Metas", "catalogos:metas", "Metas por delegación.", "goals", False),
-    ("Tipos de atención", "catalogos:tipos", "Tipos de atención.", "attention_types", False),
-    ("Sub atenciones", "catalogos:subatenciones", "Sub atenciones.", "attention_subtypes", False),
+    ("Períodos", "sgr:periodos", "Períodos de la matriz.", "sgr", False),
+    ("Áreas", "sgr:areas", "Áreas (puestos) de la matriz.", "sgr", False),
+    ("Indicadores", "sgr:indicadores", "Indicadores de la matriz.", "sgr", False),
+    ("Metas SGR", "sgr:metas", "Metas por área e indicador.", "sgr", False),
+    ("Metas de delegación", "catalogos:metas", "Metas por delegación.", "goals", False),
 ]
 
 
-def acciones_del_rol(usuario):
-    """Las acciones del dashboard que el rol puede hacer, según la matriz."""
+def _visibles(usuario, catalogo):
+    """Las acciones del catálogo que el usuario puede ver, según la matriz."""
     lectura = modulos_de(usuario)
     escritura = modulos_de(usuario, escritura=True)
     return [
         {"titulo": titulo, "url": reverse(nombre), "descripcion": descripcion}
-        for titulo, nombre, descripcion, modulo, requiere_escritura in CATALOGO_ACCIONES
+        for titulo, nombre, descripcion, modulo, requiere_escritura in catalogo
         if modulo in (escritura if requiere_escritura else lectura)
     ]
 
 
-def _atenciones_visibles(usuario, codigo):
-    """Un perfil acotado solo ve las atenciones de su delegación."""
-    atenciones = Atencion.objects.all()
-    if codigo in (FUNCIONARIO, DELEGADO, COORDINADOR) and usuario.delegacion_id:
-        atenciones = atenciones.filter(delegacion_id=usuario.delegacion_id)
-    return atenciones
+def acciones_del_rol(usuario):
+    """Las acciones del día a día que el rol puede hacer."""
+    return _visibles(usuario, ACCIONES_TRABAJO)
+
+
+def mantenedores_del_rol(usuario):
+    """Los CRUD y catálogos que el rol puede ver."""
+    return _visibles(usuario, ACCIONES_MANTENEDORES)
 
 
 def estadisticas(usuario):
-    """Los conteos del dashboard, ya acotados al alcance del rol."""
+    """Los conteos del panel, ya acotados al alcance del rol."""
     codigo = codigo_de(usuario)
-    atenciones = _atenciones_visibles(usuario, codigo)
-    vecinos = Vecino.objects.all()
-    delegaciones = Delegacion.objects.all()
-    if not alcance_global(usuario) and usuario.delegacion_id:
-        vecinos = vecinos.filter(territorio_id=usuario.delegacion_id)
-        delegaciones = delegaciones.filter(pk=usuario.delegacion_id)
+    delegacion = None if alcance_global(usuario) else usuario.delegacion_id
+
+    actividades = RegistroGestion.objects.all()
+    organizaciones = Organizacion.objects.all()
+    tareas = TareaTubo.objects.exclude(estado="realizada")
+    if delegacion:
+        actividades = actividades.filter(area__delegacion_id=delegacion)
+        organizaciones = organizaciones.filter(territorio_id=delegacion)
+        tareas = tareas.filter(delegacion_id=delegacion)
+
     datos = {
-        "total_atenciones": atenciones.count(),
-        "atenciones_hoy": atenciones.filter(fecha__date=timezone.localdate()).count(),
-        "total_vecinos": vecinos.count(),
-        "total_delegaciones": delegaciones.count(),
+        "total_actividades": actividades.count(),
+        "actividades_hoy": actividades.filter(fecha=timezone.localdate()).count(),
+        "total_organizaciones": organizaciones.count(),
+        "tareas_abiertas": tareas.count(),
+        "alertas_pendientes": Alerta.objects.filter(resuelta=False).count(),
+        "total_vecinos": Vecino.objects.count(),
     }
     if codigo == FUNCIONARIO:
-        datos["mis_atenciones"] = Atencion.objects.filter(funcionario=usuario).count()
+        datos["mis_actividades"] = RegistroGestion.objects.filter(funcionario=usuario).count()
     return datos

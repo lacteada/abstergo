@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <a class="boton" href="{% url 'tubo:tablero' %}">Volver al tablero</a>
+  </div>
+
+  <p class="subtitulo">
+    {{ tarea.get_estado_display }} ·
+    {% if tarea.responsable %}{{ tarea.responsable.get_full_name }}{% else %}Sin responsable{% endif %}
+    {% if tarea.vencida %}<span class="estado rojo">vencida</span>{% endif %}
+  </p>
+
+  <div class="tabla-envoltura">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>De</th>
+          <th>A</th>
+          <th>Usuario</th>
+          <th>Motivo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cambio in historial %}
+          <tr>
+            <td>{{ cambio.fecha }}</td>
+            <td>{{ cambio.get_anterior_display }}</td>
+            <td>{{ cambio.get_estado_display }}</td>
+            <td>{{ cambio.usuario.get_full_name|default:"—" }}</td>
+            <td>{{ cambio.motivo|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="vacio">Sin cambios de estado registrados.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+{% endblock %}

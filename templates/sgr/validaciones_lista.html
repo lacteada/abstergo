@@ -1,0 +1,26 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>Código</th>
+  <th>Evidencia</th>
+  <th>Verificador</th>
+  <th>Decisión</th>
+  <th>Fecha</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.referencia }}</td>
+  <td>{{ fila.evidencia.referencia }}</td>
+  <td>{{ fila.verificador|default:"—" }}</td>
+  <td>{{ fila.get_decision_display }}</td>
+  <td>{{ fila.fecha|date:"d-m-Y H:i" }}</td>
+  <td class="acciones">
+    <ul class="acciones-lista">
+      <li><a class="accion accion-icono" href="{% url 'sgr:validaciones_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
+      {% if puede_escribir %}
+      <li><a class="accion accion-icono peligro" href="{% url 'sgr:validaciones_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
+      {% endif %}
+    </ul>
+  </td>
+{% endblock %}

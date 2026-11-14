@@ -3,7 +3,7 @@
 import pytest
 from django.urls import reverse
 
-from apps.organizacion.models import Cargo
+from apps.organizacion.models import Cargo, Territorio
 
 pytestmark = pytest.mark.django_db
 
@@ -12,6 +12,12 @@ def test_el_cargo_deriva_codigo_y_referencia():
     cargo = Cargo.objects.create(nombre="Gestor Social")
     assert cargo.codigo == "gestor-social"
     assert cargo.referencia.startswith("CRG-")
+
+
+def test_el_territorio_deriva_codigo_y_referencia(centro):
+    territorio = Territorio.objects.create(nombre="Latorre", delegacion=centro)
+    assert territorio.codigo == "latorre"
+    assert territorio.referencia.startswith("TER-")
 
 
 def test_solo_el_admin_administra_los_cargos(cliente, crear_usuario):

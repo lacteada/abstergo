@@ -1,0 +1,24 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>Código</th>
+  <th>Caso</th>
+  <th>Fecha</th>
+  <th>Tipo</th>
+  <th>Hito</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.referencia }}</td>
+  <td>{{ fila.caso.referencia }}</td>
+  <td>{{ fila.fecha }}</td>
+  <td>{{ fila.get_tipo_display }}</td>
+  <td>{% if fila.hito %}Sí{% else %}—{% endif %}</td>
+  <td class="acciones">
+    <ul class="acciones-lista">
+      <li><a class="accion accion-icono" href="{% url 'casos:gestiones_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
+      <li><a class="accion accion-icono" href="{% url 'casos:gestiones_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+    </ul>
+  </td>
+{% endblock %}

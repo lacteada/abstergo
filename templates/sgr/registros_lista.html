@@ -1,0 +1,33 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>Código</th>
+  <th>Fecha</th>
+  <th>Área</th>
+  <th>Indicador</th>
+  <th>Vecino</th>
+  <th>Cantidad</th>
+  <th>Puntúa</th>
+  <th>Estado</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.referencia }}</td>
+  <td>{{ fila.fecha|date:"d-m-Y" }}</td>
+  <td>{{ fila.area }}</td>
+  <td>{{ fila.indicador }}</td>
+  <td>{{ fila.vecino|default:"—" }}</td>
+  <td>{{ fila.cantidad }}</td>
+  <td>{% if fila.puntua %}Sí{% else %}<span title="{{ fila.motivo_no_puntua }}">No</span>{% endif %}</td>
+  <td>{{ fila.get_estado_display }}</td>
+  <td class="acciones">
+    <ul class="acciones-lista">
+      <li><a class="accion accion-icono" href="{% url 'sgr:registros_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
+      {% if puede_escribir %}
+      <li><a class="accion accion-icono" href="{% url 'sgr:registros_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+      <li><a class="accion accion-icono peligro" href="{% url 'sgr:registros_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
+      {% endif %}
+    </ul>
+  </td>
+{% endblock %}

@@ -4,7 +4,7 @@ Coordinación de Delegaciones — Dirección Administración Municipal — Depar
 
 Versión año 2026. Directrices de atención al usuario según Decreto N° 3096 del 26 de noviembre de 2024 (protocolo interno de atención de usuarios/as de la Ilustre Municipalidad de La Serena).
 
-Este documento es la fuente de los cargos que se siembran en `datos_nuevos/cargos.json` y de los permisos que define `MATRIZ_CARGO` en `apps/common/permisos.py`. El sistema solo guarda de cada cargo el nombre, la descripción y sus permisos; las funciones descritas acá son la referencia viva.
+Este documento es la fuente de los cargos que se siembran en `datos_nuevos/cargos.json` y de los permisos que define `MATRIZ_CARGO` en `apps/common/permisos.py`. El sistema guarda de cada cargo el nombre, la descripción corta, sus **funciones** (el detalle de este documento, campo `Cargo.funciones`) y sus permisos; las funciones descritas acá son la referencia viva.
 
 ---
 
@@ -153,4 +153,4 @@ Cada cargo suma permisos al rol del usuario sobre los módulos que ya existen (`
 | `gestion-y-planificacion` | lectura | lectura | lectura y escritura | — |
 | `coordinador-de-servicios-comunitarios` | lectura y escritura | lectura | — | — |
 
-Módulos aún sin entidad en el sistema (compras, proyectos, OROC, servicios comunitarios, empleabilidad) quedan para fases siguientes; el catálogo de cargos (`positions`) es de administración exclusiva del rol `admin`.
+Desde 2026 el sistema suma las claves de módulo `community` (organizaciones comunitarias / OROC), `sgr` (configuración de la matriz), `sgr_records` (registros de gestión), `sgr_adjustments` (reclamos, felicitaciones y días) y `tasks` (tubo de trabajo): el cargo `organizaciones-comunitarias` escribe en `community`, `gestion-y-planificacion` escribe en `sgr`, y todos los cargos pueden leer y escribir `sgr_records` y `tasks`. El resto (compras, proyectos, empleabilidad) queda para fases siguientes; el catálogo de cargos (`positions`) es de administración exclusiva del rol `admin`.

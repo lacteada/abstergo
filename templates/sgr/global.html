@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <a class="boton" href="{% url 'sgr:tablero' %}">Volver al tablero</a>
+  </div>
+
+  <div class="barra">
+    <form class="buscador" method="get">
+      <label for="periodo">Período</label>
+      <select name="periodo" id="periodo" onchange="this.form.submit()">
+        {% for opcion in periodos %}
+          <option value="{{ opcion.pk }}" {% if periodo and opcion.pk == periodo.pk %}selected{% endif %}>{{ opcion.nombre }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if periodo %}
+    <p class="subtitulo">{{ periodo.nombre }} · consolidado por cargo</p>
+
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Cargo</th>
+            <th>Áreas</th>
+            <th>Logrado</th>
+            <th>Meta al día</th>
+            <th>Promedio</th>
+            <th>Semáforo</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in filas %}
+            <tr>
+              <td>{{ fila.cargo }}</td>
+              <td>{{ fila.areas }}</td>
+              <td>{{ fila.logrado }}</td>
+              <td>{{ fila.esperado }}</td>
+              <td>{{ fila.promedio|floatformat:3 }}</td>
+              <td><span class="estado {{ fila.semaforo }}">{{ fila.semaforo }}</span></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="vacio">Sin áreas cargadas para el período.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="vacio">Aún no hay períodos cargados.</p>
+  {% endif %}
+
+{% endblock %}

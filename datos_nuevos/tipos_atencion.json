@@ -22,5 +22,17 @@
     "nombre": "Convivencia vecinal",
     "descripcion": "Conflictos y mediaciones entre vecinos o con organizaciones del territorio.",
     "estado": "activo"
+  },
+  {
+    "codigo": "informes-sociales",
+    "nombre": "Informes sociales",
+    "descripcion": "Informes del gestor social para aportes económicos, materiales o institucionales.",
+    "estado": "activo"
+  },
+  {
+    "codigo": "gestion-de-subsidios",
+    "nombre": "Gestión de subsidios",
+    "descripcion": "Tramitación de subsidios y beneficios previsionales.",
+    "estado": "activo"
   }
 ]

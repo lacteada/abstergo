@@ -7,8 +7,8 @@ from apps.common.vistas_base import (
     ListadoBase,
     ReactivarBase,
 )
-from apps.organizacion.forms import CargoForm, DelegacionForm
-from apps.organizacion.models import Cargo, Delegacion
+from apps.organizacion.forms import CargoForm, DelegacionForm, TerritorioForm
+from apps.organizacion.models import Cargo, Delegacion, Territorio
 
 
 class Listado(ListadoBase):
@@ -151,4 +151,76 @@ class CargosConsulta(ConsultaBase):
         ("Clave", "codigo"),
         ("Nombre", "nombre"),
         ("Descripción", "descripcion"),
+    )
+
+
+# ---------------------------------------------------------------- Territorios
+class TerritoriosListado(ListadoBase):
+    model = Territorio
+    template_name = "organizacion/territorios_lista.html"
+    titulo = "Territorios"
+    seccion = "territorios"
+    etiqueta_nueva = "Nuevo territorio"
+    busqueda = ("referencia", "codigo", "nombre", "delegacion__nombre")
+    relacionadas = ("delegacion",)
+    campo_delegacion = "delegacion"
+    exportar_nombre = "territorios"
+    exportar_columnas = (
+        ("Código", "referencia"),
+        ("Nombre", "nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Estado", "get_estado_display"),
+    )
+    url_nueva = "organizacion:territorios_nueva"
+    url_listado = "organizacion:territorios"
+
+
+class TerritoriosAlta(AltaBase):
+    model = Territorio
+    form_class = TerritorioForm
+    titulo = "Nuevo territorio"
+    seccion = "territorios"
+    url_listado = "organizacion:territorios"
+
+
+class TerritoriosEdicion(EdicionBase):
+    model = Territorio
+    form_class = TerritorioForm
+    titulo = "Editar territorio"
+    seccion = "territorios"
+    url_listado = "organizacion:territorios"
+
+
+class TerritoriosBorrado(BorradoBase):
+    model = Territorio
+    titulo = "Eliminar territorio"
+    seccion = "territorios"
+    url_listado = "organizacion:territorios"
+
+
+class TerritoriosDesactivar(DesactivarBase):
+    model = Territorio
+    titulo = "Territorio"
+    seccion = "territorios"
+    url_listado = "organizacion:territorios"
+
+
+class TerritoriosReactivar(ReactivarBase):
+    model = Territorio
+    titulo = "Territorio"
+    seccion = "territorios"
+    url_listado = "organizacion:territorios"
+
+
+class TerritoriosConsulta(ConsultaBase):
+    model = Territorio
+    titulo = "Consultar territorio"
+    seccion = "territorios"
+    url_listado = "organizacion:territorios"
+    consulta_campos = (
+        ("Código", "referencia"),
+        ("Clave", "codigo"),
+        ("Nombre", "nombre"),
+        ("Delegación", "delegacion.nombre"),
+        ("Estado", "get_estado_display"),
     )

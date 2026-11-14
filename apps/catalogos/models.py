@@ -6,6 +6,14 @@ from apps.common.referencia import ConReferencia
 from apps.common.soft_delete import BorradoLogico
 from apps.common.validators import validar_catalogo, validar_codigo, validar_nombre
 
+# Forma en que se entrega una sub-atención del gestor social (documento 3).
+FORMAS = [
+    ("dinero", "Dinero"),
+    ("material", "Material"),
+    ("documento", "Documento"),
+    ("aporte", "Aporte"),
+]
+
 
 class Meta(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     PREFIJO = "MET"
@@ -93,6 +101,9 @@ class SubAtencion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
         on_delete=models.PROTECT,
         related_name="sub_atenciones",
         verbose_name="tipo de atención",
+    )
+    forma = models.CharField(
+        "forma", max_length=12, choices=FORMAS, blank=True
     )
 
     class Meta:

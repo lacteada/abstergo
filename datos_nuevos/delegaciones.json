@@ -40,5 +40,12 @@
     "direccion": "Camino a Vicuña Km 12",
     "comuna": "La Serena",
     "estado": "activo"
+  },
+  {
+    "codigo": "alfalfares",
+    "nombre": "Alfalfares",
+    "direccion": "Ruta D-165, sector Alfalfares",
+    "comuna": "La Serena",
+    "estado": "activo"
   }
 ]

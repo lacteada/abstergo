@@ -77,9 +77,14 @@ u.set_password("Clave.123"); u.save()
 
 c = Client()
 c.post("/login/", {"username": "admin@test.cl", "password": "Clave.123"}, follow=True)
-for ruta in ["/", "/delegaciones/", "/cargos/", "/usuarios/", "/roles/", "/metas/",
-             "/tipos-atencion/", "/sub-atenciones/", "/vecinos/",
-             "/atenciones/", "/atenciones/crear/", "/admin/"]:
+for ruta in ["/", "/delegaciones/", "/cargos/", "/territorios/", "/usuarios/", "/roles/",
+             "/metas/", "/tipos-atencion/", "/sub-atenciones/", "/vecinos/",
+             "/atenciones/", "/atenciones/crear/",
+             "/organizaciones/", "/sgr/", "/sgr/global/", "/sgr/periodos/", "/sgr/registros/",
+             "/sgr/evidencias/", "/sgr/validaciones/", "/sgr/ausencias/",
+             "/sgr/comentarios/", "/sgr/alertas/",
+             "/tubo/", "/tubo/tareas/", "/tubo/cartas/",
+             "/casos/", "/gestiones/", "/llamadas/", "/admin/"]:
     assert c.get(ruta).status_code == 200, ruta
 
 # API v1: esquema, login por token, y las rutas del contrato en inglés.
@@ -87,8 +92,13 @@ assert c.get("/api/schema/").status_code == 200, "schema"
 esquema = c.get("/api/schema/").content.decode()
 for ruta_api in ["/api/v1/auth/recover/", "/api/v1/auth/verify/",
                  "/api/v1/auth/new-password/", "/api/v1/auth/register/",
-                 "/api/v1/positions/",
-                 "/api/v1/neighbors/", "/api/v1/cases/"]:
+                 "/api/v1/positions/", "/api/v1/territories/",
+                 "/api/v1/neighbors/", "/api/v1/cases/",
+                 "/api/v1/community-organizations/", "/api/v1/sgr-periods/",
+                 "/api/v1/sgr-records/", "/api/v1/tasks/",
+                 "/api/v1/evidence/", "/api/v1/validations/",
+                 "/api/v1/social-cases/", "/api/v1/letters/",
+                 "/api/v1/comments/", "/api/v1/alerts/", "/api/v1/preventive-calls/"]:
     assert ruta_api in esquema, ruta_api
 
 a = Client()
@@ -103,6 +113,7 @@ assert a.get("/api/v1/neighbors/", **auth).status_code == 200, "neighbors con to
 perfil = a.get("/api/v1/auth/me/", **auth).json()
 assert perfil["role_code"] == "admin", perfil.get("role_code")
 assert "users" in perfil["read_modules"], perfil.get("read_modules")
+assert {"tasks", "community", "sgr", "sgr_records"} <= set(perfil["read_modules"]), perfil.get("read_modules")
 vecino = a.get("/api/v1/neighbors/", **auth).json()["results"][0]
 assert set(vecino) >= {"name", "rut", "address", "phone", "territory",
                        "management_type", "status"}, sorted(vecino)
@@ -141,6 +152,9 @@ assert cdel.get("/atenciones/crear/").status_code == 200, "delegado crea atencio
 assert cdel.get("/usuarios/").status_code == 403, "delegado ya no gestiona usuarios"
 assert cdel.get("/delegaciones/").status_code == 403, "delegado no ve delegaciones globales"
 assert cdel.get("/roles/").status_code == 403, "delegado no ve roles"
+assert cdel.get("/organizaciones/").status_code == 200, "delegado ve organizaciones"
+assert cdel.get("/tubo/").status_code == 200, "delegado ve el tubo de trabajo"
+assert cdel.get("/sgr/").status_code == 403, "delegado no configura la matriz SGR"
 
 # Rol Coordinador (supervisor): lectura total y CRUD de metas
 rol_coord, _ = Rol.objects.get_or_create(codigo="coordinador", defaults={"nombre": "COORDINADOR"})

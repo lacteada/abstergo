@@ -48,4 +48,36 @@ urlpatterns = [
         views.CargosReactivar.as_view(),
         name="cargos_reactivar",
     ),
+    # Territorios
+    path("territorios/", views.TerritoriosListado.as_view(), name="territorios"),
+    path(
+        "territorios/nuevo/",
+        views.TerritoriosAlta.as_view(),
+        name="territorios_nueva",
+    ),
+    path(
+        "territorios/<int:pk>/",
+        views.TerritoriosConsulta.as_view(),
+        name="territorios_consultar",
+    ),
+    path(
+        "territorios/<int:pk>/editar/",
+        views.TerritoriosEdicion.as_view(),
+        name="territorios_editar",
+    ),
+    path(
+        "territorios/<int:pk>/eliminar/",
+        views.TerritoriosBorrado.as_view(),
+        name="territorios_eliminar",
+    ),
+    path(
+        "territorios/<int:pk>/desactivar/",
+        views.TerritoriosDesactivar.as_view(),
+        name="territorios_desactivar",
+    ),
+    path(
+        "territorios/<int:pk>/reactivar/",
+        views.TerritoriosReactivar.as_view(),
+        name="territorios_reactivar",
+    ),
 ]

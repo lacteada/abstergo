@@ -2,36 +2,43 @@
   {
     "codigo": "delegado",
     "nombre": "DELEGADO",
-    "descripcion": "Representa a la alcaldía en su territorio y gestiona las soluciones locales de la delegación."
+    "descripcion": "Representa a la alcaldía en su territorio y gestiona las soluciones locales de la delegación.",
+    "funciones": "1. Informar a la autoridad comunal sobre situaciones de su territorio para adoptar las medidas preventivas correspondientes.\n2. Ser representante de la máxima autoridad comunal en su territorio.\n3. Responsable del buen funcionamiento del territorio, de lo administrativo al cumplimiento de las gestiones encomendadas.\n4. Visitar periódicamente juntas de vecinos y organizaciones comunitarias.\n5. Proponer y dar soluciones a las necesidades y problemas de los usuarios del sector.\n6. Poner en práctica y supervisar planes y políticas de desarrollo que beneficien a la comunidad.\n7. Mantener buena relación y comunicación con las direcciones y departamentos del municipio y con las organizaciones públicas y sociales.\n8. Hacer difusión de los programas y actividades de la Municipalidad.\n9. Delegar trabajos solicitados por la comunidad a su equipo de trabajo.\n10. Generar mesas de trabajo con distintos estamentos públicos y privados.\n11. Ejecutar otras funciones que la ley señale o que le encomiende el alcalde o el Administrador Municipal."
   },
   {
     "codigo": "gestor-social",
     "nombre": "GESTOR SOCIAL",
-    "descripcion": "Desarrolla acciones comunitarias y atención de casos para el bienestar de los vecinos."
+    "descripcion": "Desarrolla acciones comunitarias y atención de casos para el bienestar de los vecinos.",
+    "funciones": "I. Atención de casos\n1. Recepción y evaluación de casos.\n2. Diagnóstico y planificación.\n3. Intervención y seguimiento.\n4. Derivación y articulación.\n5. Visitas en terreno.\nII. Acciones comunitarias\n1. Diagnóstico comunitario.\n2. Planificación y ejecución de programas.\n3. Organización y participación comunitaria.\n4. Articular con organizaciones de apoyo social.\nIII. Acciones de coordinación y gestión\n1. Coordinación con otros servicios y programas municipales.\n2. Gestión de recursos.\n3. Informes y estadísticas.\nIV. Acciones de auto-mejora de desempeño\n1. Participación en reuniones y comités.\n2. Capacitación y actualización.\n3. Apoyo a la gestión municipal."
   },
   {
     "codigo": "apoyo-administrativo",
     "nombre": "APOYO ADMINISTRATIVO",
-    "descripcion": "Gestión documental, atención ciudadana y agenda de la delegación."
+    "descripcion": "Gestión documental, atención ciudadana y agenda de la delegación.",
+    "funciones": "1. Llevar la agenda del delegado para coordinar eventos y reuniones.\n2. Coordinador del transporte de la delegación.\n3. Encargado(a) de los auxiliares, mantención y aseo.\n4. Dar atención al público y derivar a las áreas correspondientes.\n5. Generar un registro de atenciones (planilla SGR).\n6. Generar inventario trimestral de la delegación.\n7. Realizar la entrega de materiales a los funcionarios.\n8. Retroalimentar al delegado las solicitudes ingresadas por la comunidad.\n9. Informes mensuales del personal administrativo (permisos, solicitudes y carpetas de pago, transparencia).\n10. Encargada de envío de agenda a Comunicaciones.\n11. Temas varios en procesos administrativos."
   },
   {
     "codigo": "organizaciones-comunitarias",
     "nombre": "ORGANIZACIONES COMUNITARIAS",
-    "descripcion": "Registro OROC y asesoría a juntas de vecinos y agrupaciones (leyes 19.418 y 20.500)."
+    "descripcion": "Registro OROC y asesoría a juntas de vecinos y agrupaciones (leyes 19.418 y 20.500).",
+    "funciones": "1. Potenciar integralmente el desarrollo de los territorios costeros.\n2. Creación de organizaciones nuevas y mantener vigencia o cierre de OOCC inactivas.\n3. Asesorar y capacitar en las temáticas y procedimientos de las OOCC.\n4. Levantamiento de necesidades en cada territorio (visitas) con los dirigentes.\n5. Generar las convocatorias a las distintas actividades municipales.\n6. Articulador entre las organizaciones comunitarias y las áreas municipales.\n7. Generar actividades y talleres a las organizaciones.\n8. Temas varios en procesos administrativos."
   },
   {
     "codigo": "gestor-de-compras-y-proyectos",
     "nombre": "GESTOR DE COMPRAS Y PROYECTOS",
-    "descripcion": "Tramita los requerimientos de compras y proyectos de la delegación."
+    "descripcion": "Tramita los requerimientos de compras y proyectos de la delegación.",
+    "funciones": "a) Recopilar y confeccionar la Planificación Operativa Anual de su Dirección.\nb) Realizar control de gestión al cumplimiento del Plan Anual de Compras.\nc) Revisar pliego de condiciones, marco de referencia y especificaciones técnicas.\nd) Elaborar las solicitudes u oficio interno de contratación de bienes y/o servicios.\ne) Incorporar la propuesta de designación de la Comisión Evaluadora y del Inspector Técnico de Contrato."
   },
   {
     "codigo": "gestion-y-planificacion",
     "nombre": "GESTION Y PLANIFICACION",
-    "descripcion": "Alinea la estrategia con la operación y monitorea indicadores de gestión."
+    "descripcion": "Alinea la estrategia con la operación y monitorea indicadores de gestión.",
+    "funciones": "1. Derivar y apoyar a cada área en la entrega de los informes solicitados por la Jefatura.\n2. Apoyar el levantamiento y/o actualización del diagnóstico de necesidades de la comunidad.\n3. Mantener el buen funcionamiento de los procesos de la delegación.\n4. Generar información al delegado sobre la matriz SGR (fortalezas y debilidades por colaborador).\n5. Informar oportunamente al delegado sobre materias de interés del sector.\n6. Coordinación con departamentos internos y con el equipo de coordinación de las Delegaciones.\n7. Tomar acciones rápidas de solución a problemas derivados desde Gabinete.\n8. Participar como representante de la delegación cuando el delegado lo solicite.\n9. Coordinación con los distintos departamentos municipales.\n10. Responsable del buen funcionamiento del llenado de la matriz SGR.\n11. Encargado de gestionar la reunión semanal.\n12. Temas varios en procesos administrativos."
   },
   {
     "codigo": "coordinador-de-servicios-comunitarios",
     "nombre": "COORDINADOR DE SERVICIOS COMUNITARIOS",
-    "descripcion": "Planifica y ejecuta iniciativas de aseo, ornato y medio ambiente."
+    "descripcion": "Planifica y ejecuta iniciativas de aseo, ornato y medio ambiente.",
+    "funciones": "1. Enlace entre la Municipalidad y las juntas de vecinos, clubes y agrupaciones ambientales para operativos de limpieza y reparaciones de BNUP.\n2. Atención del usuario presencial y en terreno para obras de mejoramiento.\n3. Coordinar la ejecución y seguimiento de operativos de limpieza y desmalezado.\n4. Liderar acciones de educación ambiental (talleres de reciclaje, compostaje, aseo y ornato).\n5. Responsable del buen funcionamiento operativo y administrativo de las cuadrillas de empleabilidad y de emergencia.\n6. Coordinar acciones con Aseo y Ornato, Operaciones y Maquinarias.\n7. Recibir, canalizar y hacer seguimiento de denuncias ciudadanas por uso indebido del espacio público.\n8. Elaborar informes de gestión periódicos del programa de empleabilidad y cuadrillas.\n9. Temas varios en procesos administrativos del área de servicios a la comunidad."
   }
 ]

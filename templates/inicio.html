@@ -11,37 +11,59 @@
 
   <div class="tarjetas">
     <div class="tarjeta">
-      <span class="tarjeta-numero">{{ total_atenciones }}</span>
-      <span class="tarjeta-texto">Atenciones</span>
+      <span class="tarjeta-numero">{{ total_actividades }}</span>
+      <span class="tarjeta-texto">Actividades</span>
     </div>
     <div class="tarjeta">
-      <span class="tarjeta-numero">{{ atenciones_hoy }}</span>
-      <span class="tarjeta-texto">Atenciones de hoy</span>
+      <span class="tarjeta-numero">{{ actividades_hoy }}</span>
+      <span class="tarjeta-texto">Actividades de hoy</span>
     </div>
     {% if codigo_rol == "funcionario" %}
       <div class="tarjeta">
-        <span class="tarjeta-numero">{{ mis_atenciones }}</span>
-        <span class="tarjeta-texto">Mis atenciones</span>
+        <span class="tarjeta-numero">{{ mis_actividades }}</span>
+        <span class="tarjeta-texto">Mis actividades</span>
       </div>
     {% endif %}
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ tareas_abiertas }}</span>
+      <span class="tarjeta-texto">Tareas abiertas</span>
+    </div>
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ alertas_pendientes }}</span>
+      <span class="tarjeta-texto">Alertas pendientes</span>
+    </div>
+    <div class="tarjeta">
+      <span class="tarjeta-numero">{{ total_organizaciones }}</span>
+      <span class="tarjeta-texto">Organizaciones</span>
+    </div>
     <div class="tarjeta">
       <span class="tarjeta-numero">{{ total_vecinos }}</span>
       <span class="tarjeta-texto">Vecinos</span>
     </div>
-    <div class="tarjeta">
-      <span class="tarjeta-numero">{{ total_delegaciones }}</span>
-      <span class="tarjeta-texto">Delegaciones</span>
-    </div>
   </div>
 
-  <h2 class="titulo">Acciones</h2>
-  <div class="acciones-cuadricula">
-    {% for accion in acciones %}
-      <a class="accion-cuadro" href="{{ accion.url }}">
-        <strong>{{ accion.titulo }}</strong>
-        <span>{{ accion.descripcion }}</span>
-      </a>
-    {% endfor %}
-  </div>
+  {% if acciones %}
+    <h2 class="titulo">Trabajo</h2>
+    <div class="acciones-cuadricula">
+      {% for accion in acciones %}
+        <a class="accion-cuadro" href="{{ accion.url }}">
+          <strong>{{ accion.titulo }}</strong>
+          <span>{{ accion.descripcion }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if mantenedores %}
+    <h2 class="titulo">Mantenedores</h2>
+    <div class="acciones-cuadricula mantenedores">
+      {% for accion in mantenedores %}
+        <a class="accion-cuadro" href="{{ accion.url }}">
+          <strong>{{ accion.titulo }}</strong>
+          <span>{{ accion.descripcion }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
 
 {% endblock %}

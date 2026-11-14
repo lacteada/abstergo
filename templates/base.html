@@ -28,43 +28,69 @@
          href="{% url 'panel:inicio' %}">Inicio</a>
 
       <div class="grupo">
+        <span class="grupo-titulo">Trabajo</span>
+
+        {% if 'tasks' in modulos_lectura %}
+        <a class="nav-sub{% if seccion == 'tubo' %} activo{% endif %}"
+           href="{% url 'tubo:tablero' %}">Tubo de trabajo</a>
+        {% endif %}
+        {% if 'sgr_records' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'sgr:registros' %}">Actividades</a>
+        {% endif %}
+        {% if 'evidence' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'sgr:evidencias' %}">Evidencias</a>
+        {% endif %}
+        {% if 'validation' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'sgr:validaciones' %}">Por validar</a>
+        {% endif %}
+        {% if 'sgr' in modulos_lectura %}
+        <a class="nav-sub{% if seccion == 'sgr_tablero' %} activo{% endif %}"
+           href="{% url 'sgr:tablero' %}">Tablero SGR</a>
+        {% endif %}
+        {% if 'social_cases' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'casos:casos' %}">Casos sociales</a>
+        <a class="nav-sub" href="{% url 'casos:llamadas' %}">Llamadas</a>
+        {% endif %}
+        {% if 'letters' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'tubo:cartas' %}">Cartas</a>
+        {% endif %}
+        {% if 'community' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'comunidad:organizaciones' %}">Organizaciones</a>
+        {% endif %}
+        {% if 'alerts' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'sgr:alertas' %}">Alertas</a>
+        {% endif %}
+      </div>
+
+      <div class="grupo">
         <span class="grupo-titulo">Mantenedores</span>
 
-        {% if 'cases' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'atenciones' %} activo{% endif %}"
-           href="{% url 'atenciones:listado' %}">Atenciones</a>
-        {% endif %}
         {% if 'delegations' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'delegaciones' %} activo{% endif %}"
-           href="{% url 'organizacion:delegaciones' %}">Delegaciones Municipales</a>
+        <a class="nav-sub" href="{% url 'organizacion:delegaciones' %}">Delegaciones</a>
+        {% endif %}
+        {% if 'territories' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'organizacion:territorios' %}">Territorios</a>
         {% endif %}
         {% if 'positions' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'cargos' %} activo{% endif %}"
-           href="{% url 'organizacion:cargos' %}">Cargos</a>
-        {% endif %}
-        {% if 'users' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'usuarios' %} activo{% endif %}"
-           href="{% url 'cuentas:usuarios' %}">Usuarios</a>
-        {% endif %}
-        {% if 'roles' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'roles' %} activo{% endif %}"
-           href="{% url 'cuentas:roles' %}">Roles</a>
-        {% endif %}
-        {% if 'goals' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'metas' %} activo{% endif %}"
-           href="{% url 'catalogos:metas' %}">Metas</a>
-        {% endif %}
-        {% if 'attention_types' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'tipos' %} activo{% endif %}"
-           href="{% url 'catalogos:tipos' %}">Tipo de Atención</a>
-        {% endif %}
-        {% if 'attention_subtypes' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'subatenciones' %} activo{% endif %}"
-           href="{% url 'catalogos:subatenciones' %}">Sub Atención</a>
+        <a class="nav-sub" href="{% url 'organizacion:cargos' %}">Cargos</a>
         {% endif %}
         {% if 'neighbors' in modulos_lectura %}
-        <a class="nav-sub{% if seccion == 'vecinos' %} activo{% endif %}"
-           href="{% url 'ciudadanos:vecinos' %}">Vecinos</a>
+        <a class="nav-sub" href="{% url 'ciudadanos:vecinos' %}">Vecinos</a>
+        {% endif %}
+        {% if 'users' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'cuentas:usuarios' %}">Usuarios</a>
+        {% endif %}
+        {% if 'roles' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'cuentas:roles' %}">Roles</a>
+        {% endif %}
+        {% if 'sgr' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'sgr:periodos' %}">Períodos</a>
+        <a class="nav-sub" href="{% url 'sgr:areas' %}">Áreas</a>
+        <a class="nav-sub" href="{% url 'sgr:indicadores' %}">Indicadores</a>
+        <a class="nav-sub" href="{% url 'sgr:metas' %}">Metas SGR</a>
+        {% endif %}
+        {% if 'goals' in modulos_lectura %}
+        <a class="nav-sub" href="{% url 'catalogos:metas' %}">Metas de delegación</a>
         {% endif %}
       </div>
     </nav>

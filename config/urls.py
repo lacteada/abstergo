@@ -33,4 +33,8 @@ urlpatterns = [
     path("", include("apps.catalogos.urls")),
     path("", include("apps.ciudadanos.urls")),
     path("", include("apps.atenciones.urls")),
+    path("", include("apps.comunidad.urls")),
+    path("", include("apps.sgr.urls")),
+    path("", include("apps.tubo.urls")),
+    path("", include("apps.casos.urls")),
 ]

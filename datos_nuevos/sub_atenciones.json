@@ -3,48 +3,105 @@
     "codigo": "informacion-de-tramites",
     "nombre": "Información de trámites",
     "tipo_atencion": "Orientación e información",
+    "forma": "",
     "estado": "activo"
   },
   {
     "codigo": "orientacion-previsional",
     "nombre": "Orientación previsional",
     "tipo_atencion": "Orientación e información",
+    "forma": "",
     "estado": "activo"
   },
   {
     "codigo": "subsidio-de-agua-potable",
     "nombre": "Subsidio de agua potable",
     "tipo_atencion": "Asistencia social",
+    "forma": "aporte",
     "estado": "activo"
   },
   {
     "codigo": "ayuda-tecnica",
     "nombre": "Ayuda técnica",
     "tipo_atencion": "Asistencia social",
+    "forma": "material",
     "estado": "activo"
   },
   {
     "codigo": "pension-basica-solidaria",
     "nombre": "Pensión básica solidaria",
     "tipo_atencion": "Asistencia social",
+    "forma": "aporte",
     "estado": "activo"
   },
   {
     "codigo": "mantencion-de-areas-verdes",
     "nombre": "Mantención de áreas verdes",
     "tipo_atencion": "Requerimiento territorial",
+    "forma": "",
     "estado": "activo"
   },
   {
     "codigo": "alumbrado-publico",
     "nombre": "Alumbrado público",
     "tipo_atencion": "Requerimiento territorial",
+    "forma": "",
     "estado": "activo"
   },
   {
     "codigo": "mediacion-por-ruidos-molestos",
     "nombre": "Mediación por ruidos molestos",
     "tipo_atencion": "Convivencia vecinal",
+    "forma": "",
+    "estado": "activo"
+  },
+  {
+    "codigo": "informe-aporte-economico",
+    "nombre": "Informe aporte económico",
+    "tipo_atencion": "Informes sociales",
+    "forma": "dinero",
+    "estado": "activo"
+  },
+  {
+    "codigo": "informe-aporte-material",
+    "nombre": "Informe aporte material",
+    "tipo_atencion": "Informes sociales",
+    "forma": "material",
+    "estado": "activo"
+  },
+  {
+    "codigo": "informe-institucion",
+    "nombre": "Informe institución",
+    "tipo_atencion": "Informes sociales",
+    "forma": "documento",
+    "estado": "activo"
+  },
+  {
+    "codigo": "subsidio-ips",
+    "nombre": "IPS",
+    "tipo_atencion": "Gestión de subsidios",
+    "forma": "documento",
+    "estado": "activo"
+  },
+  {
+    "codigo": "subsidio-pgu",
+    "nombre": "PGU",
+    "tipo_atencion": "Gestión de subsidios",
+    "forma": "aporte",
+    "estado": "activo"
+  },
+  {
+    "codigo": "subsidio-suf",
+    "nombre": "SUF",
+    "tipo_atencion": "Gestión de subsidios",
+    "forma": "aporte",
+    "estado": "activo"
+  },
+  {
+    "codigo": "subsidio-sap",
+    "nombre": "SAP",
+    "tipo_atencion": "Gestión de subsidios",
+    "forma": "aporte",
     "estado": "activo"
   }
 ]

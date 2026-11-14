@@ -12,6 +12,7 @@ from django.db.models import ProtectedError, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from apps.common.delegaciones import acotar
@@ -77,6 +78,8 @@ class ExportarExcelMixin:
         libro = Workbook()
         hoja = libro.active
         hoja.title = (self.titulo or "Listado")[:31]
+        generado = timezone.localdate().strftime("%d-%m-%Y")
+        hoja.append([f"{self.titulo or 'Listado'} · generado el {generado}"])
         hoja.append([encabezado for encabezado, _ in self.exportar_columnas])
         for fila in self.get_queryset():
             hoja.append(

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <a class="boton" href="{% url 'sgr:global' %}">Vista global por cargos</a>
+  </div>
+
+  <div class="barra">
+    <form class="buscador" method="get">
+      <label for="periodo">Período</label>
+      <select name="periodo" id="periodo" onchange="this.form.submit()">
+        {% for periodo in periodos %}
+          <option value="{{ periodo.pk }}" {% if resumen.periodo and resumen.periodo.pk == periodo.pk %}selected{% endif %}>{{ periodo.nombre }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if resumen.periodo %}
+    <p class="subtitulo">
+      {{ resumen.periodo.nombre }} · fracción transcurrida {{ resumen.fraccion|floatformat:2 }}
+    </p>
+
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Área</th>
+            <th>Grupo</th>
+            <th>Logrado</th>
+            <th>Meta al día</th>
+            <th>Semáforo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in resumen.areas %}
+            <tr>
+              <td>{{ fila.area.nombre }}</td>
+              <td>{{ fila.area.get_grupo_display }}</td>
+              <td>{{ fila.logrado }}</td>
+              <td>{{ fila.esperado }}</td>
+              <td>
+                <span class="estado {{ fila.semaforo }}">{{ fila.semaforo }}</span>
+                {% if fila.alerta_reclamos %}<span class="estado rojo" title="{{ fila.reclamos }} reclamos">RR.HH.</span>{% endif %}
+              </td>
+              <td><a href="{% url 'sgr:personal' fila.area.pk %}">Ficha</a></td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="vacio">Sin áreas cargadas para el período.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">Total delegación</th>
+            <th>{{ resumen.totales.logrado }}</th>
+            <th>{{ resumen.totales.esperado }}</th>
+            <th colspan="2">
+              <span class="estado {{ resumen.totales.semaforo }}">{{ resumen.totales.semaforo }}</span>
+              · promedio {{ resumen.totales.promedio|floatformat:3 }}
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  {% else %}
+    <p class="vacio">Aún no hay períodos cargados.</p>
+  {% endif %}
+
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    <a class="boton" href="{% url 'sgr:tablero' %}">Volver al tablero</a>
+  </div>
+
+  <div class="barra">
+    <form class="buscador" method="get">
+      <label for="periodo">Período</label>
+      <select name="periodo" id="periodo" onchange="this.form.submit()">
+        {% for opcion in periodos %}
+          <option value="{{ opcion.pk }}" {% if periodo and opcion.pk == periodo.pk %}selected{% endif %}>{{ opcion.nombre }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  {% if periodo %}
+    <p class="subtitulo">
+      {{ area.cargo|default:"Sin cargo" }} · {{ area.get_grupo_display }} ·
+      {{ area.delegacion|default:"Sin delegación" }}
+    </p>
+
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Indicador</th>
+            <th>Ponderador</th>
+            <th>Meta</th>
+            <th>Avance</th>
+            <th>% cumplimiento</th>
+            <th>Ponderado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in resumen.filas %}
+            <tr>
+              <td>
+                {{ fila.indicador.nombre }}
+                {% if fila.bajo_umbral %}<span class="estado rojo">bajo umbral</span>{% endif %}
+                {% if fila.en_tope %}<span class="estado naranja">en tope</span>{% endif %}
+              </td>
+              <td>{{ fila.ponderador }}</td>
+              <td>{{ fila.meta }}</td>
+              <td>{{ fila.avance }}</td>
+              <td>{{ fila.porcentaje|floatformat:3 }}</td>
+              <td>{{ fila.ponderado }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="6" class="vacio">Sin metas para esta área y período.</td></tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="5">Logrado</th>
+            <th>{{ resumen.logrado }}</th>
+          </tr>
+          <tr>
+            <th colspan="5">Meta al día / semáforo</th>
+            <th>
+              {{ resumen.esperado }}
+              <span class="estado {{ resumen.semaforo }}">{{ resumen.semaforo }}</span>
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  {% else %}
+    <p class="vacio">Aún no hay períodos cargados.</p>
+  {% endif %}
+
+{% endblock %}
