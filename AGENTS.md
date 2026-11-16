@@ -170,11 +170,17 @@ echo DESPLEGADO
 ```bash
 for u in /login/ /privacidad/ /static/js/mensajes.js /static/css/institucional.css; do
   printf "%-40s -> %s\n" "$u" \
-    "$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 http://18.209.251.129$u)"
+    "$(curl -sk -o /dev/null -w '%{http_code}' --max-time 15 https://18.209.251.129$u)"
 done
 ```
 
-- Se espera `200` en todos. `/admin/` y `/atenciones/crear/` dan `302` sin sesión.
+- La producción **fuerza HTTPS**: el `.env` lleva `PRODUCCION_SEGURA=1` y el vhost
+  443 envía `RequestHeader set X-Forwarded-Proto "https"`. Por `http://` las rutas
+  responden `301` hacia `https://`.
+- Por `https://` se espera `200` en las públicas. `/admin/` y `/atenciones/crear/`
+  dan `302` sin sesión.
+- El certificado es autofirmado de desarrollo (`abstergo-dev.crt`): el navegador
+  avisa; en `curl` usa `-k`.
 - Si un estático sigue con la versión vieja o da `404`, faltó el `cp` con sudo.
 
 ---
