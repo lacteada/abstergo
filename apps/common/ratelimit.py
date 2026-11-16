@@ -1,8 +1,8 @@
 """Límite simple de intentos de login por IP (RNF-003, R9).
 
 Cuenta los POST a los endpoints de login dentro de una ventana de tiempo y
-responde 429 al superar el máximo. Se activa solo sin DEBUG, así no interfiere
-con el servidor local ni con las pruebas.
+responde 429 al superar el máximo. Se activa solo sin DEBUG (es decir, en el
+servidor), así no interfiere con el servidor local ni con las pruebas.
 """
 
 from django.conf import settings
@@ -18,7 +18,8 @@ class LimiteIntentos:
 
     def __call__(self, request):
         if (
-            not settings.DEBUG
+            not getattr(settings, "DEBUG", True)
+            and settings.LOGIN_INTENTOS_MAX > 0
             and request.method == "POST"
             and request.path in RUTAS_LOGIN
         ):

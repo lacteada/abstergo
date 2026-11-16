@@ -40,8 +40,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
 # --- Seguridad en producción (RNF-005, R9) ---
-# Apagado en desarrollo: el servidor local y las pruebas corren por HTTP.
-if not DEBUG:
+# Opt-in por entorno: se activa solo con PRODUCCION_SEGURA=1. Requiere que el
+# Apache que hace de proxy envíe X-Forwarded-Proto=https (si no, Django cree que
+# la petición es http y fuerza https sobre https: bucle de redirección). Se deja
+# apagado por defecto para no romper el acceso actual por http.
+if env_bool("PRODUCCION_SEGURA", False):
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

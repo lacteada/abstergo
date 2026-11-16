@@ -1107,6 +1107,7 @@ Piezas que cerraron los faltantes y parciales de la especificación SGR.
 - **RNF-009 · Evidencias.** `Evidencia.clean` acota formato (jpg/png/pdf) y
   tamaño (5 MB).
 - **RNF-005/R9 · Producción.** `config/settings.py` activa HTTPS/HSTS y cookies
-  seguras cuando `DEBUG` es falso; middleware `apps/common/ratelimit.py` limita
-  los intentos de login por IP.
+  seguras solo con `PRODUCCION_SEGURA=1` (opt-in), porque exige que Apache envíe
+  `X-Forwarded-Proto=https`; middleware `apps/common/ratelimit.py` limita los
+  intentos de login por IP.
 - **RNF-015 · Errores.** Páginas `templates/403.html`, `404.html` y `500.html`.
