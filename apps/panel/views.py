@@ -8,8 +8,8 @@ from apps.common.delegaciones import CLAVE_SESION, autorizadas
 from apps.common.permisos import codigo_de
 from apps.panel.servicios import (
     acciones_del_rol,
-    estadisticas,
     mantenedores_del_rol,
+    tarjetas,
     titulo_panel,
 )
 
@@ -20,12 +20,18 @@ class Inicio(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
         usuario = self.request.user
+        acciones = acciones_del_rol(usuario)
         contexto["seccion"] = "inicio"
         contexto["codigo_rol"] = codigo_de(usuario)
         contexto["titulo_panel"] = titulo_panel(usuario)
-        contexto["acciones"] = acciones_del_rol(usuario)
+        contexto["principal"] = next(
+            (accion for accion in acciones if accion["destacada"]), None
+        )
+        contexto["secundarias"] = [
+            accion for accion in acciones if not accion["destacada"]
+        ]
+        contexto["tarjetas"] = tarjetas(self.request)
         contexto["mantenedores"] = mantenedores_del_rol(usuario)
-        contexto.update(estadisticas(usuario))
         return contexto
 
 
@@ -53,4 +59,3 @@ class CambiarDelegacion(LoginRequiredMixin, View):
         ):
             return siguiente
         return "panel:inicio"
-

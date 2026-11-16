@@ -1,4 +1,4 @@
-from apps.casos.models import CasoSocial
+from apps.casos.models import CasoSocial, Llamada
 from apps.common.forms import FormularioCRUD
 
 
@@ -15,3 +15,9 @@ class CasoSocialForm(FormularioCRUD):
             "caso_anterior",
             "observaciones",
         )
+
+
+class LlamadaForm(FormularioCRUD):
+    class Meta:
+        model = Llamada
+        fields = ("vecino", "atencion", "motivo", "fecha_programada", "estado")

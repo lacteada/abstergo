@@ -21,8 +21,8 @@ from apps.common.vistas_base import (
     ReactivarBase,
 )
 from apps.cuentas.models import Usuario
-from apps.tubo.forms import TareaTuboForm
-from apps.tubo.models import ESTADOS, TareaTubo
+from apps.tubo.forms import CartaForm, TareaTuboForm
+from apps.tubo.models import ESTADOS, Carta, TareaTubo
 
 
 class _Tubo:
@@ -181,3 +181,92 @@ class Reasignar(LoginRequiredMixin, PermisoRequeridoMixin, View):
         tarea.responsable_id = request.POST.get("responsable") or None
         tarea.save(update_fields=["responsable"])
         return JsonResponse({"pk": tarea.pk, "responsable": tarea.responsable_id})
+
+
+# ------------------------------------------------------- Tubo de cartas (RF-054)
+class _Cartas:
+    model = Carta
+    form_class = CartaForm
+    titulo = "Tubo de cartas"
+    seccion = "tubo"
+    url_listado = "tubo:cartas"
+
+
+class CartasListado(_Cartas, ListadoBase):
+    template_name = "tubo/cartas_lista.html"
+    etiqueta_nueva = "Nueva carta"
+    busqueda = ("referencia", "asunto", "remitente", "destinatario")
+    relacionadas = ("delegacion", "encargado")
+    campo_delegacion = "delegacion"
+    exportar_nombre = "cartas"
+    exportar_columnas = (
+        ("Código", "referencia"),
+        ("Asunto", "asunto"),
+        ("Destinatario", "get_destinatario_display"),
+        ("Remitente", "remitente"),
+        ("Estado", "get_estado_display"),
+        ("Fecha", "fecha"),
+    )
+    url_nueva = "tubo:cartas_nueva"
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        totales = {codigo: 0 for codigo, _ in Carta.ESTADOS}
+        for estado in self.get_queryset().values_list("estado", flat=True):
+            totales[estado] = totales.get(estado, 0) + 1
+        contexto["subtitulo"] = " · ".join(
+            f"{etiqueta}: {totales[codigo]}" for codigo, etiqueta in Carta.ESTADOS
+        )
+        return contexto
+
+
+class CartasAlta(_Cartas, AltaBase):
+    titulo = "Nueva carta"
+
+
+class CartasEdicion(_Cartas, EdicionBase):
+    titulo = "Editar carta"
+
+
+class CartasBorrado(_Cartas, BorradoBase):
+    titulo = "Eliminar carta"
+
+
+class CartasConsulta(_Cartas, ConsultaBase):
+    consulta_campos = (
+        ("Código", "referencia"),
+        ("Correlativo", "correlativo"),
+        ("Asunto", "asunto"),
+        ("Destinatario", "get_destinatario_display"),
+        ("Remitente", "remitente"),
+        ("Contacto", "contacto"),
+        ("Estado", "get_estado_display"),
+        ("Encargado", "encargado.get_full_name"),
+        ("Fecha", "fecha"),
+        ("Observación", "observacion"),
+    )
+
+
+class Agenda(_Tubo, ListadoBase):
+    """Agenda del delegado: sus compromisos por fecha, con exportación (RF-055)."""
+
+    template_name = "tubo/agenda.html"
+    titulo = "Mi agenda"
+    etiqueta_nueva = "Nuevo compromiso"
+    busqueda = ("referencia", "titulo", "descripcion")
+    relacionadas = ("delegacion", "responsable", "territorio")
+    campo_delegacion = "delegacion"
+    exportar_nombre = "agenda"
+    exportar_columnas = (
+        ("Código", "referencia"),
+        ("Título", "titulo"),
+        ("Responsable", "responsable.get_full_name"),
+        ("Compromiso", "fecha_compromiso"),
+        ("Estado", "get_estado_display"),
+        ("Territorio", "territorio.nombre"),
+    )
+    url_nueva = "tubo:tareas_nueva"
+    url_listado = "tubo:agenda"
+
+    def get_queryset(self):
+        return super().get_queryset().order_by("fecha_compromiso", "orden")

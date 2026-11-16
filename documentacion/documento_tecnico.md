@@ -171,7 +171,7 @@ pasa si concede el rol **o** el cargo.
 Roles (`Rol.codigo`):
 
 - **`admin` (Administrador)**: acceso total de lectura y escritura en todos los módulos.
-- **`coordinador` (Supervisor)**: lee todos los módulos y escribe **solo metas**; acotado a su delegación.
+- **`coordinador` (Supervisor)**: lee todos los módulos, escribe **solo metas** y ve todas las delegaciones.
 - **`delegado` (Administrativo)**: CRUD de atenciones y vecinos en su delegación; lee los catálogos de atención. Sin acceso a usuarios, roles ni delegaciones.
 - **`funcionario`**: consulta de vecinos con su historial y registro/creación de atenciones en terreno.
 - **`consulta` / `verificador`**: sin permisos operativos por ahora.
@@ -1079,3 +1079,34 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   su ítem, justificada con un archivo de evidencia.
 - Al aprobar la evidencia, el verificador hace que la actividad sume una sola vez
   al puntaje y el compromiso quede **realizado**.
+
+---
+
+## 21. Cierre de brechas (2026-11-15)
+
+Piezas que cerraron los faltantes y parciales de la especificación SGR.
+
+- **RF-050 · Llamadas preventivas.** `apps/casos`: modelo `Llamada` (`LLA`); una
+  señal (`apps/casos/signals.py`, conectada en `CasosApp.ready`) crea la llamada
+  pendiente al registrar una `Atencion`; mantenedor en `/casos/llamadas/` con
+  acción de cierre (`llamadas_cerrar`). Módulo de permiso `cases`.
+- **RF-054 · Tubo de cartas.** `apps/tubo`: modelo `Carta` (`CAR`) con estatus
+  (en proceso/aprobada/finalizada/no aplica) y totales por estatus en el
+  subtítulo; mantenedor en `/tubo/cartas/`. Módulo `tasks`.
+- **RF-055 · Agenda del delegado.** `apps/tubo`: vista `Agenda` en
+  `/tubo/agenda/`, con los compromisos ordenados por fecha de compromiso y
+  exportación `.xlsx`.
+- **RN-001 · Suma de ponderadores.** `Area.excepcion_ponderadores` permite la
+  excepción; `servicios.resumen_area` expone `suma_ponderadores` y
+  `suma_incompleta`, y el tablero/ficha advierten sin bloquear.
+- **RF-030 · Actividad reciente.** `servicios.resumen_area` agrega
+  `ultimo_ingreso`, `dias_sin_ingreso`, `ingresos` y `promedio_diario`; se
+  muestran en la ficha personal.
+- **RN-017/018/019 · Caso social.** Parametrizados en `apps/sgr/validaciones.py`
+  (`PLAZO_*`, `VALOR_INFORME`, `META_TUBO`) con la línea base inferida.
+- **RNF-009 · Evidencias.** `Evidencia.clean` acota formato (jpg/png/pdf) y
+  tamaño (5 MB).
+- **RNF-005/R9 · Producción.** `config/settings.py` activa HTTPS/HSTS y cookies
+  seguras cuando `DEBUG` es falso; middleware `apps/common/ratelimit.py` limita
+  los intentos de login por IP.
+- **RNF-015 · Errores.** Páginas `templates/403.html`, `404.html` y `500.html`.

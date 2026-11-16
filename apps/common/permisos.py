@@ -44,11 +44,11 @@ CARGOS = [
 ]
 
 # Los que ven por encima de las delegaciones: no se acotan a un territorio.
-ALCANCE_GLOBAL = {ADMIN}
+ALCANCE_GLOBAL = {ADMIN, COORDINADOR}
 
 # Matriz de permisos por módulo:
 # - admin: acceso total (lee y escribe en todos los módulos).
-# - coordinador: lee todos los módulos y escribe solo metas; acotado a su delegación.
+# - coordinador: lee todos los módulos, escribe solo metas; ve todas las delegaciones.
 # - delegado: gestiona atenciones y vecinos; lee los catálogos de atención.
 # - funcionario: consulta vecinos y crea/gestiona atenciones.
 # - verificador, consulta: sin permisos operativos por ahora.
@@ -91,17 +91,17 @@ MATRIZ = {
     },
     # Organizaciones comunitarias: juntas de vecinos y agrupaciones (OROC).
     "community": {
-        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, CONSULTA},
         "write": {ADMIN, DELEGADO},
     },
     # Matriz SGR: configuración (periodos, áreas, indicadores, metas).
     "sgr": {
-        "read": {ADMIN, COORDINADOR},
+        "read": {ADMIN, COORDINADOR, CONSULTA},
         "write": {ADMIN, COORDINADOR},
     },
     # Matriz SGR: registro diario de gestiones.
     "sgr_records": {
-        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, CONSULTA},
         "write": {ADMIN, DELEGADO, FUNCIONARIO},
     },
     # Matriz SGR: reclamos, felicitaciones y ajuste de días del semáforo.
@@ -131,7 +131,7 @@ MATRIZ = {
     },
     # Alertas del sistema.
     "alerts": {
-        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
+        "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO, CONSULTA},
         "write": {ADMIN, COORDINADOR},
     },
     # Evidencias: las sube quien registra.
@@ -226,6 +226,7 @@ MODELO_A_MODULO = {
     "Delegacion": "delegations",
     "Territorio": "territories",
     "CasoSocial": "social_cases",
+    "Llamada": "cases",
     "Comentario": "comments",
     "Alerta": "alerts",
     "Cargo": "positions",
@@ -243,6 +244,7 @@ MODELO_A_MODULO = {
     "AjusteConducta": "sgr_adjustments",
     "Ausencia": "sgr_adjustments",
     "TareaTubo": "tasks",
+    "Carta": "tasks",
     "Evidencia": "evidence",
     "Validacion": "validation",
 }

@@ -178,3 +178,52 @@ class HistorialEstado(ConReferencia, BorradoLogico):
 
     def __str__(self):
         return f"{self.tarea} · {self.anterior} → {self.estado}"
+
+
+class Carta(ConReferencia, BorradoLogico):
+    """Correspondencia con su seguimiento (RF-054)."""
+
+    PREFIJO = "CAR"
+
+    ESTADOS = [
+        ("en_proceso", "En proceso"),
+        ("aprobada", "Aprobada"),
+        ("finalizada", "Finalizada"),
+        ("no_aplica", "No aplica"),
+    ]
+    DESTINATARIOS = [("alcaldesa", "Alcaldesa"), ("delegado", "Delegado")]
+
+    asunto = models.CharField("asunto", max_length=200, validators=[validar_texto])
+    correlativo = models.PositiveIntegerField("correlativo", null=True, blank=True)
+    destinatario = models.CharField(
+        "destinatario", max_length=10, choices=DESTINATARIOS, default="delegado"
+    )
+    remitente = models.CharField("remitente", max_length=160, blank=True)
+    contacto = models.CharField("contacto", max_length=120, blank=True)
+    fecha = models.DateField("fecha", default=timezone.localdate)
+    encargado = models.ForeignKey(
+        "cuentas.Usuario",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="cartas",
+        verbose_name="encargado de seguimiento",
+    )
+    delegacion = models.ForeignKey(
+        "organizacion.Delegacion",
+        on_delete=models.PROTECT,
+        related_name="cartas",
+        verbose_name="delegación",
+    )
+    estado = models.CharField(
+        "estado", max_length=12, choices=ESTADOS, default="en_proceso"
+    )
+    observacion = models.TextField("observación", blank=True)
+
+    class Meta:
+        verbose_name = "carta"
+        verbose_name_plural = "cartas"
+        ordering = ["-fecha", "-pk"]
+
+    def __str__(self):
+        return f"{self.referencia} · {self.asunto}"

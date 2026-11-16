@@ -33,11 +33,15 @@ sus delegaciones y mantenga la información personal bajo la Ley 21.719.
 - Rol Funcionario: flujo "Crear Atención" con búsqueda de vecino e historial.
 - Dashboard personalizado por rol, con estadísticas y accesos según el rol.
 - Adecuación a la Ley 21.719 (Ley de Protección de Datos Personales).
+- Matriz SGR: períodos, indicadores, metas, ponderadores, semáforo y tableros
+  (`apps/sgr`, `documento_tecnico.md` §20).
 
 **Fuera (por ahora)**
 
-- Cumplimiento de tareas y metas trimestrales del funcionario.
 - Módulo Reportes. La API REST ya está implementada (`documento_tecnico.md` §18).
+
+> Actualizado 2026-11-15: el cumplimiento de tareas y metas trimestrales **sí**
+> está en alcance; lo implementa el módulo SGR.
 
 ---
 

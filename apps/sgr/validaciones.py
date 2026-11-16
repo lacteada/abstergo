@@ -18,6 +18,19 @@ MAX_FELICITACIONES = 3
 # Algunos cargos rebajan más el reclamo (doc 3: −0.3 en Apoyo Administrativo).
 VALORES_RECLAMO_POR_CARGO = {"apoyo-administrativo": Decimal("-0.3")}
 
+# RN-017: plazos objetivo del caso social, en días entre hitos (inferidos de la
+# planilla; parámetros, no valores fijos).
+PLAZO_VISITA_DIAS = 10
+PLAZO_INFORME_DIAS = 4
+PLAZO_BENEFICIO_DIAS = 4
+PLAZO_TOTAL_DIAS = 20
+
+# RN-018: valor del informe según la cantidad de devoluciones (parámetro).
+VALOR_INFORME = {0: Decimal("1"), 1: Decimal("0.20"), 2: Decimal("0.05")}
+
+# RN-019: meta de "soluciones de ingreso al tubo" (proporción realizada).
+META_TUBO = Decimal("0.8")
+
 
 def lunes_de(fecha):
     """El lunes de la semana a la que pertenece `fecha`."""

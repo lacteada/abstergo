@@ -35,8 +35,13 @@ def test_el_superusuario_cuenta_como_admin():
     assert modulos_de(usuario, escritura=True) == set(MATRIZ)
 
 
-def test_consulta_no_tiene_modulos():
-    assert modulos_de(UsuarioFalso("consulta")) == set()
+def test_consulta_solo_lee_tableros_e_informes():
+    assert modulos_de(UsuarioFalso("consulta")) == {
+        "alerts",
+        "community",
+        "sgr",
+        "sgr_records",
+    }
     assert modulos_de(UsuarioFalso("consulta"), escritura=True) == set()
 
 

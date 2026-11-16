@@ -52,7 +52,7 @@ def test_el_delegado_no_gestiona_usuarios(cliente, crear_usuario, centro):
     assert cliente.get(reverse("cuentas:usuarios")).status_code == 403
 
 
-def test_el_supervisor_ve_solo_su_delegacion(cliente, crear_usuario, centro, mar):
+def test_el_supervisor_ve_todas_las_delegaciones(cliente, crear_usuario, centro, mar):
     crear_usuario("user_centro@test.cl", codigo="funcionario", delegacion=centro)
     crear_usuario("user_mar@test.cl", codigo="funcionario", delegacion=mar)
     usuario = crear_usuario("supervisor@test.cl", codigo="coordinador", delegacion=centro)
@@ -63,7 +63,7 @@ def test_el_supervisor_ve_solo_su_delegacion(cliente, crear_usuario, centro, mar
     assert respuesta.status_code == 200
     correos = {u.email for u in respuesta.context["object_list"]}
     assert "user_centro@test.cl" in correos
-    assert "user_mar@test.cl" not in correos
+    assert "user_mar@test.cl" in correos
 
 
 def test_la_busqueda_es_parcial_y_no_distingue_mayusculas(cliente, crear_usuario, centro):

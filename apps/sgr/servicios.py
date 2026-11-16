@@ -8,6 +8,7 @@ renderiza lo que esta capa devuelve.
 from decimal import Decimal
 
 from django.db.models import Q
+from django.utils import timezone
 
 from apps.sgr import calculos
 from apps.sgr.models import (
@@ -110,10 +111,15 @@ def resumen_area(periodo, area):
         )
     logrado = sum((fila["ponderado"] for fila in filas), Decimal("0"))
     logrado += _ajuste_conductas(periodo, area)
-    esperado = sum(
-        (fila["ponderador"] for fila in filas), Decimal("0")
-    ) * Decimal(str(fraccion))
+    suma_ponderadores = sum((fila["ponderador"] for fila in filas), Decimal("0"))
+    esperado = suma_ponderadores * Decimal(str(fraccion))
     reclamos = len([c for c in _conductas(periodo, area) if c.tipo == "reclamo"])
+    registros = RegistroGestion.objects.filter(
+        area=area, fecha__gte=periodo.inicio, fecha__lte=periodo.termino
+    )
+    ultimo = registros.order_by("-fecha").values_list("fecha", flat=True).first()
+    ingresos = registros.count()
+    dias = periodo.dias_transcurridos() or 1
     return {
         "area": area,
         "filas": filas,
@@ -122,6 +128,16 @@ def resumen_area(periodo, area):
         "semaforo": calculos.semaforo(logrado, esperado, periodo.umbral_ambar),
         "reclamos": reclamos,
         "alerta_reclamos": reclamos > MAX_RECLAMOS,
+        # RN-001: la suma de ponderadores del área debe dar 100 %, salvo la
+        # excepción configurada. No bloquea: advierte.
+        "suma_ponderadores": suma_ponderadores,
+        "suma_incompleta": suma_ponderadores != Decimal("1")
+        and not area.excepcion_ponderadores,
+        # RF-030: actividad reciente del área.
+        "ultimo_ingreso": ultimo,
+        "dias_sin_ingreso": (timezone.localdate() - ultimo).days if ultimo else None,
+        "ingresos": ingresos,
+        "promedio_diario": round(ingresos / dias, 2),
     }
 
 

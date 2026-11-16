@@ -103,8 +103,8 @@ def test_la_api_de_registros_escribe_solo_quien_corresponde(cliente, crear_usuar
     cliente.force_login(admin)
     assert cliente.get("/api/v1/sgr-records/").status_code == 200
 
-    consulta = crear_usuario("con@test.cl", codigo="consulta")
-    cliente.force_login(consulta)
+    sin_lectura = crear_usuario("ver@test.cl", codigo="verificador")
+    cliente.force_login(sin_lectura)
     assert cliente.get("/api/v1/sgr-records/").status_code == 403
 
 

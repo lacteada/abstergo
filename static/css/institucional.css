@@ -508,3 +508,18 @@ tr.fila-deshabilitada .estado.inactivo {
   color: #8a9099; margin-bottom: 2px;
 }
 .detalle-item dd { margin: 0; font-size: 14px; color: #22262b; }
+
+/* ---------- Panel por rol ---------- */
+.boton-principal-caja { margin: 22px 0 6px; }
+.boton-principal {
+  display: inline-block; padding: 16px 30px; font-size: 18px; font-weight: 700;
+  background: var(--muni-base); color: #fff; border-radius: 10px;
+  text-decoration: none;
+}
+.boton-principal:hover { filter: brightness(.92); }
+.acciones-chips { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 4px; }
+.chip {
+  padding: 9px 16px; border: 1px solid #d7dbe0; border-radius: 20px;
+  background: #fff; color: #2b3138; text-decoration: none; font-size: 14px;
+}
+.chip:hover { border-color: var(--muni-base); color: var(--muni-base); }

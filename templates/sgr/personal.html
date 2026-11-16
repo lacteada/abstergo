@@ -24,6 +24,19 @@
       {{ area.delegacion|default:"Sin delegación" }}
     </p>
 
+    {% if resumen.suma_incompleta %}
+      <p class="estado naranja">
+        La suma de ponderadores no es 100 %; ajusta las metas o marca la
+        excepción del área.
+      </p>
+    {% endif %}
+
+    <p class="subtitulo">
+      Actividad reciente: último ingreso {{ resumen.ultimo_ingreso|default:"—" }},
+      días sin ingreso {{ resumen.dias_sin_ingreso|default:"—" }},
+      registros {{ resumen.ingresos }}, promedio diario {{ resumen.promedio_diario }}.
+    </p>
+
     <div class="tabla-envoltura">
       <table class="tabla">
         <thead>

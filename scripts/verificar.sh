@@ -84,8 +84,8 @@ for ruta in ["/", "/delegaciones/", "/cargos/", "/territorios/", "/usuarios/", "
              "/organizaciones/", "/sgr/", "/sgr/global/", "/sgr/periodos/", "/sgr/registros/",
              "/sgr/evidencias/", "/sgr/validaciones/", "/sgr/ausencias/",
              "/sgr/comentarios/", "/sgr/alertas/",
-             "/tubo/", "/tubo/tareas/",
-             "/casos/", "/admin/"]:
+             "/tubo/", "/tubo/tareas/", "/tubo/agenda/", "/tubo/cartas/",
+             "/casos/", "/casos/llamadas/", "/admin/"]:
     assert c.get(ruta).status_code == 200, ruta
 
 # API v1: esquema, login por token, y las rutas del contrato en inglés.
@@ -137,7 +137,7 @@ assert b.get("/usuarios/").status_code == 403, "web: usuarios prohibido"
 assert b.get("/vecinos/").status_code == 403, "web: vecinos prohibido para consulta"
 perfil2 = b.get("/api/v1/auth/me/", **authb).json()
 assert perfil2["role_code"] == "consulta", perfil2.get("role_code")
-assert len(perfil2["read_modules"]) == 0, "consulta sin modulos de lectura"
+assert set(perfil2["read_modules"]) == {"alerts", "community", "sgr", "sgr_records"}, perfil2.get("read_modules")
 assert len(perfil2["write_modules"]) == 0, "consulta sin modulos de escritura"
 
 # Rol Delegado: ve vecinos, gestiona atenciones y gestiona usuarios de su delegacion
@@ -147,6 +147,7 @@ u_del, _ = U.objects.get_or_create(email="delegado@test.cl",
 u_del.rol = rol_del; u_del.set_password("Clave.123"); u_del.is_active = True; u_del.save()
 cdel = Client()
 cdel.post("/login/", {"username": "delegado@test.cl", "password": "Clave.123"}, follow=True)
+assert cdel.get("/").status_code == 200, "panel del delegado"
 assert cdel.get("/vecinos/").status_code == 200, "delegado ve vecinos"
 assert cdel.get("/atenciones/").status_code == 200, "delegado ve atenciones"
 assert cdel.get("/atenciones/crear/").status_code == 200, "delegado crea atencion"

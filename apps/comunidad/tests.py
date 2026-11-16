@@ -33,8 +33,8 @@ def test_la_api_reserva_community_organizations_para_quien_lee(cliente, crear_us
     cliente.force_login(admin)
     assert cliente.get("/api/v1/community-organizations/").status_code == 200
 
-    consulta = crear_usuario("con@test.cl", codigo="consulta")
-    cliente.force_login(consulta)
+    sin_lectura = crear_usuario("ver@test.cl", codigo="verificador")
+    cliente.force_login(sin_lectura)
     assert cliente.get("/api/v1/community-organizations/").status_code == 403
 
 

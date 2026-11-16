@@ -39,6 +39,21 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # .env, por ejemplo https://18.209.251.129.
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
+# --- Seguridad en producción (RNF-005, R9) ---
+# Apagado en desarrollo: el servidor local y las pruebas corren por HTTP.
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Límite de intentos de login por IP (RNF-003, R9). Solo actúa sin DEBUG.
+LOGIN_INTENTOS_MAX = int(env("LOGIN_INTENTOS_MAX", "20"))
+LOGIN_INTENTOS_VENTANA = int(env("LOGIN_INTENTOS_VENTANA", "60"))
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -73,6 +88,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.common.ratelimit.LimiteIntentos",
 ]
 
 ROOT_URLCONF = "config.urls"

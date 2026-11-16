@@ -1,5 +1,5 @@
 from apps.common.forms import FormularioCRUD
-from apps.tubo.models import TareaTubo
+from apps.tubo.models import Carta, TareaTubo
 
 
 class TareaTuboForm(FormularioCRUD):
@@ -22,4 +22,23 @@ class TareaTuboForm(FormularioCRUD):
             "avance",
             "fecha_compromiso",
             "orden",
+        )
+
+
+class CartaForm(FormularioCRUD):
+    campo_delegacion = "delegacion"
+
+    class Meta:
+        model = Carta
+        fields = (
+            "asunto",
+            "correlativo",
+            "destinatario",
+            "remitente",
+            "contacto",
+            "fecha",
+            "encargado",
+            "delegacion",
+            "estado",
+            "observacion",
         )

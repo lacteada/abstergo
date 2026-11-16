@@ -1,138 +1,166 @@
-"""Las acciones y las estadísticas del panel, fuera de la vista."""
+"""El panel: qué le toca a cada rol y cómo se titula su jornada.
+
+Cada rol ve **pocas acciones principales** (una destacada) y dos o tres números
+que le importan. Los mantenedores solo aparecen para el admin.
+"""
 
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.ciudadanos.models import Vecino
+from apps.atenciones.models import Atencion
+from apps.common.delegaciones import acotar
 from apps.common.permisos import (
     ADMIN,
+    CONSULTA,
     COORDINADOR,
     DELEGADO,
     FUNCIONARIO,
-    alcance_global,
+    VERIFICADOR,
     codigo_de,
-    modulos_de,
 )
 from apps.comunidad.models import Organizacion
-from apps.sgr.models import Alerta, RegistroGestion
+from apps.sgr.models import Evidencia, RegistroGestion, Validacion
 from apps.tubo.models import TareaTubo
 
-# Título del panel por rol: le da identidad a cada dashboard.
-TITULOS_PANEL = {
-    ADMIN: "Panel de administración",
-    COORDINADOR: "Panel de supervisión",
-    DELEGADO: "Panel de delegación",
+TITULOS = {
+    ADMIN: "Administración",
+    COORDINADOR: "Supervisión",
+    DELEGADO: "Mi delegación",
     FUNCIONARIO: "Mi jornada",
+    VERIFICADOR: "Verificación",
+    CONSULTA: "Consulta",
 }
+
+# (destacada, título, ruta de la url)
+ACCIONES = {
+    FUNCIONARIO: [
+        (True, "Registrar actividad", "sgr:registros_nueva"),
+        (False, "Mis actividades", "sgr:registros"),
+        (False, "Mis compromisos", "tubo:tablero"),
+        (False, "Mis evidencias", "sgr:evidencias"),
+    ],
+    DELEGADO: [
+        (True, "Compromisos", "tubo:tablero"),
+        (False, "Registrar atención", "atenciones:crear"),
+        (False, "Mi agenda", "tubo:agenda"),
+        (False, "Actividades", "sgr:registros"),
+        (False, "Casos sociales", "casos:casos"),
+        (False, "Tablero de delegación", "sgr:tablero"),
+    ],
+    VERIFICADOR: [
+        (True, "Por validar", "sgr:validaciones"),
+        (False, "Evidencias", "sgr:evidencias"),
+    ],
+    COORDINADOR: [
+        (True, "Tablero global", "sgr:global"),
+        (False, "Por validar", "sgr:validaciones"),
+        (False, "Compromisos", "tubo:tablero"),
+        (False, "Metas", "sgr:metas"),
+    ],
+    ADMIN: [
+        (True, "Tablero SGR", "sgr:tablero"),
+        (False, "Usuarios", "cuentas:usuarios"),
+        (False, "Delegaciones", "organizacion:delegaciones"),
+        (False, "Períodos", "sgr:periodos"),
+        (False, "Organizaciones", "comunidad:organizaciones"),
+    ],
+    CONSULTA: [
+        (True, "Tablero SGR", "sgr:tablero"),
+        (False, "Actividades", "sgr:registros"),
+        (False, "Organizaciones", "comunidad:organizaciones"),
+    ],
+}
+
+MANTENEDORES = [
+    ("Delegaciones", "organizacion:delegaciones"),
+    ("Territorios", "organizacion:territorios"),
+    ("Cargos", "organizacion:cargos"),
+    ("Vecinos", "ciudadanos:vecinos"),
+    ("Usuarios", "cuentas:usuarios"),
+    ("Roles", "cuentas:roles"),
+    ("Períodos", "sgr:periodos"),
+    ("Áreas", "sgr:areas"),
+    ("Indicadores", "sgr:indicadores"),
+    ("Metas SGR", "sgr:metas"),
+]
 
 
 def titulo_panel(usuario):
-    """El título del dashboard según el rol."""
-    return TITULOS_PANEL.get(codigo_de(usuario), "Panel")
-
-
-# Lo importante del día a día (título, ruta, descripción, módulo, escritura).
-ACCIONES_TRABAJO = [
-    (
-        "Registrar actividad",
-        "sgr:registros_nueva",
-        "Anotar lo que hiciste hoy.",
-        "sgr_records",
-        True,
-    ),
-    ("Mis actividades", "sgr:registros", "Lo que has registrado.", "sgr_records", False),
-    ("Registrar atención", "atenciones:crear", "Anotar una atención al vecino.", "cases", True),
-    ("Compromisos", "tubo:tablero", "Las promesas a los vecinos.", "tasks", False),
-    (
-        "Mis evidencias",
-        "sgr:evidencias",
-        "Archivos que respaldan lo hecho.",
-        "evidence",
-        False,
-    ),
-    (
-        "Evidencias por validar",
-        "sgr:validaciones",
-        "Revisar lo que falta aprobar.",
-        "validation",
-        False,
-    ),
-    ("Tablero SGR", "sgr:tablero", "Cómo va el cumplimiento.", "sgr", False),
-    ("Casos sociales", "casos:casos", "Acompañamiento a vecinos.", "social_cases", False),
-    (
-        "Organizaciones comunitarias",
-        "comunidad:organizaciones",
-        "Juntas de vecinos y agrupaciones.",
-        "community",
-        False,
-    ),
-    ("Alertas", "sgr:alertas", "Avisos que requieren atención.", "alerts", False),
-]
-
-# Los CRUD y catálogos: administrativos, van aparte.
-ACCIONES_MANTENEDORES = [
-    (
-        "Delegaciones",
-        "organizacion:delegaciones",
-        "Delegaciones municipales.",
-        "delegations",
-        False,
-    ),
-    ("Territorios", "organizacion:territorios", "Sectores por delegación.", "territories", False),
-    ("Cargos", "organizacion:cargos", "Cargos de la delegación.", "positions", False),
-    ("Vecinos", "ciudadanos:vecinos", "Mantenedor de vecinos.", "neighbors", False),
-    ("Usuarios", "cuentas:usuarios", "Mantenedor de usuarios.", "users", False),
-    ("Roles", "cuentas:roles", "Mantenedor de roles.", "roles", False),
-    ("Períodos", "sgr:periodos", "Períodos de la matriz.", "sgr", False),
-    ("Áreas", "sgr:areas", "Áreas (puestos) de la matriz.", "sgr", False),
-    ("Indicadores", "sgr:indicadores", "Indicadores de la matriz.", "sgr", False),
-    ("Metas SGR", "sgr:metas", "Metas por área e indicador.", "sgr", False),
-    ("Metas de delegación", "catalogos:metas", "Metas por delegación.", "goals", False),
-]
-
-
-def _visibles(usuario, catalogo):
-    """Las acciones del catálogo que el usuario puede ver, según la matriz."""
-    lectura = modulos_de(usuario)
-    escritura = modulos_de(usuario, escritura=True)
-    return [
-        {"titulo": titulo, "url": reverse(nombre), "descripcion": descripcion}
-        for titulo, nombre, descripcion, modulo, requiere_escritura in catalogo
-        if modulo in (escritura if requiere_escritura else lectura)
-    ]
+    return TITULOS.get(codigo_de(usuario), "Panel")
 
 
 def acciones_del_rol(usuario):
-    """Las acciones del día a día que el rol puede hacer."""
-    return _visibles(usuario, ACCIONES_TRABAJO)
+    """Las acciones del rol: una destacada primero y unas pocas secundarias."""
+    filas = ACCIONES.get(codigo_de(usuario), ACCIONES[CONSULTA])
+    return [
+        {"titulo": titulo, "url": reverse(ruta), "destacada": destacada}
+        for destacada, titulo, ruta in filas
+    ]
 
 
 def mantenedores_del_rol(usuario):
-    """Los CRUD y catálogos que el rol puede ver."""
-    return _visibles(usuario, ACCIONES_MANTENEDORES)
+    if codigo_de(usuario) != ADMIN:
+        return []
+    return [{"titulo": titulo, "url": reverse(ruta)} for titulo, ruta in MANTENEDORES]
 
 
-def estadisticas(usuario):
-    """Los conteos del panel, ya acotados al alcance del rol."""
+def tarjetas(request):
+    """Dos o tres números que importan según el rol, acotados a su ámbito."""
+    usuario = request.user
     codigo = codigo_de(usuario)
-    delegacion = None if alcance_global(usuario) else usuario.delegacion_id
+    hoy = timezone.localdate()
+    atenciones = acotar(request, Atencion.objects.all(), "delegacion")
+    tareas = acotar(request, TareaTubo.objects.all(), "delegacion")
+    registros = acotar(request, RegistroGestion.objects.all(), "area__delegacion")
+    pendientes = acotar(
+        request,
+        Evidencia.objects.filter(estado_revision="pendiente"),
+        "registro__area__delegacion",
+    ).count()
 
-    actividades = RegistroGestion.objects.all()
-    organizaciones = Organizacion.objects.all()
-    tareas = TareaTubo.objects.exclude(estado="realizada")
-    if delegacion:
-        actividades = actividades.filter(area__delegacion_id=delegacion)
-        organizaciones = organizaciones.filter(territorio_id=delegacion)
-        tareas = tareas.filter(delegacion_id=delegacion)
-
-    datos = {
-        "total_actividades": actividades.count(),
-        "actividades_hoy": actividades.filter(fecha=timezone.localdate()).count(),
-        "total_organizaciones": organizaciones.count(),
-        "tareas_abiertas": tareas.count(),
-        "alertas_pendientes": Alerta.objects.filter(resuelta=False).count(),
-        "total_vecinos": Vecino.objects.count(),
-    }
     if codigo == FUNCIONARIO:
-        datos["mis_actividades"] = RegistroGestion.objects.filter(funcionario=usuario).count()
-    return datos
+        return [
+            (
+                "Mis actividades",
+                RegistroGestion.objects.filter(funcionario=usuario).count(),
+            ),
+            (
+                "Mis compromisos abiertos",
+                TareaTubo.objects.filter(responsable=usuario)
+                .exclude(estado="realizada")
+                .count(),
+            ),
+        ]
+    if codigo == VERIFICADOR:
+        return [
+            ("Evidencias por validar", pendientes),
+            (
+                "Aprobadas hoy",
+                Validacion.objects.filter(
+                    decision="aprobada", fecha__date=hoy
+                ).count(),
+            ),
+        ]
+    if codigo == DELEGADO:
+        return [
+            ("Atenciones de hoy", atenciones.filter(fecha__date=hoy).count()),
+            (
+                "Compromisos abiertos",
+                tareas.exclude(estado="realizada").count(),
+            ),
+            ("Evidencias por validar", pendientes),
+        ]
+    if codigo in (ADMIN, COORDINADOR):
+        return [
+            ("Actividades de hoy", registros.filter(fecha=hoy).count()),
+            (
+                "Compromisos abiertos",
+                tareas.exclude(estado="realizada").count(),
+            ),
+            ("Evidencias por validar", pendientes),
+            ("Organizaciones", Organizacion.objects.count()),
+        ]
+    return [
+        ("Actividades", registros.count()),
+        ("Compromisos", tareas.count()),
+    ]

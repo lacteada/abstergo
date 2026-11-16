@@ -71,3 +71,63 @@ class CasoSocial(ConReferencia, BorradoLogico):
     @property
     def atenciones_restantes(self):
         return max(0, MAX_GESTIONES - self.atenciones.count())
+
+
+class Llamada(ConReferencia, BorradoLogico):
+    """Llamada preventiva que deja cada atención (RF-050).
+
+    Al registrar una atención nace una llamada pendiente; al ejecutarla se
+    cierra. Es la cola de seguimiento del apoyo administrativo.
+    """
+
+    PREFIJO = "LLA"
+
+    PENDIENTE = "pendiente"
+    REALIZADA = "realizada"
+    ANULADA = "anulada"
+    ESTADOS = [
+        (PENDIENTE, "Pendiente"),
+        (REALIZADA, "Realizada"),
+        (ANULADA, "Anulada"),
+    ]
+
+    vecino = models.ForeignKey(
+        "ciudadanos.Vecino",
+        on_delete=models.PROTECT,
+        related_name="llamadas",
+        verbose_name="vecino",
+    )
+    atencion = models.ForeignKey(
+        "atenciones.Atencion",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="llamadas",
+        verbose_name="atención de origen",
+    )
+    motivo = models.CharField("motivo", max_length=200, blank=True)
+    fecha_programada = models.DateField("fecha programada", null=True, blank=True)
+    estado = models.CharField(
+        "estado", max_length=10, choices=ESTADOS, default=PENDIENTE
+    )
+    fecha_realizada = models.DateTimeField("fecha realizada", null=True, blank=True)
+    realizada_por = models.ForeignKey(
+        "cuentas.Usuario",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="llamadas_realizadas",
+        verbose_name="realizada por",
+    )
+
+    class Meta:
+        verbose_name = "llamada preventiva"
+        verbose_name_plural = "llamadas preventivas"
+        ordering = ["estado", "fecha_programada"]
+
+    def __str__(self):
+        return f"{self.referencia} · {self.vecino}"
+
+    @property
+    def pendiente(self):
+        return self.estado == self.PENDIENTE

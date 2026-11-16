@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from apps.common.admin_base import AdminBase
-from apps.tubo.models import HistorialEstado, TareaTubo
+from apps.tubo.models import Carta, HistorialEstado, TareaTubo
 
 
 class HistorialEstadoInline(admin.TabularInline):
@@ -24,3 +24,11 @@ class TareaTuboAdmin(AdminBase):
     list_filter = ("estado", "tipo", "delegacion")
     autocomplete_fields = ("delegacion", "territorio", "responsable", "apoyo", "vecino")
     inlines = (HistorialEstadoInline,)
+
+
+@admin.register(Carta)
+class CartaAdmin(AdminBase):
+    list_display = ("referencia", "asunto", "destinatario", "estado", "fecha", "delegacion")
+    search_fields = ("referencia", "asunto", "remitente")
+    list_filter = ("estado", "destinatario", "delegacion")
+    autocomplete_fields = ("delegacion", "encargado")

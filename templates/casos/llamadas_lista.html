@@ -17,6 +17,14 @@
   <td><span class="estado {{ fila.estado }}">{{ fila.get_estado_display }}</span></td>
   <td class="acciones">
     <ul class="acciones-lista">
+      {% if fila.pendiente and puede_escribir %}
+      <li>
+        <form method="post" action="{% url 'casos:llamadas_cerrar' fila.pk %}" class="accion-form">
+          {% csrf_token %}
+          <button type="submit" class="accion accion-icono" title="Cerrar" aria-label="Cerrar">{% include 'iconos/guardar.html' %}</button>
+        </form>
+      </li>
+      {% endif %}
       <li><a class="accion accion-icono" href="{% url 'casos:llamadas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
       <li><a class="accion accion-icono" href="{% url 'casos:llamadas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
     </ul>

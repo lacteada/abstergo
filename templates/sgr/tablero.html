@@ -45,6 +45,7 @@
               <td>
                 <span class="estado {{ fila.semaforo }}">{{ fila.semaforo }}</span>
                 {% if fila.alerta_reclamos %}<span class="estado rojo" title="{{ fila.reclamos }} reclamos">RR.HH.</span>{% endif %}
+                {% if fila.suma_incompleta %}<span class="estado naranja" title="Ponderadores ≠ 100%">ponderadores</span>{% endif %}
               </td>
               <td><a href="{% url 'sgr:personal' fila.area.pk %}">Ficha</a></td>
             </tr>

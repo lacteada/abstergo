@@ -1,0 +1,24 @@
+{% extends "listado.html" %}
+
+{% block encabezado %}
+  <th>Código</th>
+  <th>Título</th>
+  <th>Responsable</th>
+  <th>Compromiso</th>
+  <th>Estado</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block fila %}
+  <td>{{ fila.referencia }}</td>
+  <td>{{ fila.titulo }}</td>
+  <td>{{ fila.responsable }}</td>
+  <td>{{ fila.fecha_compromiso }}</td>
+  <td><span class="estado {{ fila.estado }}">{{ fila.get_estado_display }}</span></td>
+  <td class="acciones">
+    <ul class="acciones-lista">
+      <li><a class="accion accion-icono" href="{% url 'tubo:tareas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
+      <li><a class="accion accion-icono" href="{% url 'tubo:tareas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+    </ul>
+  </td>
+{% endblock %}

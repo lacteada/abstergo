@@ -222,6 +222,9 @@ class Area(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
         related_name="areas_sgr",
         verbose_name="delegación",
     )
+    excepcion_ponderadores = models.BooleanField(
+        "excepción de ponderadores", default=False
+    )
 
     class Meta:
         verbose_name = "área"
@@ -544,6 +547,9 @@ class Evidencia(ConReferencia, BorradoLogico):
         ("correccion", "Corrección solicitada"),
     ]
 
+    EXTENSIONES = ("jpg", "jpeg", "png", "pdf")
+    TAMANO_MAX = 5 * 1024 * 1024
+
     registro = models.ForeignKey(
         RegistroGestion,
         on_delete=models.PROTECT,
@@ -579,6 +585,19 @@ class Evidencia(ConReferencia, BorradoLogico):
             raise ValidationError(
                 {"archivo": "La evidencia debe incluir un archivo."}
             )
+        # RNF-009: formato y tamaño acotados.
+        nombre = getattr(self.archivo, "name", "") or ""
+        extension = nombre.rsplit(".", 1)[-1].lower() if "." in nombre else ""
+        if extension not in self.EXTENSIONES:
+            raise ValidationError(
+                {"archivo": "Formato no permitido (usa jpg, png o pdf)."}
+            )
+        try:
+            tamano = self.archivo.size
+        except (OSError, ValueError):
+            tamano = 0
+        if tamano > self.TAMANO_MAX:
+            raise ValidationError({"archivo": "El archivo supera el máximo de 5 MB."})
 
 
 class Validacion(ConReferencia, BorradoLogico):
