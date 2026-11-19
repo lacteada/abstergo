@@ -496,13 +496,13 @@ class Command(BaseCommand):
         _, funcionarios = self._usuarios_por_delegacion(["funcionario", "delegado"])
 
         areas = []
-        for indice, cargo in enumerate(Cargo.objects.all()):
+        for indice, cargo in enumerate(Cargo.objects.all(), start=1):
             delegacion = delegaciones[indice % len(delegaciones)]
             responsable = rnd.choice(
                 por_cargo.get(cargo.pk) or funcionarios or [None]
             )
             area, _ = Area.todos.update_or_create(
-                codigo=f"area-{cargo.codigo}",
+                codigo=f"area-{indice:02d}",
                 defaults={
                     "nombre": cargo.nombre,
                     "grupo": GRUPO_POR_CARGO.get(cargo.codigo, "apoyo-administrativo"),
