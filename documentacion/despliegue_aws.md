@@ -60,6 +60,10 @@ Se espera `200` en todos. Las rutas protegidas dan `302` sin sesión.
 
 - Los datos son ficticios y se regeneran con `python manage.py cargar_datos`
   (idempotente) desde `datos_nuevos/`.
+- `cargar_datos` además siembra **volumen demo** (atenciones, casos,
+  compromisos, organizaciones y la matriz SGR) la primera vez que corre sobre
+  una base sin transacciones. Reejecutar no duplica ni borra: si ya hay
+  atenciones o gestiones, ese paso se omite y los conteos no cambian.
 - El `.env` no se versiona (`.gitignore`). El ejemplo sin secretos es
   `.env.example`.
 - No se incluyen contraseñas, tokens ni claves en las evidencias.
@@ -67,6 +71,18 @@ Se espera `200` en todos. Las rutas protegidas dan `302` sin sesión.
 ## 6. Acceso de evaluación
 
 - URL: `http://18.209.251.129` (o el dominio acordado con el docente).
-- Cuentas de prueba: por rol (admin, coordinador, delegado, funcionario,
-  verificador, consulta), cargadas por `cargar_datos`. La clave inicial se
+- Cuentas de prueba: por rol, cargadas por `cargar_datos`. La clave inicial se
   define en `USUARIOS_PASSWORD_INICIAL` del `.env`.
+- Correos (mismo correo = usuario; sin exponer la clave):
+
+  | Rol | Correo |
+  |---|---|
+  | admin (superusuario) | `gabriel.egana03@inacapmail.cl` |
+  | coordinador | `paula.contreras@inacapmail.cl` |
+  | delegado | `sebastian.gilberto02@inacapmail.cl`, `andres.vega@inacapmail.cl` |
+  | funcionario | `demian.catalan02@inacapmail.cl`, `valentina.rojas@inacapmail.cl`, `matias.fuentes@inacapmail.cl`, `camila.soto@inacapmail.cl`, `francisca.munoz@inacapmail.cl` |
+  | verificador | `rodrigo.salinas@inacapmail.cl` |
+  | consulta | `ignacio.herrera@inacapmail.cl` |
+
+- La clave inicial solo se aplica **al crear** la cuenta; reejecutar
+  `cargar_datos` no la cambia en cuentas ya existentes.

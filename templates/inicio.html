@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block titulo %}Inicio{% endblock %}
 
@@ -10,7 +11,7 @@
   </p>
 
   {% if principal %}
-    <p class="boton-principal-caja">
+    <p class="boton-principal-caja" data-guia-id="principal">
       <a class="boton-principal" href="{{ principal.url }}">{{ principal.titulo }}</a>
     </p>
   {% endif %}
@@ -23,7 +24,7 @@
     </div>
   {% endif %}
 
-  <div class="tarjetas">
+  <div class="tarjetas" data-guia-id="tarjetas">
     {% for titulo, valor in tarjetas %}
       <div class="tarjeta">
         <span class="tarjeta-numero">{{ valor }}</span>
@@ -32,13 +33,63 @@
     {% endfor %}
   </div>
 
+  {% if sgr or ultimas %}
+    <div class="panel-bloques">
+      {% if sgr %}
+        <section class="panel-caja">
+          <h2>Estado del período SGR{% if sgr.periodo %} · {{ sgr.periodo.nombre }}{% endif %}</h2>
+          <ul class="panel-lista">
+            {% for fila in sgr.areas %}
+              <li>
+                <span>{{ fila.area.nombre }}</span>
+                <span class="estado {{ fila.semaforo }}">{{ fila.logrado }} / {{ fila.esperado }}</span>
+              </li>
+            {% empty %}
+              <li class="panel-vacio">Sin áreas cargadas para el período.</li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+      {% if ultimas %}
+        <section class="panel-caja">
+          <h2>Últimas atenciones</h2>
+          <ul class="panel-lista">
+            {% for atencion in ultimas %}
+              <li>
+                <span>{{ atencion.vecino.nombre }}</span>
+                <span class="estado activo">{{ atencion.get_estado_display }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+    </div>
+  {% endif %}
+
   {% if mantenedores %}
-    <h2 class="titulo">Mantenedores</h2>
+    <h2 class="titulo" data-guia-id="mantenedores">Mantenedores</h2>
     <div class="acciones-chips">
       {% for accion in mantenedores %}
         <a class="chip" href="{{ accion.url }}">{{ accion.titulo }}</a>
       {% endfor %}
     </div>
+  {% endif %}
+
+  {% if mostrar_guia %}
+    <script type="application/json" id="guia-pasos">
+    [
+      {"selector": "[data-guia-id='marca']", "titulo": "Bienvenido a abstergo", "texto": "Este es el sistema de gestión de las delegaciones municipales. Te muestro lo esencial en unos pasos."},
+      {"selector": "[data-grupo='trabajo']", "titulo": "Trabajo", "texto": "Aquí está tu día a día: atenciones, compromisos, actividades, evidencias y el tablero de la matriz SGR."},
+      {"selector": "[data-grupo='mantenedores']", "titulo": "Mantenedores", "texto": "Los datos base del sistema. Los grupos del menú se pueden plegar cuando quieras orden."},
+      {"selector": "[data-guia-id='contexto']", "titulo": "Delegación activa", "texto": "Muestra el territorio en el que trabajas. Si tienes más de uno autorizado, cámbialo desde aquí."},
+      {"selector": "[data-guia-id='usuario']", "titulo": "Tu cuenta", "texto": "En tu menú entras a tu perfil (datos y cambio de contraseña) o cierras la sesión."},
+      {"selector": "[data-guia-id='tarjetas']", "titulo": "Tus números", "texto": "Un resumen de lo que te importa según tu rol."},
+      {"selector": "[data-guia-id='principal']", "titulo": "Acción principal", "texto": "El acceso rápido a tu tarea más frecuente."},
+      {"selector": "[data-guia-id='mantenedores']", "titulo": "Atajos de administración", "texto": "Si administras el sistema, aquí tienes todos los mantenedores a mano."}
+    ]
+    </script>
+    <div data-guia data-url="{% url 'cuentas:guia_vista' %}"></div>
+    <script src="{% static 'js/guia.js' %}"></script>
   {% endif %}
 
 {% endblock %}

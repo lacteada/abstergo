@@ -32,6 +32,8 @@ urlpatterns = [
         name="activar",
     ),
     path("privacidad/", views.Privacidad.as_view(), name="privacidad"),
+    path("perfil/", views.MiPerfil.as_view(), name="perfil"),
+    path("perfil/guia-vista/", views.GuiaVista.as_view(), name="guia_vista"),
     # Roles
     path("roles/", views.RolesListado.as_view(), name="roles"),
     path("roles/nuevo/", views.RolesAlta.as_view(), name="roles_nueva"),

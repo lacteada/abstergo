@@ -9,6 +9,7 @@ from apps.common.permisos import codigo_de
 from apps.panel.servicios import (
     acciones_del_rol,
     mantenedores_del_rol,
+    resumen_visual,
     tarjetas,
     titulo_panel,
 )
@@ -32,6 +33,12 @@ class Inicio(LoginRequiredMixin, TemplateView):
         ]
         contexto["tarjetas"] = tarjetas(self.request)
         contexto["mantenedores"] = mantenedores_del_rol(usuario)
+        contexto.update(resumen_visual(self.request))
+        # La guía se abre sola la primera vez; también se puede volver a pedir
+        # con ?guia=1 (por ejemplo, desde el perfil).
+        contexto["mostrar_guia"] = (not usuario.guia_vista) or (
+            self.request.GET.get("guia") == "1"
+        )
         return contexto
 
 

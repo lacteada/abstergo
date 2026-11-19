@@ -6,9 +6,9 @@
   <div class="cabecera">
     <h1 class="titulo">{{ titulo }}</h1>
     {% if puede_escribir %}
-    <button type="button" class="btn-muni btn-icono" data-modal="{{ url_nueva }}"
+    <button type="button" class="btn-muni btn-icono btn-con-texto" data-modal="{{ url_nueva }}"
             title="{{ etiqueta_nueva }}" aria-label="{{ etiqueta_nueva }}">
-      {% include 'iconos/nuevo.html' %}
+      {% include 'iconos/nuevo.html' %}<span>{{ etiqueta_nueva }}</span>
     </button>
     {% endif %}
   </div>

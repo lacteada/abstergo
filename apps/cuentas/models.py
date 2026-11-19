@@ -117,6 +117,9 @@ class Usuario(ConReferencia, AbstractUser, Eliminado):
         related_name="usuarios_autorizados",
         verbose_name="delegaciones autorizadas",
     )
+    # La guía de bienvenida se muestra una sola vez por cuenta, en la primera
+    # sesión. Desde el perfil se puede volver a abrir sin tocar esta bandera.
+    guia_vista = models.BooleanField("guía vista", default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

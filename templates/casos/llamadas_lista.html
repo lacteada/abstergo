@@ -21,12 +21,12 @@
       <li>
         <form method="post" action="{% url 'casos:llamadas_cerrar' fila.pk %}" class="accion-form">
           {% csrf_token %}
-          <button type="submit" class="accion accion-icono" title="Cerrar" aria-label="Cerrar">{% include 'iconos/guardar.html' %}</button>
+          <button type="submit" class="accion" title="Cerrar" aria-label="Cerrar">{% include 'iconos/guardar.html' %}<span>Cerrar</span></button>
         </form>
       </li>
       {% endif %}
-      <li><a class="accion accion-icono" href="{% url 'casos:llamadas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
-      <li><a class="accion accion-icono" href="{% url 'casos:llamadas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+      <li><a class="accion" href="{% url 'casos:llamadas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}<span>Consultar</span></a></li>
+      <li><a class="accion" href="{% url 'casos:llamadas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}<span>Editar</span></a></li>
     </ul>
   </td>
 {% endblock %}

@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.atenciones.models import Atencion
-from apps.common.delegaciones import acotar
+from apps.common.delegaciones import acotar, activa
 from apps.common.permisos import (
     ADMIN,
     CONSULTA,
@@ -164,3 +164,24 @@ def tarjetas(request):
         ("Actividades", registros.count()),
         ("Compromisos", tareas.count()),
     ]
+
+
+def resumen_visual(request):
+    """Bloque compacto para el panel: estado SGR y últimas atenciones.
+
+    Sin gráficos: un semáforo por área (del período activo) y las últimas
+    atenciones del ámbito del usuario. Devuelve `None` donde no aplica.
+    """
+    from apps.sgr import servicios as sgr_servicios
+
+    codigo = codigo_de(request.user)
+    if codigo not in (ADMIN, COORDINADOR, DELEGADO, CONSULTA):
+        return {"sgr": None, "ultimas": []}
+    periodo = sgr_servicios.periodo_activo()
+    resumen = (
+        sgr_servicios.resumen_periodo(periodo, delegacion=activa(request))
+        if periodo
+        else None
+    )
+    ultimas = acotar(request, Atencion.objects.select_related("vecino"), "delegacion")[:6]
+    return {"sgr": resumen, "ultimas": ultimas}

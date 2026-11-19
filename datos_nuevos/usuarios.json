@@ -4,6 +4,7 @@
     "email": "sebastian.gilberto02@inacapmail.cl",
     "rol": "DELEGADO",
     "delegacion": "centro",
+    "cargo": "delegado",
     "delegaciones": ["centro"],
     "activo": true
   },
@@ -12,6 +13,7 @@
     "email": "gabriel.egana03@inacapmail.cl",
     "rol": "ADMIN",
     "delegacion": "centro",
+    "cargo": "gestion-y-planificacion",
     "superusuario": true,
     "activo": true
   },
@@ -20,6 +22,76 @@
     "email": "demian.catalan02@inacapmail.cl",
     "rol": "FUNCIONARIO",
     "delegacion": "centro",
+    "cargo": "apoyo-administrativo",
+    "activo": true
+  },
+  {
+    "nombre": "Valentina Rojas",
+    "email": "valentina.rojas@inacapmail.cl",
+    "rol": "FUNCIONARIO",
+    "delegacion": "centro",
+    "cargo": "gestor-social",
+    "delegaciones": ["centro", "avenida-del-mar"],
+    "activo": true
+  },
+  {
+    "nombre": "Matías Fuentes",
+    "email": "matias.fuentes@inacapmail.cl",
+    "rol": "FUNCIONARIO",
+    "delegacion": "avenida-del-mar",
+    "cargo": "apoyo-administrativo",
+    "delegaciones": ["avenida-del-mar"],
+    "activo": true
+  },
+  {
+    "nombre": "Camila Soto",
+    "email": "camila.soto@inacapmail.cl",
+    "rol": "FUNCIONARIO",
+    "delegacion": "la-antena",
+    "cargo": "organizaciones-comunitarias",
+    "delegaciones": ["la-antena"],
+    "activo": true
+  },
+  {
+    "nombre": "Francisca Muñoz",
+    "email": "francisca.munoz@inacapmail.cl",
+    "rol": "FUNCIONARIO",
+    "delegacion": "las-companias",
+    "cargo": "gestor-de-compras-y-proyectos",
+    "delegaciones": ["las-companias"],
+    "activo": true
+  },
+  {
+    "nombre": "Andrés Vega",
+    "email": "andres.vega@inacapmail.cl",
+    "rol": "DELEGADO",
+    "delegacion": "avenida-del-mar",
+    "cargo": "delegado",
+    "delegaciones": ["avenida-del-mar", "centro"],
+    "activo": true
+  },
+  {
+    "nombre": "Paula Contreras",
+    "email": "paula.contreras@inacapmail.cl",
+    "rol": "COORDINADOR",
+    "delegacion": "centro",
+    "cargo": "gestion-y-planificacion",
+    "activo": true
+  },
+  {
+    "nombre": "Rodrigo Salinas",
+    "email": "rodrigo.salinas@inacapmail.cl",
+    "rol": "VERIFICADOR",
+    "delegacion": "centro",
+    "cargo": "gestion-y-planificacion",
+    "activo": true
+  },
+  {
+    "nombre": "Ignacio Herrera",
+    "email": "ignacio.herrera@inacapmail.cl",
+    "rol": "CONSULTA",
+    "delegacion": "centro",
+    "cargo": "apoyo-administrativo",
     "activo": true
   }
 ]

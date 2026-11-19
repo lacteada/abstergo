@@ -55,10 +55,16 @@ body {
 }
 .grupo { margin-top: 14px; }
 .grupo-titulo {
-  display: block; padding: 6px 10px; font-size: 11px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 6px 10px; font-size: 11px; cursor: pointer; list-style: none;
   text-transform: uppercase; letter-spacing: .06em;
   color: rgba(255, 255, 255, .6);
 }
+.grupo-titulo::-webkit-details-marker { display: none; }
+.grupo-titulo:hover { color: #fff; }
+.grupo-flecha { display: inline-flex; transition: transform .15s ease; }
+.grupo-flecha svg { width: 14px; height: 14px; }
+.grupo:not([open]) > .grupo-titulo .grupo-flecha { transform: rotate(-90deg); }
 .nav-sub { padding-left: 22px; }
 
 /* ---------- Contenido ---------- */
@@ -351,14 +357,17 @@ body {
 
 /* ---------- Acciones de fila como lista ---------- */
 .acciones-lista {
-  list-style: none; display: flex; gap: 8px; margin: 0; padding: 0;
+  list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0;
 }
 .acciones-lista li { margin: 0; }
 .acciones-lista .accion {
-  display: inline-block; padding: 4px 10px; border-radius: 6px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 6px; font-size: 12px;
+  color: var(--muni-base);
   background: var(--gris-fondo); border: 1px solid var(--gris-borde);
   text-decoration: none;
 }
+.acciones-lista .accion .icono { width: 15px; height: 15px; }
 .acciones-lista .accion:hover { background: #eef0f2; text-decoration: none; }
 .acciones-lista .accion.peligro { color: var(--muni-oscuro); }
 /* Una acción de fila que es un botón (p. ej. reenviar invitación). */
@@ -393,6 +402,11 @@ body {
   background: var(--muni-base); color: #fff; border-color: var(--muni-base);
 }
 .btn-muni.btn-icono:hover { background: var(--bg-muni-v1); }
+/* Variante con texto: el botón de cabecera deja de ser un cuadro de icono. */
+.btn-icono.btn-con-texto {
+  width: auto; padding: 0 14px; gap: 8px;
+  font-size: 14px; font-weight: 600;
+}
 
 /* Acciones de fila como chip cuadrado de icono. */
 .acciones-lista .accion-icono {
@@ -523,3 +537,52 @@ tr.fila-deshabilitada .estado.inactivo {
   background: #fff; color: #2b3138; text-decoration: none; font-size: 14px;
 }
 .chip:hover { border-color: var(--muni-base); color: var(--muni-base); }
+
+/* ---------- Guía de bienvenida (tour) ---------- */
+.guia-foco {
+  position: fixed; z-index: 60; border-radius: 8px; pointer-events: none;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, .55);
+  outline: 2px solid var(--muni-base);
+  transition: top .12s ease, left .12s ease, width .12s ease, height .12s ease;
+}
+.guia-tarjeta {
+  position: fixed; z-index: 61; width: 320px; padding: 16px 18px;
+  background: #fff; border: 1px solid var(--gris-borde); border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, .3);
+}
+.guia-tarjeta h3 { margin: 2px 0 6px; font-size: 16px; }
+.guia-tarjeta p { margin: 0 0 14px; font-size: 13px; color: #3a3f45; line-height: 1.45; }
+.guia-paso {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muni-oscuro); font-weight: 700;
+}
+.guia-botones { display: flex; align-items: center; gap: 8px; }
+.guia-espacio { flex: 1; }
+.guia-botones button { cursor: pointer; }
+.guia-saltar, .guia-anterior {
+  padding: 8px 12px; font-size: 13px; border-radius: 6px;
+  background: none; border: 1px solid var(--gris-borde); color: #5b6169;
+}
+.guia-saltar:hover, .guia-anterior:hover { background: var(--gris-fondo); }
+.guia-siguiente { padding: 8px 16px; font-size: 13px; }
+
+/* ---------- Bloque del panel: semáforo SGR y últimas atenciones ---------- */
+.panel-bloques {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px; margin-top: 8px;
+}
+.panel-caja {
+  background: #fff; border: 1px solid var(--gris-borde); border-radius: 8px;
+  padding: 16px 18px;
+}
+.panel-caja h2 { margin: 0 0 12px; font-size: 15px; }
+.panel-lista { list-style: none; margin: 0; padding: 0; }
+.panel-lista li {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid #eef0f2; font-size: 13px;
+}
+.panel-lista li:last-child { border-bottom: 0; }
+.panel-lista .panel-vacio { color: #8a9099; justify-content: flex-start; }
+.estado.verde { background: #e4f4e8; color: #1d6b33; }
+.estado.naranja { background: #fdf3d7; color: #8a5a00; }
+.estado.rojo { background: #fbe6e6; color: #9b1c1c; }

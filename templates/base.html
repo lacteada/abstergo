@@ -14,7 +14,7 @@
 <div class="app">
 
   <aside class="sidebar bg-muni">
-    <div class="marca">
+    <div class="marca" data-guia-id="marca">
       <img class="marca-logo" src="{% static 'img/logolaserena.png' %}"
            alt="Ilustre Municipalidad de La Serena">
       <span class="marca-textos">
@@ -23,81 +23,115 @@
       </span>
     </div>
 
-    <nav class="nav">
+    <nav class="nav" data-nav>
       <a class="nav-item{% if seccion == 'inicio' %} activo{% endif %}"
          href="{% url 'panel:inicio' %}">Inicio</a>
 
-      <div class="grupo">
-        <span class="grupo-titulo">Trabajo</span>
+      <details class="grupo" data-grupo="trabajo" open>
+        <summary class="grupo-titulo">
+          <span>Trabajo</span>
+          <span class="grupo-flecha" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          </span>
+        </summary>
 
         {% if 'cases' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'atenciones:listado' %}">Atenciones</a>
+        <a class="nav-sub{% if seccion == 'atenciones' %} activo{% endif %}"
+           href="{% url 'atenciones:listado' %}">Atenciones</a>
         {% endif %}
         {% if 'tasks' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'tubo' %} activo{% endif %}"
            href="{% url 'tubo:tablero' %}">Compromisos</a>
         {% endif %}
         {% if 'sgr_records' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'sgr:registros' %}">Actividades</a>
+        <a class="nav-sub{% if seccion == 'sgr_registros' %} activo{% endif %}"
+           href="{% url 'sgr:registros' %}">Actividades</a>
         {% endif %}
         {% if 'evidence' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'sgr:evidencias' %}">Evidencias</a>
+        <a class="nav-sub{% if seccion == 'sgr_evidencias' %} activo{% endif %}"
+           href="{% url 'sgr:evidencias' %}">Evidencias</a>
         {% endif %}
         {% if 'validation' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'sgr:validaciones' %}">Por validar</a>
+        <a class="nav-sub{% if seccion == 'sgr_validaciones' %} activo{% endif %}"
+           href="{% url 'sgr:validaciones' %}">Por validar</a>
         {% endif %}
         {% if 'sgr' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'sgr_tablero' %} activo{% endif %}"
            href="{% url 'sgr:tablero' %}">Tablero SGR</a>
         {% endif %}
         {% if 'social_cases' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'casos:casos' %}">Casos sociales</a>
+        <a class="nav-sub{% if seccion == 'casos' %} activo{% endif %}"
+           href="{% url 'casos:casos' %}">Casos sociales</a>
         {% endif %}
         {% if 'community' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'comunidad:organizaciones' %}">Organizaciones</a>
+        <a class="nav-sub{% if seccion == 'organizaciones' %} activo{% endif %}"
+           href="{% url 'comunidad:organizaciones' %}">Organizaciones</a>
         {% endif %}
         {% if 'alerts' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'sgr:alertas' %}">Alertas</a>
+        <a class="nav-sub{% if seccion == 'sgr_alertas' %} activo{% endif %}"
+           href="{% url 'sgr:alertas' %}">Alertas</a>
         {% endif %}
-      </div>
+      </details>
 
-      <div class="grupo">
-        <span class="grupo-titulo">Mantenedores</span>
+      <details class="grupo" data-grupo="mantenedores" open>
+        <summary class="grupo-titulo">
+          <span>Mantenedores</span>
+          <span class="grupo-flecha" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          </span>
+        </summary>
 
         {% if 'delegations' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'organizacion:delegaciones' %}">Delegaciones</a>
+        <a class="nav-sub{% if seccion == 'delegaciones' %} activo{% endif %}"
+           href="{% url 'organizacion:delegaciones' %}">Delegaciones</a>
         {% endif %}
         {% if 'territories' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'organizacion:territorios' %}">Territorios</a>
+        <a class="nav-sub{% if seccion == 'territorios' %} activo{% endif %}"
+           href="{% url 'organizacion:territorios' %}">Territorios</a>
         {% endif %}
         {% if 'positions' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'organizacion:cargos' %}">Cargos</a>
+        <a class="nav-sub{% if seccion == 'cargos' %} activo{% endif %}"
+           href="{% url 'organizacion:cargos' %}">Cargos</a>
         {% endif %}
         {% if 'neighbors' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'ciudadanos:vecinos' %}">Vecinos</a>
+        <a class="nav-sub{% if seccion == 'vecinos' %} activo{% endif %}"
+           href="{% url 'ciudadanos:vecinos' %}">Vecinos</a>
         {% endif %}
         {% if 'users' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'cuentas:usuarios' %}">Usuarios</a>
+        <a class="nav-sub{% if seccion == 'usuarios' %} activo{% endif %}"
+           href="{% url 'cuentas:usuarios' %}">Usuarios</a>
         {% endif %}
         {% if 'roles' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'cuentas:roles' %}">Roles</a>
+        <a class="nav-sub{% if seccion == 'roles' %} activo{% endif %}"
+           href="{% url 'cuentas:roles' %}">Roles</a>
         {% endif %}
         {% if 'sgr' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'sgr:periodos' %}">Períodos</a>
-        <a class="nav-sub" href="{% url 'sgr:areas' %}">Áreas</a>
-        <a class="nav-sub" href="{% url 'sgr:indicadores' %}">Indicadores</a>
-        <a class="nav-sub" href="{% url 'sgr:metas' %}">Metas SGR</a>
+        <a class="nav-sub{% if seccion == 'sgr_periodos' %} activo{% endif %}"
+           href="{% url 'sgr:periodos' %}">Períodos</a>
+        <a class="nav-sub{% if seccion == 'sgr_areas' %} activo{% endif %}"
+           href="{% url 'sgr:areas' %}">Áreas</a>
+        <a class="nav-sub{% if seccion == 'sgr_indicadores' %} activo{% endif %}"
+           href="{% url 'sgr:indicadores' %}">Indicadores</a>
+        <a class="nav-sub{% if seccion == 'sgr_metas' %} activo{% endif %}"
+           href="{% url 'sgr:metas' %}">Metas SGR</a>
         {% endif %}
         {% if 'goals' in modulos_lectura %}
-        <a class="nav-sub" href="{% url 'catalogos:metas' %}">Metas de delegación</a>
+        <a class="nav-sub{% if seccion == 'metas' %} activo{% endif %}"
+           href="{% url 'catalogos:metas' %}">Metas de delegación</a>
         {% endif %}
-      </div>
+      </details>
     </nav>
   </aside>
 
   <div class="contenido">
     <header class="header">
-      <div class="contexto">
+      <div class="contexto" data-guia-id="contexto">
         {% if delegacion_activa %}
           <span class="delegacion" title="Delegación activa">
             <span class="delegacion-icono" aria-hidden="true">
@@ -152,7 +186,7 @@
       </div>
 
       <span class="header-espacio"></span>
-      <details class="usuario">
+      <details class="usuario" data-guia-id="usuario">
         <summary class="usuario-resumen">
           <span class="avatar" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -175,6 +209,7 @@
           </span>
         </summary>
         <div class="usuario-menu">
+          <a class="usuario-salir" href="{% url 'cuentas:perfil' %}">Mi perfil</a>
           <a class="usuario-salir" href="{% url 'cuentas:privacidad' %}">
             Política de privacidad
           </a>
@@ -210,6 +245,7 @@
 
 <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
 <script src="{% static 'js/mensajes.js' %}"></script>
+<script src="{% static 'js/sidebar.js' %}"></script>
 <script src="{% static 'js/contexto.js' %}"></script>
 <script src="{% static 'js/atencion.js' %}"></script>
 <script src="{% static 'js/modal.js' %}"></script>

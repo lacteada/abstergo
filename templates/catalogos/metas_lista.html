@@ -17,15 +17,15 @@
   <td><span class="estado {{ fila.estado }}">{{ fila.get_estado_display }}</span></td>
   <td class="acciones">
     <ul class="acciones-lista">
-      <li><a class="accion accion-icono" href="{% url 'catalogos:metas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}</a></li>
+      <li><a class="accion" href="{% url 'catalogos:metas_consultar' fila.pk %}" data-modal title="Consultar" aria-label="Consultar">{% include 'iconos/ver.html' %}<span>Consultar</span></a></li>
       {% if puede_escribir %}
-      <li><a class="accion accion-icono" href="{% url 'catalogos:metas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}</a></li>
+      <li><a class="accion" href="{% url 'catalogos:metas_editar' fila.pk %}" data-modal title="Editar" aria-label="Editar">{% include 'iconos/editar.html' %}<span>Editar</span></a></li>
       {% if fila.eliminado or fila.estado == 'inactivo' %}
-        <li><a class="accion accion-icono" href="{% url 'catalogos:metas_reactivar' fila.pk %}" data-reactivar title="Reactivar" aria-label="Reactivar">{% include 'iconos/activar.html' %}</a></li>
+        <li><a class="accion" href="{% url 'catalogos:metas_reactivar' fila.pk %}" data-reactivar title="Reactivar" aria-label="Reactivar">{% include 'iconos/activar.html' %}<span>Reactivar</span></a></li>
       {% else %}
-        <li><a class="accion accion-icono" href="{% url 'catalogos:metas_desactivar' fila.pk %}" data-desactivar title="Desactivar" aria-label="Desactivar">{% include 'iconos/desactivar.html' %}</a></li>
+        <li><a class="accion" href="{% url 'catalogos:metas_desactivar' fila.pk %}" data-desactivar title="Desactivar" aria-label="Desactivar">{% include 'iconos/desactivar.html' %}<span>Desactivar</span></a></li>
       {% endif %}
-      <li><a class="accion accion-icono peligro" href="{% url 'catalogos:metas_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}</a></li>
+      <li><a class="accion peligro" href="{% url 'catalogos:metas_eliminar' fila.pk %}" data-eliminar title="Eliminar" aria-label="Eliminar">{% include 'iconos/eliminar.html' %}<span>Eliminar</span></a></li>
       {% endif %}
     </ul>
   </td>

@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView, View
@@ -334,6 +337,73 @@ class Privacidad(TemplateView):
     """Política de privacidad, pública y enlazada desde el login."""
 
     template_name = "privacidad.html"
+
+
+# ------------------------------------------------------------ Mi perfil
+class MiPerfil(LoginRequiredMixin, FormView):
+    """Perfil del usuario: sus datos, sus números y el cambio de contraseña.
+
+    El cambio usa `PasswordChangeForm`, que exige la contraseña actual. Al
+    guardar se refresca la sesión para no dejar fuera al usuario.
+    """
+
+    template_name = "cuentas/mi_perfil.html"
+    form_class = PasswordChangeForm
+    success_url = reverse_lazy("cuentas:perfil")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        from apps.sgr.models import RegistroGestion
+        from apps.tubo.models import TareaTubo
+
+        contexto = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        contexto["campos"] = (
+            ("Código", usuario.referencia),
+            ("Nombre", usuario.get_full_name() or "—"),
+            ("Correo", usuario.email or "—"),
+            ("Rol", usuario.rol.nombre if usuario.rol_id else "—"),
+            ("Cargo", usuario.cargo.nombre if usuario.cargo_id else "—"),
+            (
+                "Delegación",
+                usuario.delegacion.nombre if usuario.delegacion_id else "Todas",
+            ),
+            ("Delegaciones autorizadas", usuario.delegaciones_texto or "—"),
+            ("Estado", usuario.estado_texto),
+        )
+        contexto["tarjetas"] = [
+            (
+                "Mis actividades",
+                RegistroGestion.objects.filter(funcionario=usuario).count(),
+            ),
+            (
+                "Mis compromisos abiertos",
+                TareaTubo.objects.filter(responsable=usuario)
+                .exclude(estado="realizada")
+                .count(),
+            ),
+        ]
+        return contexto
+
+    def form_valid(self, form):
+        form.save()
+        update_session_auth_hash(self.request, form.user)
+        messages.success(self.request, "Tu contraseña quedó actualizada.")
+        return super().form_valid(form)
+
+
+class GuiaVista(LoginRequiredMixin, View):
+    """Marca la guía como vista, para que no vuelva a abrirse sola."""
+
+    def post(self, request):
+        if not request.user.guia_vista:
+            request.user.guia_vista = True
+            request.user.save(update_fields=["guia_vista"])
+        return HttpResponse(status=204)
 
 
 # ---------------------------------------------------- Activar una cuenta

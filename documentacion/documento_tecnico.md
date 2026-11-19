@@ -158,6 +158,9 @@ Todas con `on_delete=models.PROTECT`:
   (`create_user(email, ...)`), porque el `UserManager` de Django exige
   `username`.
 - `USERNAME_FIELD = "email"` y `REQUIRED_FIELDS = []`.
+- `cargo` (puesto funcional, FK a `Cargo`) y `delegaciones_autorizadas` (M2M).
+- `guia_vista` (booleano): la guía de bienvenida se abre la primera vez; queda
+  marcada al verla o saltarla y se puede reabrir con `?guia=1` desde el perfil.
 - Varios usuarios sin correo conviven en la tabla: en MySQL el índice único deja
   coexistir varios `NULL`. Un usuario sin correo no puede iniciar sesión.
 
@@ -478,6 +481,19 @@ Fuente: `apps/cuentas/invitaciones.py`, `apps/cuentas/views.py`.
   **reenviar la invitación** a las cuentas pendientes, y muestra el estado
   `Pendiente` (`Usuario.estado_texto`).
 
+### 10.2 Mi perfil y cambio de contraseña
+
+Fuente: `apps/cuentas/views.py` (`MiPerfil`), `templates/cuentas/mi_perfil.html`.
+
+- Se llega desde el menú de usuario del header ("Mi perfil", `/perfil/`).
+- Muestra los datos del usuario (nombre, correo, rol, cargo, delegación,
+  delegaciones autorizadas, estado) y un par de contadores personales.
+- El **cambio de contraseña** usa el `PasswordChangeForm` de Django, que exige
+  la **contraseña actual**; al guardar, `update_session_auth_hash` mantiene la
+  sesión abierta (no expulsa al usuario).
+- Incluye el botón "Ver la guía de nuevo" (`/?guia=1`), que reabre la guía sin
+  volver a marcar la bandera.
+
 ---
 
 ## 11. Django Admin
@@ -519,15 +535,15 @@ claves coinciden con los campos del modelo.
 
 | Archivo | Filas |
 |---|---|
-| `delegaciones.json` | 6 |
+| `delegaciones.json` | 7 |
 | `cargos.json` | 7 |
 | `roles.json` | 6 |
-| `usuarios.json` | 6 |
+| `usuarios.json` | 11 |
 | `metas.json` | 6 |
-| `tipos_atencion.json` | 4 |
-| `sub_atenciones.json` | 8 |
+| `tipos_atencion.json` | 6 |
+| `sub_atenciones.json` | 15 |
 | `vecinos.json` | 10 |
-| **Total** | **53** |
+| **Total** | **68** |
 
 ### 12.2 El comando `cargar_datos`
 
@@ -541,19 +557,31 @@ Fuente: `apps/panel/management/commands/cargar_datos.py`.
 - Todo el `handle` corre dentro de `@transaction.atomic`.
 - Recorre las entidades en orden de dependencia: delegaciones, cargos y roles →
   usuarios → metas, tipos y sub atenciones → vecinos.
+- Al final siembra **volumen demo** (`cargar_volumen`): territorios, más vecinos
+  (vía `generar_vecinos`), organizaciones, atenciones, casos, llamadas,
+  compromisos, cartas y la matriz SGR (período, áreas, indicadores, metas,
+  actividades, evidencias, validaciones, conductas y ausencias), y genera las
+  alertas con `generar_alertas`. El volumen se siembra **una sola vez**: si ya
+  hay atenciones o gestiones, el paso se omite (no duplica ni borra).
 - Informa `N creados, M actualizados`.
 
 El caso de `Usuario` es propio (`cargar_usuarios`): la llave de idempotencia es
 el nombre y apellido (no el correo, que puede ser nulo), y a cada usuario creado
 se le aplica `set_password(settings.USUARIOS_PASSWORD_INICIAL)` solo si tiene
-correo (sin correo la contraseña queda inutilizable).
+correo (sin correo la contraseña queda inutilizable). El JSON de usuarios trae
+además `cargo` (opcional) y `delegaciones` (autorizadas).
 
 Ejecución:
 
 ```bash
 python manage.py cargar_datos
-# Listo: 53 creados, 0 actualizados.
+# Volumen demo cargado.
+# Listo: 68 creados, 0 actualizados.
 ```
+
+Con las fechas generadas **relativas a hoy**, los tableros muestran datos
+"de hoy" y de la semana en curso; volver a correr el comando no altera los
+conteos.
 
 ### 12.3 Por qué un comando y no `loaddata`
 
@@ -572,6 +600,8 @@ cubrir esas tres cosas y mantener la carga idempotente.
   (20–30 millones) no choca con los datos de ejemplo.
 - Un generador con **semilla fija** produce los mismos datos: reejecutar
   encuentra los RUT ya creados y no agrega ni cambia nada.
+- `cargar_datos` lo invoca con una cantidad acotada (60) como parte del volumen
+  demo; el comando queda disponible para generar más a mano.
 
 ---
 
@@ -581,13 +611,16 @@ cubrir esas tres cosas y mantener la carga idempotente.
 
 Fuente: `templates/`.
 
-- `base.html`: armazón con sidebar (Inicio + grupo "Mantenedores" con los 7
-  ítems), header con el usuario y su menú. El menú del usuario se resuelve sin
-  JavaScript, con `<details>`. El cierre de sesión va por `POST` (Django 5+).
-  Marca el ítem activo comparando la variable `seccion`.
-- `listado.html`: el patrón de los 7 mantenedores. Cabecera con título y botón
-  "+ Nuevo"; buscador; tabla; contador. Define los bloques `encabezado` y `fila`
-  que cada lista concreta sobrescribe.
+- `base.html`: armazón con sidebar (Inicio + grupos "Trabajo" y "Mantenedores"
+  **plegables** con `<details>`; `js/sidebar.js` recuerda el estado y abre el
+  grupo de la sección activa), header con el usuario y su menú. El menú del
+  usuario se resuelve sin JavaScript, con `<details>`, e incluye "Mi perfil". El
+  cierre de sesión va por `POST` (Django 5+). Marca el ítem activo comparando la
+  variable `seccion` (cada vista la declara).
+- `listado.html`: el patrón de los listados. Cabecera con título y botón de alta
+  (icono + texto); buscador; tabla; contador. Las acciones de fila son chips con
+  **icono y etiqueta** (Consultar, Editar, Desactivar/Reactivar, Eliminar).
+  Define los bloques `encabezado` y `fila` que cada lista concreta sobrescribe.
 - `formulario.html`: página completa del formulario, respaldo sin JavaScript;
   incluye `partials/formulario.html`.
 - `partials/formulario.html`: render de un `ModelForm` campo por campo, con
@@ -599,7 +632,11 @@ Fuente: `templates/`.
 - `iconos/*.html`: iconos SVG (nuevo, exportar, editar, eliminar, guardar,
   cancelar, cerrar, anterior, siguiente, buscar).
 - `confirmar.html`: confirmación de baja lógica ("¿Confirmas dar de baja …?").
-- `inicio.html`: página de bienvenida.
+- `inicio.html`: panel de bienvenida. Tarjetas por rol, botón principal, bloque
+  de estado del período SGR (semáforo por área) y últimas atenciones; si
+  corresponde, incluye la **guía** (tour por pasos, `js/guia.js`).
+- `cuentas/mi_perfil.html`: perfil del usuario, sus contadores y el cambio de
+  contraseña.
 - `cuentas/base_auth.html` + `login.html`, `recuperar.html`, `validar.html`,
   `nueva_password.html`, `recuperar_enlace.html`: las pantallas de acceso.
 - Una lista por entidad en `templates/<app>/…_lista.html`, todas extendiendo
@@ -620,6 +657,10 @@ Fuente: `static/`.
   listado sin recargar. Sin JavaScript, los enlaces abren las páginas completas.
 - `js/mensajes.js`: avisos (toast) y confirmación de baja con SweetAlert2. Los
   eventos van por delegación y expone `window.Mensajes.avisar` para el modal.
+- `js/sidebar.js`: pliega/despliega los grupos del menú y recuerda el estado en
+  `localStorage`.
+- `js/guia.js`: tour de bienvenida por pasos con resaltado; al terminar o saltar
+  avisa a `cuentas:guia_vista`.
 
 ---
 
@@ -1111,3 +1152,32 @@ Piezas que cerraron los faltantes y parciales de la especificación SGR.
   `X-Forwarded-Proto=https`; middleware `apps/common/ratelimit.py` limita los
   intentos de login por IP.
 - **RNF-015 · Errores.** Páginas `templates/403.html`, `404.html` y `500.html`.
+
+---
+
+## 22. Datos de volumen, guía, perfil y UI (2026-11-19)
+
+Conjunto de mejoras para que el sistema se vea y se use con datos reales.
+
+- **Volumen demo en `cargar_datos`.** Además de los maestros, el comando siembra
+  territorios, vecinos, organizaciones, atenciones (~300), casos, llamadas,
+  compromisos (~60), cartas y la matriz SGR (período, áreas, indicadores, metas,
+  ~320 actividades, evidencias, validaciones, conductas y ausencias), y genera
+  las alertas con `generar_alertas`. Se ejecuta **una sola vez** por base
+  (guardia por existencia de atenciones/gestiones) y usa semilla fija. Ver §12.
+- **Sidebar plegable.** Los grupos "Trabajo" y "Mantenedores" son `<details>`;
+  `js/sidebar.js` recuerda el estado y mantiene abierto el grupo activo. El
+  ítem activo se resalta con `seccion` en cada vista. Ver §13.
+- **Acciones de fila legibles.** Los chips de acción de los 27 listados muestran
+  icono **y** texto; el botón de alta de la cabecera también. Ver §13.
+- **Guía de bienvenida.** Tour por pasos con resaltado
+  (`js/guia.js` + `static/css/institucional.css`), saltable, que se abre la
+  primera vez (`Usuario.guia_vista`) y se puede reabrir con `?guia=1`. El aviso
+  de "vista" va por `cuentas:guia_vista` (POST). Ver §10.2 y §13.
+- **Mi perfil.** Página `/perfil/` (`MiPerfil`) con los datos del usuario, sus
+  contadores y el **cambio de contraseña** (exige la actual). Enlace en el menú
+  de usuario. Ver §10.2.
+- **Panel con visualización sin librerías.** `inicio.html` suma un bloque de
+  estado del período SGR (semáforo por área) y "últimas atenciones", calculados
+  en `apps/panel/servicios.resumen_visual`. No se agregó ninguna librería de
+  gráficos.
