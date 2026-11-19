@@ -4,6 +4,8 @@ Cada rol ve **pocas acciones principales** (una destacada) y dos o tres números
 que le importan. Los mantenedores solo aparecen para el admin.
 """
 
+from datetime import timedelta
+
 from django.urls import reverse
 from django.utils import timezone
 
@@ -104,11 +106,24 @@ def mantenedores_del_rol(usuario):
     return [{"titulo": titulo, "url": reverse(ruta)} for titulo, ruta in MANTENEDORES]
 
 
+def _rango_dia(dia):
+    """Rango [inicio, siguiente) del día, en hora local consciente.
+
+    Se evita el lookup `__date`: en MySQL depende de las tablas de zona horaria
+    y devuelve vacío si no están cargadas.
+    """
+    inicio = timezone.make_aware(
+        timezone.datetime.combine(dia, timezone.datetime.min.time())
+    )
+    return inicio, inicio + timedelta(days=1)
+
+
 def tarjetas(request):
     """Dos o tres números que importan según el rol, acotados a su ámbito."""
     usuario = request.user
     codigo = codigo_de(usuario)
     hoy = timezone.localdate()
+    inicio_dia, fin_dia = _rango_dia(hoy)
     atenciones = acotar(request, Atencion.objects.all(), "delegacion")
     tareas = acotar(request, TareaTubo.objects.all(), "delegacion")
     registros = acotar(request, RegistroGestion.objects.all(), "area__delegacion")
@@ -137,13 +152,18 @@ def tarjetas(request):
             (
                 "Aprobadas hoy",
                 Validacion.objects.filter(
-                    decision="aprobada", fecha__date=hoy
+                    decision="aprobada", fecha__gte=inicio_dia, fecha__lt=fin_dia
                 ).count(),
             ),
         ]
     if codigo == DELEGADO:
         return [
-            ("Atenciones de hoy", atenciones.filter(fecha__date=hoy).count()),
+            (
+                "Atenciones de hoy",
+                atenciones.filter(
+                    fecha__gte=inicio_dia, fecha__lt=fin_dia
+                ).count(),
+            ),
             (
                 "Compromisos abiertos",
                 tareas.exclude(estado="realizada").count(),
