@@ -1085,6 +1085,8 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   (delegación), `tipo`/`subtipo` (territorial o funcional), `situacion`
   (vigente/inactiva/cerrada), `verificacion` (sin-verificar/verificada), socios
   activos y datos del registro de personalidad jurídica.
+- **Directiva**: la ficha guarda `presidente`, `tesorero` y `secretario`
+  (nombre de cada uno). Ver §25.
 - **Vínculo de actividades** (RF-059): `RegistroGestion.actividad`
   (visita/reunión/taller/conformación/otra) y su `organizacion` enlazan la
   actividad con la organización; `Organizacion.ultima_visita` la resume.
@@ -1120,6 +1122,14 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   coordinador y funcionario). Las tareas **atrasadas** se destacan: la cabecera
   de cada columna muestra cuántas van vencidas y la tarjeta atrasada lleva fondo
   rojo y un distintivo «Atrasada · N días».
+- **Tubo de cartas** (RF-054): modelo `Carta` (asunto, correlativo, destinatario
+  alcaldesa/delegado, remitente, contacto, estado en proceso/aprobada/finalizada/
+  no aplica). Mantenedor en `/tubo/cartas/`, enlazado en el menú «Cartas», con
+  edición, baja lógica y reactivación como el resto. Ver §25.
+- **Automatización atención → tubo**: al registrar una `Atencion` nace un
+  compromiso en el tubo de su delegación, ligado a la atención
+  (`apps/tubo/signals.py`, análogo a la llamada preventiva de `apps/casos`). Ver
+  §25.
 
 ### 20.4 Permisos de los módulos nuevos
 
@@ -1266,4 +1276,25 @@ en el alta web, evidencia en la API y rediseño del tablero SGR).
   8, 16, 32 o 64 filas (`?por=`), con 8 por defecto; el selector vive en
   `templates/listado.html` y `static/js/busqueda.js` lo conserva al buscar. Ver
   §6.3 de `vision.md`.
+- Verificación: `bash scripts/verificar.sh` en verde.
+
+---
+
+## 25. Cartas, automatización y directiva (2026-11-23)
+
+- **Tubo de cartas visible** (RF-054). El módulo ya existía (modelo, vistas,
+  rutas, plantilla) pero había quedado sin enlace en el menú. Se repone bajo el
+  grupo «Trabajo» como «Cartas» (`tubo:cartas`) y se le da paridad con el resto
+  del CRUD: edición, baja lógica (`cartas_desactivar`) y reactivación
+  (`cartas_reactivar`). Sección `tubo_cartas` para el resaltado del menú.
+- **Automatización atención → tubo.** `apps/tubo/signals.py` registra un
+  `post_save` sobre `Atencion`: cada atención nueva crea un `TareaTubo`
+  (compromiso, estado `ingresada`) en el tubo de su delegación, ligado a la
+  atención y con el funcionario como responsable. Es idempotente (`get_or_create`
+  por atención), igual que la llamada preventiva de `apps/casos`. Se engancha en
+  `TuboConfig.ready`.
+- **Directiva de la organización.** `Organizacion` suma `presidente`, `tesorero`
+  y `secretario` (nombre de cada uno); se ven en el alta, la ficha de consulta,
+  la exportación y el contrato de la API (`president`/`treasurer`/`secretary`).
+  Migración `comunidad/0003_organizacion_directiva`.
 - Verificación: `bash scripts/verificar.sh` en verde.

@@ -15,6 +15,20 @@ def test_la_organizacion_deriva_codigo_y_referencia(centro):
     assert organizacion.referencia.startswith("ORG-")
 
 
+def test_la_organizacion_guarda_su_directiva(centro):
+    organizacion = Organizacion.objects.create(
+        nombre="Junta Directiva",
+        territorio=centro,
+        presidente="Ana Pérez",
+        tesorero="Luis Soto",
+        secretario="María Díaz",
+    )
+    organizacion.refresh_from_db()
+    assert organizacion.presidente == "Ana Pérez"
+    assert organizacion.tesorero == "Luis Soto"
+    assert organizacion.secretario == "María Díaz"
+
+
 def test_el_listado_se_acota_a_la_delegacion_autorizada(cliente, crear_usuario, centro, mar):
     Organizacion.objects.create(nombre="Organizacion del Centro", territorio=centro)
     Organizacion.objects.create(nombre="Organizacion del Mar", territorio=mar)

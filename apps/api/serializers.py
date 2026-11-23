@@ -444,6 +444,15 @@ class OrganizacionSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.
         required=False,
         validators=[validar_catalogo],
     )
+    president = serializers.CharField(
+        source="presidente", max_length=120, allow_blank=True, required=False
+    )
+    treasurer = serializers.CharField(
+        source="tesorero", max_length=120, allow_blank=True, required=False
+    )
+    secretary = serializers.CharField(
+        source="secretario", max_length=120, allow_blank=True, required=False
+    )
     status = serializers.ChoiceField(source="estado", choices=ESTADOS_VIGENCIA)
 
     class Meta:
@@ -463,6 +472,9 @@ class OrganizacionSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.
             "pj_registry",
             "registration_date",
             "directive_registry",
+            "president",
+            "treasurer",
+            "secretary",
             "status",
         ]
 

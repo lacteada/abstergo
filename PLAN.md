@@ -133,6 +133,12 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   columna); y todos los **listados** suman un selector de filas por página
   (8/16/32/64, `?por=`, 8 por defecto). Actualiza `documento_tecnico.md` §7,
   §13.1, §20.3 y §24 y `vision.md` §6.3.
+- **2026-11-23 · Cartas, automatización y directiva**: se **repone el tubo de
+  cartas** en el menú («Cartas», con baja lógica y reactivación); cada
+  **atención crea automáticamente un compromiso** en el tubo de su delegación
+  (`apps/tubo/signals.py`); y `Organizacion` suma la **directiva** (presidente,
+  tesorero, secretario) en modelo, formulario, API y ficha. Migración
+  `comunidad/0003`. Actualiza `documento_tecnico.md` §20.2, §20.3 y §25.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

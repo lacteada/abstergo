@@ -249,7 +249,7 @@ class _Cartas:
     model = Carta
     form_class = CartaForm
     titulo = "Tubo de cartas"
-    seccion = "tubo"
+    seccion = "tubo_cartas"
     url_listado = "tubo:cartas"
 
 
@@ -290,6 +290,14 @@ class CartasEdicion(_Cartas, EdicionBase):
 
 class CartasBorrado(_Cartas, BorradoBase):
     titulo = "Eliminar carta"
+
+
+class CartasDesactivar(_Cartas, DesactivarBase):
+    titulo = "Carta"
+
+
+class CartasReactivar(_Cartas, ReactivarBase):
+    titulo = "Carta"
 
 
 class CartasConsulta(_Cartas, ConsultaBase):

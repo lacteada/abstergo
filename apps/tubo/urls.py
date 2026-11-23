@@ -38,4 +38,14 @@ urlpatterns = [
         views.CartasBorrado.as_view(),
         name="cartas_eliminar",
     ),
+    path(
+        "tubo/cartas/<int:pk>/desactivar/",
+        views.CartasDesactivar.as_view(),
+        name="cartas_desactivar",
+    ),
+    path(
+        "tubo/cartas/<int:pk>/reactivar/",
+        views.CartasReactivar.as_view(),
+        name="cartas_reactivar",
+    ),
 ]

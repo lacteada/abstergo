@@ -93,6 +93,10 @@ class Organizacion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     registro_dir = models.CharField(
         "N° registro directorio", max_length=20, blank=True, validators=[validar_catalogo]
     )
+    # Directiva de la organización (OROC): quién la preside y administra.
+    presidente = models.CharField("presidente", max_length=120, blank=True)
+    tesorero = models.CharField("tesorero", max_length=120, blank=True)
+    secretario = models.CharField("secretario", max_length=120, blank=True)
 
     class Meta:
         verbose_name = "organización comunitaria"

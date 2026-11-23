@@ -21,5 +21,8 @@ class OrganizacionForm(FormularioCRUD):
             "registro_pj",
             "fecha_inscripcion",
             "registro_dir",
+            "presidente",
+            "tesorero",
+            "secretario",
             "estado",
         )

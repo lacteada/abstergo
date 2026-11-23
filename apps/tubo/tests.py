@@ -95,3 +95,44 @@ def test_el_kanban_destaca_las_tareas_atrasadas(cliente, crear_usuario, centro):
     assert "kanban-tarjeta-atrasada" in contenido
     assert "Atrasada · 3 días" in contenido
     assert "1 atrasada" in contenido
+
+
+def test_una_atencion_crea_un_compromiso_en_el_tubo(crear_usuario, centro):
+    """La atención pasa sola al tubo como compromiso de la delegación (RF-021)."""
+    from apps.atenciones.models import Atencion
+    from apps.catalogos.models import TipoAtencion
+    from apps.ciudadanos.models import Vecino
+
+    vecino = Vecino.objects.create(nombre="Ana", rut="11111111-1", territorio=centro)
+    tipo = TipoAtencion.objects.create(nombre="Consulta")
+    funcionario = crear_usuario("fun@test.cl", codigo="funcionario", delegacion=centro)
+
+    atencion = Atencion.objects.create(
+        vecino=vecino,
+        tipo_atencion=tipo,
+        delegacion=centro,
+        funcionario=funcionario,
+        motivo="Poda",
+    )
+
+    compromiso = TareaTubo.todos.get(atencion=atencion)
+    assert compromiso.delegacion == centro
+    assert compromiso.estado == "ingresada"
+    assert compromiso.responsable == funcionario
+    assert compromiso.vecino == vecino
+
+
+def test_la_carta_se_desactiva_y_reactiva(cliente, crear_usuario, centro):
+    from apps.tubo.models import Carta
+
+    carta = Carta.objects.create(asunto="Oficio a la alcaldesa", delegacion=centro)
+    delegado = crear_usuario("del@test.cl", codigo="delegado", delegacion=centro)
+    cliente.force_login(delegado)
+
+    cliente.post(reverse("tubo:cartas_desactivar", args=[carta.pk]))
+    carta.refresh_from_db()
+    assert carta.eliminado is not None
+
+    cliente.post(reverse("tubo:cartas_reactivar", args=[carta.pk]))
+    carta.refresh_from_db()
+    assert carta.eliminado is None

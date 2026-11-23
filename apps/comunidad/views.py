@@ -35,6 +35,9 @@ class Listado(ListadoBase):
         ("Registro P.J.", "registro_pj"),
         ("Inscripción", "fecha_inscripcion"),
         ("Registro directorio", "registro_dir"),
+        ("Presidente", "presidente"),
+        ("Tesorero", "tesorero"),
+        ("Secretario", "secretario"),
         ("Estado", "get_estado_display"),
     )
     url_nueva = "comunidad:organizaciones_nueva"
@@ -98,5 +101,8 @@ class Consulta(ConsultaBase):
         ("N° registro P.J.", "registro_pj"),
         ("Fecha de inscripción", "fecha_inscripcion"),
         ("N° registro directorio", "registro_dir"),
+        ("Presidente", "presidente"),
+        ("Tesorero", "tesorero"),
+        ("Secretario", "secretario"),
         ("Estado", "get_estado_display"),
     )

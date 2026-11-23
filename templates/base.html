@@ -45,6 +45,8 @@
         {% if 'tasks' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'tubo' %} activo{% endif %}"
            href="{% url 'tubo:tablero' %}">Compromisos</a>
+        <a class="nav-sub{% if seccion == 'tubo_cartas' %} activo{% endif %}"
+           href="{% url 'tubo:cartas' %}">Cartas</a>
         {% endif %}
         {% if 'sgr_records' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'sgr_registros' %} activo{% endif %}"
