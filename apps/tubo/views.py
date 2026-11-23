@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView, View
 
 from apps.common.delegaciones import acotar, campo_delegacion_de
+from apps.common.permisos import puede
 from apps.common.vistas_base import (
     AltaBase,
     BorradoBase,
@@ -21,6 +22,7 @@ from apps.common.vistas_base import (
     ReactivarBase,
 )
 from apps.cuentas.models import Usuario
+from apps.cumplimiento.auditoria import registrar
 from apps.tubo.forms import CartaForm, TareaTuboForm
 from apps.tubo.models import ESTADOS, Carta, TareaTubo
 
@@ -150,6 +152,7 @@ class Tablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
             url_nueva="tubo:tareas_nueva",
             columnas=columnas,
             usuarios=Usuario.vigentes(),
+            puede_escribir=puede(self.request.user, "tasks", escritura=True),
             vencidas=len([tarea for tarea in tareas if tarea.vencida]),
             kpis=[
                 {
@@ -298,6 +301,85 @@ class CartasDesactivar(_Cartas, DesactivarBase):
 
 class CartasReactivar(_Cartas, ReactivarBase):
     titulo = "Carta"
+
+
+class CartasTablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
+    """El kanban de cartas: una columna por estado (RF-054)."""
+
+    template_name = "tubo/cartas_tablero.html"
+    model = Carta
+    titulo = "Tubo de cartas"
+    seccion = "tubo_cartas"
+    url_listado = "tubo:cartas"
+
+    # El paso hacia adelante de cada carta (no_aplica queda sin acción).
+    COLORES = {
+        "en_proceso": "ambar",
+        "aprobada": "verde",
+        "finalizada": "verde",
+        "no_aplica": "gris",
+    }
+    ACCION_SIGUIENTE = {"en_proceso": "aprobada", "aprobada": "finalizada"}
+    ACCION_ETIQUETA = {"aprobada": "Aprobar", "finalizada": "Finalizar"}
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        cartas = list(
+            acotar(
+                self.request,
+                Carta.objects.select_related("delegacion", "encargado"),
+                "delegacion",
+            )
+        )
+        columnas = []
+        for numero, (codigo, etiqueta) in enumerate(Carta.ESTADOS, start=1):
+            en_columna = [carta for carta in cartas if carta.estado == codigo]
+            columnas.append(
+                {
+                    "codigo": codigo,
+                    "etiqueta": etiqueta,
+                    "numero": numero,
+                    "color": self.COLORES.get(codigo, ""),
+                    "cartas": [
+                        {
+                            "carta": carta,
+                            "accion": self.ACCION_SIGUIENTE.get(carta.estado, ""),
+                            "accion_etiqueta": self.ACCION_ETIQUETA.get(
+                                self.ACCION_SIGUIENTE.get(carta.estado, ""), ""
+                            ),
+                        }
+                        for carta in en_columna
+                    ],
+                }
+            )
+        contexto.update(
+            titulo=self.titulo,
+            seccion=self.seccion,
+            url_listado=self.url_listado,
+            url_nueva="tubo:cartas_nueva",
+            columnas=columnas,
+            total=len(cartas),
+            puede_escribir=puede(self.request.user, "tasks", escritura=True),
+        )
+        return contexto
+
+
+class CartaMover(LoginRequiredMixin, PermisoRequeridoMixin, View):
+    """Cambia el estado de una carta: el arrastre o el botón del kanban."""
+
+    model = Carta
+
+    def post(self, request, pk, *args, **kwargs):
+        carta = get_object_or_404(
+            acotar(request, Carta.todos.all(), campo_delegacion_de(Carta)), pk=pk
+        )
+        nuevo = request.POST.get("estado")
+        if nuevo not in dict(Carta.ESTADOS):
+            return JsonResponse({"error": "estado inválido"}, status=400)
+        carta.estado = nuevo
+        carta.save(update_fields=["estado"])
+        registrar(request, "editar", carta, "Cambio de estado (kanban de cartas)")
+        return JsonResponse({"pk": carta.pk, "estado": carta.estado})
 
 
 class CartasConsulta(_Cartas, ConsultaBase):

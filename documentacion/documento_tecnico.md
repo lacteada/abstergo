@@ -1124,8 +1124,10 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   rojo y un distintivo «Atrasada · N días».
 - **Tubo de cartas** (RF-054): modelo `Carta` (asunto, correlativo, destinatario
   alcaldesa/delegado, remitente, contacto, estado en proceso/aprobada/finalizada/
-  no aplica). Mantenedor en `/tubo/cartas/`, enlazado en el menú «Cartas», con
-  edición, baja lógica y reactivación como el resto. Ver §25.
+  no aplica). Doble vista: **tabla** en `/tubo/cartas/` (listado con el CRUD) y
+  **kanban** en `/tubo/cartas/kanban/` (una columna por estado, con arrastre o
+  botón «Aprobar/Finalizar»); se alternan con el botón «Ver en kanban» / «Ver en
+  tabla». Enlazado en el menú «Cartas». Ver §25.
 - **Automatización atención → tubo**: al registrar una `Atencion` nace un
   compromiso en el tubo de su delegación, ligado a la atención
   (`apps/tubo/signals.py`, análogo a la llamada preventiva de `apps/casos`). Ver
@@ -1287,6 +1289,14 @@ en el alta web, evidencia en la API y rediseño del tablero SGR).
   grupo «Trabajo» como «Cartas» (`tubo:cartas`) y se le da paridad con el resto
   del CRUD: edición, baja lógica (`cartas_desactivar`) y reactivación
   (`cartas_reactivar`). Sección `tubo_cartas` para el resaltado del menú.
+- **Tabla y kanban, alternables.** Compromisos y cartas tienen las dos vistas y
+  un botón para pasar de una a otra: compromisos en `/tubo/` (kanban) y
+  `/tubo/tareas/` (tabla); cartas en `/tubo/cartas/` (tabla) y
+  `/tubo/cartas/kanban/` (kanban). El kanban trae una columna por estado,
+  tarjetas arrastrables y botón «Aprobar/Finalizar» (cartas) o el paso siguiente
+  (compromisos); reutiliza `static/js/tubo.js` y `CartaMover`/`Mover`
+  (`tubo:cartas_mover` / `tubo:tareas_mover`), que validan el estado destino. El
+  CRUD completo vive en la tabla.
 - **Automatización atención → tubo.** `apps/tubo/signals.py` registra un
   `post_save` sobre `Atencion`: cada atención nueva crea un `TareaTubo`
   (compromiso, estado `ingresada`) en el tubo de su delegación, ligado a la

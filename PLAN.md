@@ -139,6 +139,12 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   (`apps/tubo/signals.py`); y `Organizacion` suma la **directiva** (presidente,
   tesorero, secretario) en modelo, formulario, API y ficha. Migración
   `comunidad/0003`. Actualiza `documento_tecnico.md` §20.2, §20.3 y §25.
+- **2026-11-23 · Tabla y kanban, alternables**: compromisos y cartas se ven en
+  **tabla y en kanban**, con un botón para alternar («Ver en kanban» / «Ver en
+  tabla»). Compromisos: `/tubo/` (kanban) y `/tubo/tareas/` (tabla); cartas:
+  `/tubo/cartas/` (tabla) y `/tubo/cartas/kanban/` (kanban, arrastre y botón
+  Aprobar/Finalizar vía `CartaMover`). El CRUD completo queda en la tabla.
+  Actualiza `documento_tecnico.md` §20.3 y §25.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

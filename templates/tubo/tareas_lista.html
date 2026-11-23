@@ -1,5 +1,9 @@
 {% extends "listado.html" %}
 
+{% block vista_alterna %}
+  <a class="btn-muni" href="{% url 'tubo:tablero' %}" title="Ver en kanban">Ver en kanban</a>
+{% endblock %}
+
 {% block encabezado %}
   <th>Código</th>
   <th>Título</th>

@@ -35,6 +35,8 @@
       </label>
     </form>
 
+    {% block vista_alterna %}{% endblock %}
+
     {% if permite_exportar %}
       <a class="btn-muni btn-icono"
          href="?exportar=1{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}"

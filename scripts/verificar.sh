@@ -84,7 +84,7 @@ for ruta in ["/", "/delegaciones/", "/cargos/", "/territorios/", "/usuarios/", "
              "/organizaciones/", "/sgr/", "/sgr/global/", "/sgr/periodos/", "/sgr/registros/",
              "/sgr/evidencias/", "/sgr/validaciones/", "/sgr/ausencias/",
              "/sgr/comentarios/", "/sgr/alertas/",
-             "/tubo/", "/tubo/tareas/", "/tubo/agenda/", "/tubo/cartas/",
+             "/tubo/", "/tubo/tareas/", "/tubo/agenda/", "/tubo/cartas/", "/tubo/cartas/kanban/",
              "/casos/", "/casos/llamadas/", "/admin/"]:
     assert c.get(ruta).status_code == 200, ruta
 

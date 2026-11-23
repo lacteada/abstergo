@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block contenido %}
+
+  <div class="cabecera">
+    <h1 class="titulo">{{ titulo }}</h1>
+    {% if total %}<span class="estado activo">{{ total }} carta{{ total|pluralize }}</span>{% endif %}
+    {% if puede_escribir %}
+      <a class="btn-muni btn-icono" href="{% url url_nueva %}" data-modal
+         title="Nueva carta" aria-label="Nueva carta">{% include 'iconos/nuevo.html' %}</a>
+    {% endif %}
+  </div>
+
+  <div class="kanban" data-kanban>
+    {% for columna in columnas %}
+      <section class="kanban-columna kanban-col-{{ columna.color }}"
+               data-estado="{{ columna.codigo }}">
+        <header class="kanban-cabecera">
+          <h2>{{ columna.numero }}. {{ columna.etiqueta }}</h2>
+          <span class="kanban-contador">{{ columna.cartas|length }}</span>
+        </header>
+        <ul class="kanban-lista" data-lista="{{ columna.codigo }}">
+          {% for item in columna.cartas %}
+            <li class="kanban-tarjeta kanban-tarjeta-{{ columna.color }}"
+                draggable="true" data-pk="{{ item.carta.pk }}"
+                data-mover="{% url 'tubo:cartas_mover' item.carta.pk %}">
+              <div class="kanban-cinta">
+                <span class="kanban-codigo">{{ item.carta.referencia }}</span>
+                <span class="kanban-documento">{{ item.carta.get_destinatario_display }}</span>
+              </div>
+              <a class="kanban-titulo" href="{% url 'tubo:cartas_consultar' item.carta.pk %}" data-modal>{{ item.carta.asunto }}</a>
+              {% if item.carta.remitente %}
+                <p class="kanban-dato"><strong>Remitente:</strong> {{ item.carta.remitente }}</p>
+              {% endif %}
+              {% if item.carta.encargado %}
+                <p class="kanban-dato"><strong>Encargado:</strong> {{ item.carta.encargado.get_full_name }}</p>
+              {% endif %}
+              {% if item.carta.contacto %}
+                <p class="kanban-dato"><strong>Contacto:</strong> {{ item.carta.contacto }}</p>
+              {% endif %}
+              <hr class="kanban-divisor">
+              <div class="kanban-pie">
+                <span class="kanban-responsable">Fecha: {{ item.carta.fecha|date:"d-m-Y" }}</span>
+                <a class="kanban-ver" href="{% url 'tubo:cartas_consultar' item.carta.pk %}" data-modal>Ver</a>
+                {% if item.accion %}
+                  <button type="button" class="kanban-accion"
+                          data-accion data-mover="{% url 'tubo:cartas_mover' item.carta.pk %}"
+                          data-estado="{{ item.accion }}">{{ item.accion_etiqueta }}</button>
+                {% endif %}
+              </div>
+            </li>
+          {% empty %}
+            <li class="kanban-vacio">Sin cartas</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endfor %}
+  </div>
+
+  <p class="pie">
+    <a class="btn-muni" href="{% url 'tubo:cartas' %}">Ver en tabla</a>
+  </p>
+
+  <script src="{% static 'js/tubo.js' %}"></script>
+
+{% endblock %}

@@ -22,6 +22,7 @@ urlpatterns = [
     ),
     path("tubo/agenda/", views.Agenda.as_view(), name="agenda"),
     path("tubo/cartas/", views.CartasListado.as_view(), name="cartas"),
+    path("tubo/cartas/kanban/", views.CartasTablero.as_view(), name="cartas_kanban"),
     path("tubo/cartas/nueva/", views.CartasAlta.as_view(), name="cartas_nueva"),
     path(
         "tubo/cartas/<int:pk>/",
@@ -32,6 +33,11 @@ urlpatterns = [
         "tubo/cartas/<int:pk>/editar/",
         views.CartasEdicion.as_view(),
         name="cartas_editar",
+    ),
+    path(
+        "tubo/cartas/<int:pk>/mover/",
+        views.CartaMover.as_view(),
+        name="cartas_mover",
     ),
     path(
         "tubo/cartas/<int:pk>/eliminar/",

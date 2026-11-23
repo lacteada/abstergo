@@ -136,3 +136,38 @@ def test_la_carta_se_desactiva_y_reactiva(cliente, crear_usuario, centro):
     cliente.post(reverse("tubo:cartas_reactivar", args=[carta.pk]))
     carta.refresh_from_db()
     assert carta.eliminado is None
+
+
+def test_el_kanban_de_cartas_agrupa_por_estado(cliente, crear_usuario, centro):
+    from apps.tubo.models import Carta
+
+    Carta.objects.create(asunto="Oficio A", delegacion=centro, estado="en_proceso")
+    delegado = crear_usuario("del@test.cl", codigo="delegado", delegacion=centro)
+    cliente.force_login(delegado)
+
+    respuesta = cliente.get(reverse("tubo:cartas_kanban"))
+
+    assert respuesta.status_code == 200
+    contenido = respuesta.content.decode()
+    assert "data-kanban" in contenido
+    assert "Oficio A" in contenido
+    assert "En proceso" in contenido
+
+
+def test_mover_una_carta_cambia_su_estado(cliente, crear_usuario, centro):
+    from apps.tubo.models import Carta
+
+    carta = Carta.objects.create(
+        asunto="Oficio B", delegacion=centro, estado="en_proceso"
+    )
+    delegado = crear_usuario("del@test.cl", codigo="delegado", delegacion=centro)
+    cliente.force_login(delegado)
+
+    respuesta = cliente.post(
+        reverse("tubo:cartas_mover", args=[carta.pk]), {"estado": "aprobada"}
+    )
+
+    assert respuesta.status_code == 200
+    assert respuesta.json()["estado"] == "aprobada"
+    carta.refresh_from_db()
+    assert carta.estado == "aprobada"
