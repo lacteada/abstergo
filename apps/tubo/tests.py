@@ -97,8 +97,8 @@ def test_el_kanban_destaca_las_tareas_atrasadas(cliente, crear_usuario, centro):
     assert "1 atrasada" in contenido
 
 
-def test_una_atencion_crea_un_compromiso_en_el_tubo(crear_usuario, centro):
-    """La atención pasa sola al tubo como compromiso de la delegación (RF-021)."""
+def test_la_atencion_pasa_al_tubo_solo_al_pedirlo(cliente, crear_usuario, centro):
+    """La atención no entra sola al tubo: se envía a mano con el botón (RF-021)."""
     from apps.atenciones.models import Atencion
     from apps.catalogos.models import TipoAtencion
     from apps.ciudadanos.models import Vecino
@@ -115,11 +115,22 @@ def test_una_atencion_crea_un_compromiso_en_el_tubo(crear_usuario, centro):
         motivo="Poda",
     )
 
+    # Nada automático: todavía no hay compromiso.
+    assert not TareaTubo.todos.filter(atencion=atencion).exists()
+
+    delegado = crear_usuario("del@test.cl", codigo="delegado", delegacion=centro)
+    cliente.force_login(delegado)
+    cliente.post(reverse("tubo:enviar", args=["atencion", atencion.pk]))
+
     compromiso = TareaTubo.todos.get(atencion=atencion)
     assert compromiso.delegacion == centro
     assert compromiso.estado == "ingresada"
     assert compromiso.responsable == funcionario
     assert compromiso.vecino == vecino
+
+    # Reenviarla no duplica el compromiso.
+    cliente.post(reverse("tubo:enviar", args=["atencion", atencion.pk]))
+    assert TareaTubo.todos.filter(atencion=atencion).count() == 1
 
 
 def test_la_carta_se_desactiva_y_reactiva(cliente, crear_usuario, centro):

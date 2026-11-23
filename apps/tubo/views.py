@@ -4,11 +4,13 @@ El tablero lista cada tarea en la columna de su estado. Mover una tarjeta
 (llamar a `Mover`) cambia el estado de la tarea.
 """
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView, View
 
+from apps.atenciones.models import Atencion
 from apps.common.delegaciones import acotar, campo_delegacion_de
 from apps.common.permisos import puede
 from apps.common.vistas_base import (
@@ -23,8 +25,17 @@ from apps.common.vistas_base import (
 )
 from apps.cuentas.models import Usuario
 from apps.cumplimiento.auditoria import registrar
+from apps.sgr.models import RegistroGestion
+from apps.tubo import servicios
 from apps.tubo.forms import CartaForm, TareaTuboForm
 from apps.tubo.models import ESTADOS, Carta, TareaTubo
+
+# Origen del paso manual al tubo: slug -> (modelo de origen, fábrica).
+ORIGENES = {
+    "atencion": (Atencion, servicios.desde_atencion),
+    "carta": (Carta, servicios.desde_carta),
+    "actividad": (RegistroGestion, servicios.desde_registro),
+}
 
 
 class _Tubo:
@@ -214,7 +225,7 @@ class Historial(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
 
 
 class Mover(LoginRequiredMixin, PermisoRequeridoMixin, View):
-    """Cambia el estado de una tarea: el arrastre del kanban."""
+    """Cambia el estado de una tarea y reordena su columna (arrastre del kanban)."""
 
     model = TareaTubo
 
@@ -227,10 +238,55 @@ class Mover(LoginRequiredMixin, PermisoRequeridoMixin, View):
             return JsonResponse({"error": "estado inválido"}, status=400)
         if not tarea.puede_pasar_a(nuevo):
             return JsonResponse({"error": "transición no permitida"}, status=400)
-        tarea.estado = nuevo
-        tarea._usuario_cambio = request.user
-        tarea.save(update_fields=["estado"])
+        if tarea.estado != nuevo:
+            tarea.estado = nuevo
+            tarea._usuario_cambio = request.user
+            tarea.save(update_fields=["estado"])
+        self._reordenar(request, nuevo)
         return JsonResponse({"pk": tarea.pk, "estado": tarea.estado})
+
+    @staticmethod
+    def _reordenar(request, estado):
+        """Guarda el orden de la columna tal como llega del tablero."""
+        pks = [
+            int(valor)
+            for valor in request.POST.get("orden", "").split(",")
+            if valor.isdigit()
+        ]
+        if not pks:
+            return
+        columna = acotar(
+            request,
+            TareaTubo.todos.filter(estado=estado),
+            campo_delegacion_de(TareaTubo),
+        )
+        for posicion, pk in enumerate(pks, start=1):
+            columna.filter(pk=pk).update(orden=posicion)
+
+
+class EnviarAlTubo(LoginRequiredMixin, PermisoRequeridoMixin, View):
+    """Crea a mano un compromiso desde una atención, una carta o una actividad."""
+
+    model = TareaTubo
+
+    def post(self, request, origen, pk):
+        entrada = ORIGENES.get(origen)
+        if entrada is None:
+            raise Http404("Origen desconocido.")
+        modelo, fabrica = entrada
+        gestor = getattr(modelo, "todos", modelo.objects)
+        objeto = get_object_or_404(
+            acotar(request, gestor.all(), campo_delegacion_de(modelo)), pk=pk
+        )
+        tarea, creado = fabrica(objeto, request.user)
+        registrar(request, "crear", tarea, f"Compromiso creado desde {origen}.")
+        if creado:
+            messages.success(
+                request, f"Compromiso {tarea.referencia} creado en el tubo."
+            )
+        else:
+            messages.info(request, f"{tarea.referencia} ya estaba en el tubo.")
+        return redirect("tubo:tareas")
 
 
 class Reasignar(LoginRequiredMixin, PermisoRequeridoMixin, View):
@@ -259,12 +315,13 @@ class _Cartas:
 class CartasListado(_Cartas, ListadoBase):
     template_name = "tubo/cartas_lista.html"
     etiqueta_nueva = "Nueva carta"
-    busqueda = ("referencia", "asunto", "remitente", "destinatario")
+    busqueda = ("referencia", "asunto", "remitente", "destinatario", "tipo")
     relacionadas = ("delegacion", "encargado")
     exportar_nombre = "cartas"
     exportar_columnas = (
         ("Código", "referencia"),
         ("Asunto", "asunto"),
+        ("Tipo", "get_tipo_display"),
         ("Destinatario", "get_destinatario_display"),
         ("Remitente", "remitente"),
         ("Estado", "get_estado_display"),
@@ -383,10 +440,12 @@ class CartaMover(LoginRequiredMixin, PermisoRequeridoMixin, View):
 
 
 class CartasConsulta(_Cartas, ConsultaBase):
+    consulta_tubo = (("carta", "Enviar al tubo"),)
     consulta_campos = (
         ("Código", "referencia"),
         ("Correlativo", "correlativo"),
         ("Asunto", "asunto"),
+        ("Tipo", "get_tipo_display"),
         ("Destinatario", "get_destinatario_display"),
         ("Remitente", "remitente"),
         ("Contacto", "contacto"),

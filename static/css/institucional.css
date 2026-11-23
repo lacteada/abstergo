@@ -781,3 +781,43 @@ tr.fila-deshabilitada .estado.inactivo {
   .kpis, .kanban { grid-template-columns: 1fr; }
 }
 
+/* ---------- Modal: aviso al hacer clic fuera ----------
+   El clic en el fondo no cierra el modal (para no perder lo escrito): solo
+   sacude la ventana. Para salir está el botón de cerrar o Escape. */
+@keyframes modal-temblor {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.modal.modal-temblor { animation: modal-temblor .3s ease; }
+
+/* ---------- Buscador de llaves foráneas (combobox) ----------
+   autocomplete.js pone un input sobre el <select>; el select queda oculto pero
+   sigue siendo el control que se envía. */
+.fkBuscable { position: relative; }
+.fkBuscable-campo { width: 100%; }
+.fkBuscable-select {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.fkBuscable-lista {
+  position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 2px);
+  max-height: 220px; overflow-y: auto; margin: 0; padding: 4px;
+  list-style: none; background: #fff; border: 1px solid var(--gris-borde);
+  border-radius: 6px; box-shadow: 0 8px 22px rgba(15, 23, 42, .12);
+}
+.fkBuscable-lista[hidden] { display: none; }
+.fkBuscable-lista li {
+  padding: 7px 9px; border-radius: 4px; font-size: 14px; cursor: pointer;
+}
+.fkBuscable-lista li:hover { background: var(--gris-fondo); }
+
+/* ---------- Acciones de la ficha de consulta ---------- */
+.ficha-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+
+/* ---------- Bloques plegables del panel ---------- */
+.plegable { margin-top: 18px; }
+.plegable > summary { cursor: pointer; }
+

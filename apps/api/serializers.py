@@ -444,14 +444,23 @@ class OrganizacionSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.
         required=False,
         validators=[validar_catalogo],
     )
-    president = serializers.CharField(
-        source="presidente", max_length=120, allow_blank=True, required=False
+    president = serializers.PrimaryKeyRelatedField(
+        source="presidente",
+        queryset=Vecino.objects.all(),
+        allow_null=True,
+        required=False,
     )
-    treasurer = serializers.CharField(
-        source="tesorero", max_length=120, allow_blank=True, required=False
+    treasurer = serializers.PrimaryKeyRelatedField(
+        source="tesorero",
+        queryset=Vecino.objects.all(),
+        allow_null=True,
+        required=False,
     )
-    secretary = serializers.CharField(
-        source="secretario", max_length=120, allow_blank=True, required=False
+    secretary = serializers.PrimaryKeyRelatedField(
+        source="secretario",
+        queryset=Vecino.objects.all(),
+        allow_null=True,
+        required=False,
     )
     status = serializers.ChoiceField(source="estado", choices=ESTADOS_VIGENCIA)
 

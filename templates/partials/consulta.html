@@ -10,3 +10,17 @@ Campos de la ficha de consulta. Los arma `ConsultaBase` a partir de
     </div>
   {% endfor %}
 </dl>
+
+{% if acciones_tubo %}
+  <div class="ficha-acciones">
+    {% for accion in acciones_tubo %}
+      <form method="post" action="{{ accion.url }}"
+            data-confirmar="¿Enviar al tubo de trabajo?">
+        {% csrf_token %}
+        <button type="submit" class="btn-muni btn-icono btn-con-texto">
+          {% include 'iconos/nuevo.html' %}<span>{{ accion.etiqueta }}</span>
+        </button>
+      </form>
+    {% endfor %}
+  </div>
+{% endif %}

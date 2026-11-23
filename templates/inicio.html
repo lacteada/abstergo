@@ -33,46 +33,36 @@
     {% endfor %}
   </div>
 
-  {% if sgr or ultimas %}
-    <div class="panel-bloques">
-      {% if sgr %}
-        <section class="panel-caja">
-          <h2>Estado del período SGR{% if sgr.periodo %} · {{ sgr.periodo.nombre }}{% endif %}</h2>
-          <ul class="panel-lista">
-            {% for fila in sgr.areas %}
-              <li>
-                <span>{{ fila.area.nombre }}</span>
-                <span class="estado {{ fila.semaforo }}">{{ fila.logrado }} / {{ fila.esperado }}</span>
-              </li>
-            {% empty %}
-              <li class="panel-vacio">Sin áreas cargadas para el período.</li>
-            {% endfor %}
-          </ul>
-        </section>
-      {% endif %}
-      {% if ultimas %}
-        <section class="panel-caja">
-          <h2>Últimas atenciones</h2>
-          <ul class="panel-lista">
-            {% for atencion in ultimas %}
-              <li>
-                <span>{{ atencion.vecino.nombre }}</span>
-                <span class="estado activo">{{ atencion.get_estado_display }}</span>
-              </li>
-            {% endfor %}
-          </ul>
-        </section>
-      {% endif %}
-    </div>
+  {% if resumen_sgr.periodo %}
+    <section class="panel-caja dashboard-sgr">
+      <h2>Tablero SGR · {{ resumen_sgr.periodo.nombre }}</h2>
+      {% include "sgr/partials/tablero_tabla.html" with resumen=resumen_sgr %}
+    </section>
+  {% endif %}
+
+  {% if ultimas %}
+    <section class="panel-caja">
+      <h2>Últimas atenciones</h2>
+      <ul class="panel-lista">
+        {% for atencion in ultimas %}
+          <li>
+            <span>{{ atencion.vecino.nombre }}</span>
+            <span class="estado activo">{{ atencion.get_estado_display }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
   {% endif %}
 
   {% if mantenedores %}
-    <h2 class="titulo" data-guia-id="mantenedores">Mantenedores</h2>
-    <div class="acciones-chips">
-      {% for accion in mantenedores %}
-        <a class="chip" href="{{ accion.url }}">{{ accion.titulo }}</a>
-      {% endfor %}
-    </div>
+    <details class="plegable">
+      <summary class="titulo" data-guia-id="mantenedores">Mantenedores</summary>
+      <div class="acciones-chips">
+        {% for accion in mantenedores %}
+          <a class="chip" href="{{ accion.url }}">{{ accion.titulo }}</a>
+        {% endfor %}
+      </div>
+    </details>
   {% endif %}
 
   {% if mostrar_guia %}

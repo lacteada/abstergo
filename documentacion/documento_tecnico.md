@@ -1128,10 +1128,9 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   **kanban** en `/tubo/cartas/kanban/` (una columna por estado, con arrastre o
   botón «Aprobar/Finalizar»); se alternan con el botón «Ver en kanban» / «Ver en
   tabla». Enlazado en el menú «Cartas». Ver §25.
-- **Automatización atención → tubo**: al registrar una `Atencion` nace un
-  compromiso en el tubo de su delegación, ligado a la atención
-  (`apps/tubo/signals.py`, análogo a la llamada preventiva de `apps/casos`). Ver
-  §25.
+- **Automatización atención → tubo**: al registrar una `Atencion` nacía un
+  compromiso en el tubo de su delegación. El paso es ahora **manual**, con el botón
+  «Enviar al tubo» (se retiró la señal). Ver §25 y §26.
 
 ### 20.4 Permisos de los módulos nuevos
 
@@ -1307,4 +1306,60 @@ en el alta web, evidencia en la API y rediseño del tablero SGR).
   y `secretario` (nombre de cada uno); se ven en el alta, la ficha de consulta,
   la exportación y el contrato de la API (`president`/`treasurer`/`secretary`).
   Migración `comunidad/0003_organizacion_directiva`.
+- Nota: la **automatización atención → tubo** y la **directiva como texto** de esta
+  sección quedan **superadas por §26** (el paso al tubo pasó a ser manual y la
+  directiva es ahora una FK a `Vecino`).
+- Verificación: `bash scripts/verificar.sh` en verde.
+
+---
+
+## 26. Flujo y usabilidad (2026-11-23)
+
+- **Calendario en las fechas.** flatpickr vendorizado en `static/vendor/flatpickr/`
+  (sin CDN). `static/js/fechas.js` inicializa todo `input[type=date]` y
+  `[type=datetime-local]`, también dentro del modal, con locale es y el formato que
+  Django espera, así el POST no cambia.
+- **Buscador en los campos de lista.** Un motor central sirve cualquier modelo
+  registrado: vista `Autocompletar` (`apps/common/autocomplete.py`) en
+  `/autocompletar/<slug>/`, widget `SelectBuscable` (`apps/common/widgets.py`) y
+  `static/js/autocomplete.js` (combobox; sin JS queda el select completo).
+  `FormularioCRUD` lo aplica a todos los selects de llave foránea registrados, así
+  ningún formulario lo declara campo por campo.
+- **Modales que no se cierran al clic fuera.** `static/js/modal.js` ya no cierra el
+  `<dialog>` al hacer clic en el fondo (lo sacude para avisar); para salir quedan el
+  botón de cerrar y Escape. Evita perder lo escrito.
+- **Acciones como botones.** `static/js/acciones.js` convierte las acciones de fila
+  (`a.accion`) en `<button>`, conservando clases y atributos; `mensajes.js` lee la
+  dirección desde `data-url`.
+- **Directiva como personas reales.** `Organizacion.presidente/tesorero/secretario`
+  pasan de texto a `ForeignKey` a `Vecino` (PROTECT, opcional). En el mismo
+  formulario se busca el vecino o se crea con nombre y RUT (`OrganizacionForm` y
+  `apps/ciudadanos/servicios.crear_vecino`). Migración `comunidad/0004` (renombra el
+  texto a `*_texto`, agrega la FK, copia los nombres emparejables y borra el texto).
+- **Paso manual al tubo.** Se elimina la señal que creaba un compromiso por cada
+  atención (`apps/tubo/signals.py`). Ahora Atención, Carta y Actividad
+  (`RegistroGestion`) ofrecen un botón «Enviar al tubo» en su ficha; la vista
+  `tubo.EnviarAlTubo` (`tubo:enviar`) crea el compromiso de forma idempotente
+  (`apps/tubo/servicios.py`). `TareaTubo` suma la FK `carta` (las actividades se
+  enlazan por el campo ya existente `RegistroGestion.compromiso`). Migración
+  `tubo/0006`.
+- **Kanban editable y ordenable.** `Mover` acepta el orden de la columna destino y
+  lo persiste en `TareaTubo.orden`; `static/js/tubo.js` mueve la tarjeta de
+  inmediato y refresca solo el tablero, sin recargar la página. Lo comparten el
+  tablero de tareas y el de cartas.
+- **Cartas con tipo.** `Carta.tipo` (`correspondencia` / `felicitacion` / `regano`),
+  visible en formulario, listado, ficha y kanban. Migración `tubo/0007`.
+- **Período activo en la top bar.** `apps/common/periodo.py` (equivalente a la
+  delegación activa, guardado en sesión) alimenta el context processor
+  `apps.common.contexto.permisos`; la cabecera muestra el período y un selector
+  (`panel:cambiar_periodo`). Los tableros SGR usan ese período cuando no llega
+  `?periodo=`.
+- **Tablero SGR en el dashboard.** El cuerpo del tablero se extrae a
+  `templates/sgr/partials/tablero_tabla.html`; lo muestran la vista del tablero y el
+  panel (`apps/panel/servicios.resumen_visual`).
+- **Mantenedores plegados.** El grupo «Mantenedores» del menú y su bloque del panel
+  quedan cerrados por defecto.
+- **Contrato de la API.** `OrganizacionSerializer` expone `president`/`treasurer`/
+  `secretary` como claves de `Vecino` (antes texto libre). El cliente Android no
+  consume ese endpoint, así que `data/Dtos.kt` no cambia.
 - Verificación: `bash scripts/verificar.sh` en verde.

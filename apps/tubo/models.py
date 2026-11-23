@@ -97,6 +97,14 @@ class TareaTubo(ConReferencia, BorradoLogico):
         related_name="compromisos",
         verbose_name="atención de origen",
     )
+    carta = models.ForeignKey(
+        "tubo.Carta",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="compromisos",
+        verbose_name="carta de origen",
+    )
     avance = models.PositiveIntegerField("avance (%)", default=0)
     fecha_ingreso = models.DateTimeField("fecha de ingreso", default=timezone.now)
     fecha_compromiso = models.DateField("fecha de compromiso", null=True, blank=True)
@@ -204,8 +212,16 @@ class Carta(ConReferencia, BorradoLogico):
         ("no_aplica", "No aplica"),
     ]
     DESTINATARIOS = [("alcaldesa", "Alcaldesa"), ("delegado", "Delegado")]
+    TIPOS = [
+        ("correspondencia", "Correspondencia"),
+        ("felicitacion", "Felicitación"),
+        ("regano", "Regaño"),
+    ]
 
     asunto = models.CharField("asunto", max_length=200, validators=[validar_texto])
+    tipo = models.CharField(
+        "tipo", max_length=16, choices=TIPOS, default="correspondencia"
+    )
     correlativo = models.PositiveIntegerField("correlativo", null=True, blank=True)
     destinatario = models.CharField(
         "destinatario", max_length=10, choices=DESTINATARIOS, default="delegado"

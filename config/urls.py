@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+from apps.common.autocomplete import Autocompletar
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include("apps.api.urls")),
@@ -27,6 +29,7 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="docs",
     ),
+    path("autocompletar/<slug:slug>/", Autocompletar.as_view(), name="autocompletar"),
     path("", include("apps.cuentas.urls")),
     path("", include("apps.panel.urls")),
     path("", include("apps.organizacion.urls")),

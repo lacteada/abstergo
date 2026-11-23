@@ -39,6 +39,12 @@
     });
   }
 
+  // La dirección de la acción: el enlace la lleva en href y el botón en
+  // data-url (acciones.js convierte los enlaces de fila en botones).
+  function urlDe(elemento) {
+    return elemento.getAttribute("href") || elemento.dataset.url || "";
+  }
+
   function confirmaciones() {
     document.addEventListener("click", function (evento) {
       const enlaceBaja = evento.target.closest("[data-eliminar], a.accion.peligro");
@@ -60,7 +66,7 @@
           cancelButtonColor: "#5b6169",
         }).then(function (resultado) {
           if (resultado.isConfirmed) {
-            formulario.action = enlaceBaja.getAttribute("href");
+            formulario.action = urlDe(enlaceBaja);
             formulario.submit();
           }
         });
@@ -80,7 +86,7 @@
           cancelButtonColor: "#5b6169",
         }).then(function (resultado) {
           if (resultado.isConfirmed) {
-            formulario.action = enlaceDesactivar.getAttribute("href");
+            formulario.action = urlDe(enlaceDesactivar);
             formulario.submit();
           }
         });
@@ -100,11 +106,40 @@
           cancelButtonColor: "#5b6169",
         }).then(function (resultado) {
           if (resultado.isConfirmed) {
-            formulario.action = enlaceReactivar.getAttribute("href");
+            formulario.action = urlDe(enlaceReactivar);
             formulario.submit();
           }
         });
       }
+    });
+
+    // Confirmación de formularios que lo piden (p. ej. "Enviar al tubo").
+    document.addEventListener("submit", function (evento) {
+      const formulario = evento.target.closest("form[data-confirmar]");
+      if (!formulario || !window.Swal) return; // sin JS, envía el formulario
+      if (formulario.dataset.confirmado === "1") {
+        delete formulario.dataset.confirmado;
+        return;
+      }
+      evento.preventDefault();
+      Swal.fire({
+        icon: "question",
+        title: formulario.dataset.confirmar,
+        showCancelButton: true,
+        confirmButtonText: "Sí, continuar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#C41230",
+        cancelButtonColor: "#5b6169",
+      }).then(function (resultado) {
+        if (resultado.isConfirmed) {
+          formulario.dataset.confirmado = "1";
+          if (formulario.requestSubmit) {
+            formulario.requestSubmit();
+          } else {
+            formulario.submit();
+          }
+        }
+      });
     });
   }
 

@@ -27,6 +27,9 @@
                 data-mover="{% url 'tubo:cartas_mover' item.carta.pk %}">
               <div class="kanban-cinta">
                 <span class="kanban-codigo">{{ item.carta.referencia }}</span>
+                {% if item.carta.tipo != 'correspondencia' %}
+                  <span class="estado naranja">{{ item.carta.get_tipo_display }}</span>
+                {% endif %}
                 <span class="kanban-documento">{{ item.carta.get_destinatario_display }}</span>
               </div>
               <a class="kanban-titulo" href="{% url 'tubo:cartas_consultar' item.carta.pk %}" data-modal>{{ item.carta.asunto }}</a>

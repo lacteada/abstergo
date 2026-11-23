@@ -1,14 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
 from apps.atenciones.forms import AtencionForm
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
-from apps.common.delegaciones import acotar, activa, campo_delegacion_de
-from apps.common.validators import limpiar_rut
+from apps.ciudadanos.servicios import buscar_vecinos, vecinos_autorizados
+from apps.common.delegaciones import activa
 from apps.common.vistas_base import (
     BorradoBase,
     ConsultaBase,
@@ -19,26 +18,6 @@ from apps.common.vistas_base import (
     ReactivarBase,
 )
 from apps.cumplimiento.auditoria import registrar
-
-
-def vecinos_autorizados(request):
-    """Los vecinos dentro del alcance territorial del usuario.
-
-    Se usa en todo el flujo de Crear Atención (buscar, precargar, asociar) para
-    que un perfil acotado no vea ni asocie vecinos de otra delegación.
-    """
-    return acotar(request, Vecino.objects.all(), campo_delegacion_de(Vecino))
-
-
-def buscar_vecinos(consulta, request=None):
-    """Un solo campo: busca por RUT (normalizado) o por nombre y apellido."""
-    consulta = (consulta or "").strip()
-    if not consulta:
-        return Vecino.objects.none()
-    vecinos = vecinos_autorizados(request) if request else Vecino.objects.all()
-    return vecinos.filter(
-        Q(nombre__icontains=consulta) | Q(rut__icontains=limpiar_rut(consulta))
-    ).distinct()
 
 
 class Listado(ListadoBase):
@@ -184,6 +163,7 @@ class Consulta(ConsultaBase):
     titulo = "Consultar atención"
     seccion = "atenciones"
     url_listado = "atenciones:listado"
+    consulta_tubo = (("atencion", "Enviar al tubo"),)
     consulta_campos = (
         ("Código", "referencia"),
         ("Fecha", lambda a: a.fecha.strftime("%d-%m-%Y %H:%M") if a.fecha else ""),

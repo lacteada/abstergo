@@ -4,6 +4,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from django.views.generic import TemplateView
 
+from apps.common import periodo
 from apps.common.delegaciones import CLAVE_SESION, autorizadas
 from apps.common.permisos import codigo_de
 from apps.panel.servicios import (
@@ -56,6 +57,27 @@ class CambiarDelegacion(LoginRequiredMixin, View):
             request.session.pop(CLAVE_SESION, None)
         elif autorizadas(request.user).filter(pk=valor).exists():
             request.session[CLAVE_SESION] = int(valor)
+        return redirect(self._destino(request))
+
+    @staticmethod
+    def _destino(request):
+        siguiente = request.POST.get("siguiente") or ""
+        if url_has_allowed_host_and_scheme(
+            siguiente, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+        ):
+            return siguiente
+        return "panel:inicio"
+
+
+class CambiarPeriodo(LoginRequiredMixin, View):
+    """Fija el período activo de la sesión y regresa a la página de origen.
+
+    Igual que la delegación activa: es una elección de contexto, no un dato del
+    registro, así que no se acota a ningún territorio.
+    """
+
+    def post(self, request):
+        periodo.cambiar(request, request.POST.get("periodo", ""))
         return redirect(self._destino(request))
 
     @staticmethod

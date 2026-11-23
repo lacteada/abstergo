@@ -258,6 +258,22 @@ OTP            ^\d{6}$
 - El resultado muestra los datos del vecino y su historial; si no existe, se
   ofrece crearlo y se vuelve a Crear Atención con el vecino ya elegido.
 
+### 6.6 Flujo y usabilidad
+
+- Los campos de fecha usan un **calendario** (flatpickr local) y los campos que
+  eligen de una lista de la base tienen **buscador**; ambos son centrales, así que
+  valen para todos los formularios.
+- Las **acciones** de cada fila son botones y su **pop-up no se cierra al hacer clic
+  fuera** (solo con el botón o Escape), para no perder lo escrito.
+- La **directiva** de una organización son **personas reales**: vecinos con RUT. En
+  el mismo formulario se busca el vecino o se crea si no existe.
+- El **paso al tubo es manual**: atención, carta y actividad tienen un botón
+  «Enviar al tubo»; nada entra solo. El **kanban** permite arrastrar y ordenar las
+  tarjetas sin recargar la página.
+- Las **cartas** se clasifican por tipo (correspondencia, felicitación, regaño).
+- El **período activo** se muestra siempre en la barra superior y se elige desde
+  ahí; el **tablero SGR** del período es visible en el panel de inicio.
+
 ---
 
 ## 7. Flujo "Crear Atención" (rol Funcionario)

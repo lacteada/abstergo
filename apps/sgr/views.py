@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 
+from apps.common import periodo as contexto_periodo
 from apps.common.vistas_base import (
     AltaBase,
     BorradoBase,
@@ -345,6 +346,7 @@ class RegistrosReactivar(_Registros, ReactivarBase):
 
 
 class RegistrosConsulta(_Registros, ConsultaBase):
+    consulta_tubo = (("actividad", "Enviar al tubo"),)
     consulta_campos = (
         ("Código", "referencia"),
         ("Fecha", "fecha"),
@@ -489,7 +491,12 @@ class Tablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
-        periodo = servicios.periodo_activo(self.request.GET.get("periodo"))
+        elegido = self.request.GET.get("periodo")
+        periodo = (
+            servicios.periodo_activo(elegido)
+            if elegido
+            else contexto_periodo.activa(self.request)
+        )
         contexto.update(
             titulo=self.titulo,
             seccion=self.seccion,
@@ -514,7 +521,12 @@ class FichaPersonal(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
             Area.objects.select_related("cargo", "responsable", "delegacion"),
             pk=self.kwargs["pk"],
         )
-        periodo = servicios.periodo_activo(self.request.GET.get("periodo"))
+        elegido = self.request.GET.get("periodo")
+        periodo = (
+            servicios.periodo_activo(elegido)
+            if elegido
+            else contexto_periodo.activa(self.request)
+        )
         contexto.update(
             titulo=str(area),
             seccion=self.seccion,
@@ -538,7 +550,12 @@ class TableroGlobal(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
-        periodo = servicios.periodo_activo(self.request.GET.get("periodo"))
+        elegido = self.request.GET.get("periodo")
+        periodo = (
+            servicios.periodo_activo(elegido)
+            if elegido
+            else contexto_periodo.activa(self.request)
+        )
         contexto.update(
             titulo=self.titulo,
             seccion=self.seccion,

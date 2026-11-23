@@ -32,6 +32,7 @@ class CartaForm(FormularioCRUD):
         model = Carta
         fields = (
             "asunto",
+            "tipo",
             "correlativo",
             "destinatario",
             "remitente",

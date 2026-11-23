@@ -7,6 +7,7 @@
 {% block encabezado %}
   <th>Código</th>
   <th>Asunto</th>
+  <th>Tipo</th>
   <th>Destinatario</th>
   <th>Estado</th>
   <th>Fecha</th>
@@ -16,7 +17,8 @@
 {% block fila %}
   <td>{{ fila.referencia }}</td>
   <td>{{ fila.asunto }}</td>
-  <td>{{ fila.destinatario }}</td>
+  <td>{{ fila.get_tipo_display }}</td>
+  <td>{{ fila.get_destinatario_display }}</td>
   <td><span class="estado {{ fila.estado }}">{{ fila.get_estado_display }}</span></td>
   <td>{{ fila.fecha }}</td>
   <td class="acciones">

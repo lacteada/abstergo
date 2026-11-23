@@ -14,6 +14,7 @@ urlpatterns = [
     path("tubo/tareas/<int:pk>/desactivar/", views.Desactivar.as_view(), name="tareas_desactivar"),
     path("tubo/tareas/<int:pk>/reactivar/", views.Reactivar.as_view(), name="tareas_reactivar"),
     path("tubo/tareas/<int:pk>/mover/", views.Mover.as_view(), name="tareas_mover"),
+    path("tubo/enviar/<str:origen>/<int:pk>/", views.EnviarAlTubo.as_view(), name="enviar"),
     path("tubo/tareas/<int:pk>/reasignar/", views.Reasignar.as_view(), name="tareas_reasignar"),
     path(
         "tubo/tareas/<int:pk>/historial/",

@@ -367,6 +367,8 @@ class ConsultaBase(AcotadoMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixi
     template_name = "consulta.html"
     # Cada campo es (etiqueta, "ruta.atributo") o (etiqueta, función).
     consulta_campos = ()
+    # Orígenes del paso manual al tubo: (origen, etiqueta) de `tubo:enviar`.
+    consulta_tubo = ()
 
     def get_queryset(self):
         return self.acotar_queryset(super().get_queryset())
@@ -381,5 +383,12 @@ class ConsultaBase(AcotadoMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixi
         contexto["campos"] = [
             (etiqueta, resolver_campo(self.object, campo))
             for etiqueta, campo in self.consulta_campos
+        ]
+        contexto["acciones_tubo"] = [
+            {
+                "url": reverse("tubo:enviar", args=[origen, self.object.pk]),
+                "etiqueta": etiqueta,
+            }
+            for origen, etiqueta in self.consulta_tubo
         ]
         return contexto

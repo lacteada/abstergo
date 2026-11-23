@@ -16,17 +16,29 @@ def test_la_organizacion_deriva_codigo_y_referencia(centro):
 
 
 def test_la_organizacion_guarda_su_directiva(centro):
+    from apps.ciudadanos.models import Vecino
+
+    presidente = Vecino.objects.create(
+        nombre="Ana Pérez", rut="12345678-5", territorio=centro
+    )
+    tesorero = Vecino.objects.create(
+        nombre="Luis Soto", rut="11111111-1", territorio=centro
+    )
+    secretario = Vecino.objects.create(
+        nombre="María Díaz", rut="22222222-2", territorio=centro
+    )
     organizacion = Organizacion.objects.create(
         nombre="Junta Directiva",
         territorio=centro,
-        presidente="Ana Pérez",
-        tesorero="Luis Soto",
-        secretario="María Díaz",
+        presidente=presidente,
+        tesorero=tesorero,
+        secretario=secretario,
     )
     organizacion.refresh_from_db()
-    assert organizacion.presidente == "Ana Pérez"
-    assert organizacion.tesorero == "Luis Soto"
-    assert organizacion.secretario == "María Díaz"
+    # La directiva son personas reales del sistema, no texto suelto.
+    assert organizacion.presidente == presidente
+    assert organizacion.tesorero == tesorero
+    assert organizacion.secretario == secretario
 
 
 def test_el_listado_se_acota_a_la_delegacion_autorizada(cliente, crear_usuario, centro, mar):

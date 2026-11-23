@@ -93,10 +93,33 @@ class Organizacion(ConReferencia, ConCodigoDerivado, ConEstado, BorradoLogico):
     registro_dir = models.CharField(
         "N° registro directorio", max_length=20, blank=True, validators=[validar_catalogo]
     )
-    # Directiva de la organización (OROC): quién la preside y administra.
-    presidente = models.CharField("presidente", max_length=120, blank=True)
-    tesorero = models.CharField("tesorero", max_length=120, blank=True)
-    secretario = models.CharField("secretario", max_length=120, blank=True)
+    # Directiva de la organización (OROC): quién la preside y administra. Son
+    # personas reales —vecinos del sistema, con su RUT—, no texto suelto. Un
+    # mismo vecino puede ocupar cargos en más de una organización.
+    presidente = models.ForeignKey(
+        "ciudadanos.Vecino",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="organizaciones_presididas",
+        verbose_name="presidente",
+    )
+    tesorero = models.ForeignKey(
+        "ciudadanos.Vecino",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="organizaciones_tesoreria",
+        verbose_name="tesorero",
+    )
+    secretario = models.ForeignKey(
+        "ciudadanos.Vecino",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="organizaciones_secretaria",
+        verbose_name="secretario",
+    )
 
     class Meta:
         verbose_name = "organización comunitaria"

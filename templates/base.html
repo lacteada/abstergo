@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{% static 'css/frameworkV1.css' %}">
   <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/institucional.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/flatpickr/flatpickr.min.css' %}">
 </head>
 <body>
 
@@ -78,7 +79,7 @@
         {% endif %}
       </details>
 
-      <details class="grupo" data-grupo="mantenedores" open>
+      <details class="grupo" data-grupo="mantenedores">
         <summary class="grupo-titulo">
           <span>Mantenedores</span>
           <span class="grupo-flecha" aria-hidden="true">
@@ -185,6 +186,41 @@
             </select>
           </form>
         {% endif %}
+
+        {% if periodo_activo %}
+          <span class="delegacion periodo" title="Período activo">
+            <span class="delegacion-icono" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                <path d="M16 2v4"></path>
+                <path d="M8 2v4"></path>
+                <path d="M3 10h18"></path>
+              </svg>
+            </span>
+            <span class="delegacion-textos">
+              <span class="delegacion-codigo">período</span>
+              <span class="delegacion-nombre">{{ periodo_activo.nombre }}</span>
+            </span>
+          </span>
+
+          {% if periodos|length > 1 %}
+            <form class="selector-delegacion" method="post"
+                  action="{% url 'panel:cambiar_periodo' %}" data-cambiar-periodo>
+              {% csrf_token %}
+              <input type="hidden" name="siguiente" value="{{ request.get_full_path }}">
+              <label class="sr-solo" for="periodo-selector">Cambiar período activo</label>
+              <select id="periodo-selector" name="periodo" onchange="this.form.submit()">
+                {% for p in periodos %}
+                  <option value="{{ p.pk }}"
+                    {% if periodo_activo and periodo_activo.pk == p.pk %}selected{% endif %}>
+                    {{ p.nombre }}
+                  </option>
+                {% endfor %}
+              </select>
+            </form>
+          {% endif %}
+        {% endif %}
       </div>
 
       <span class="header-espacio"></span>
@@ -245,11 +281,16 @@
 {# Contenedor único del CRUD en modal: modal.js inyecta aquí el fragmento. #}
 <dialog id="modal" class="modal" data-modal-dialog></dialog>
 
+<script src="{% static 'vendor/flatpickr/flatpickr.min.js' %}"></script>
+<script src="{% static 'vendor/flatpickr/es.js' %}"></script>
 <script src="{% static 'js/sweetalert2.all.min.js' %}"></script>
 <script src="{% static 'js/mensajes.js' %}"></script>
 <script src="{% static 'js/sidebar.js' %}"></script>
 <script src="{% static 'js/contexto.js' %}"></script>
 <script src="{% static 'js/atencion.js' %}"></script>
+<script src="{% static 'js/fechas.js' %}"></script>
+<script src="{% static 'js/autocomplete.js' %}"></script>
+<script src="{% static 'js/acciones.js' %}"></script>
 <script src="{% static 'js/modal.js' %}"></script>
 
 </body>

@@ -145,6 +145,16 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   `/tubo/cartas/` (tabla) y `/tubo/cartas/kanban/` (kanban, arrastre y botón
   Aprobar/Finalizar vía `CartaMover`). El CRUD completo queda en la tabla.
   Actualiza `documento_tecnico.md` §20.3 y §25.
+- **2026-11-23 · Flujo y usabilidad**: buscador en todos los campos de lista
+  (autocompletado central), **calendario** en las fechas (flatpickr local), **modales
+  que no se cierran al clic fuera**, acciones de fila como **botones**, **directiva
+  como vecinos reales** (presidente/tesorero/secretario pasan a FK de `Vecino`, con
+  creación en el mismo formulario), **paso manual al tubo** (se retira la
+  automatización; botón «Enviar al tubo» en atención/carta/actividad), **kanban con
+  drag&drop y orden persistente sin recarga**, **cartas con tipo**
+  (felicitación/regaño), **período activo en la top bar**, **tablero SGR en el
+  dashboard** y **mantenedores plegados**. Migraciones `comunidad/0004`, `tubo/0006`
+  y `tubo/0007`. Actualiza `documento_tecnico.md` §26, `vision.md` §6.6 y §25.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

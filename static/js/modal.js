@@ -89,9 +89,12 @@
   });
 
   dialogo.addEventListener("click", function (evento) {
-    // Un clic en el fondo (fuera de la tarjeta) cierra el modal.
+    // Un clic en el fondo NO cierra: solo sacude la ventana para avisar. Para
+    // salir está el botón de cerrar (o Escape). Así no se pierde lo escrito.
     if (evento.target === dialogo) {
-      cerrar();
+      dialogo.classList.remove("modal-temblor");
+      void dialogo.offsetWidth;
+      dialogo.classList.add("modal-temblor");
       return;
     }
     // Enlaces internos del flujo (por ejemplo `?vecino=3`): se quedan en el modal.
