@@ -31,6 +31,13 @@ TRANSICIONES = {
     "realizada": {"en_proceso"},
 }
 
+# El paso hacia adelante del flujo: la acción principal de cada tarjeta.
+ACCION_SIGUIENTE = {
+    "ingresada": "pendiente",
+    "pendiente": "en_proceso",
+    "en_proceso": "realizada",
+}
+
 
 class TareaTubo(ConReferencia, BorradoLogico):
     """Una tarea del tubo de trabajo de la delegación."""
@@ -117,6 +124,11 @@ class TareaTubo(ConReferencia, BorradoLogico):
     def puede_pasar_a(self, estado):
         """Si el cambio de estado respeta las transiciones permitidas."""
         return estado == self.estado or estado in TRANSICIONES.get(self.estado, set())
+
+    @property
+    def accion_destino(self):
+        """El estado que propone el botón principal de la tarjeta del tablero."""
+        return ACCION_SIGUIENTE.get(self.estado, "")
 
     @property
     def vencida(self):

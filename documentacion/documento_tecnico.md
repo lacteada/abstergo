@@ -1084,11 +1084,17 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   lo crea al detectar el cambio. Las transiciones entre estados están
   controladas (`puede_pasar_a`), y `vencida`/`dias_atraso` marcan las tareas
   atrasadas (RF-019).
-- El tablero `/tubo/` es un **kanban** de la delegación activa, con una columna
-  por estado, contador de vencidas y **reasignación** de responsable en la
-  tarjeta (RF-053); `Mover` (POST) cambia el estado al arrastrar
-  (`static/js/tubo.js`). El **historial** se ve en `/tubo/tareas/<pk>/historial/`.
-  Visible para el rol `delegado` (y admin, coordinador y funcionario).
+- El tablero `/tubo/` es un **kanban** de la delegación activa: arriba, una fila
+  de cuatro **KPI** (total en tubo, realizadas con tasa de resolución, en
+  proceso y pendientes) y abajo una columna por estado, numerada y con código de
+  color (gris, rojo, ámbar, verde) que se repite en el borde y el título de la
+  tarjeta. Cada tarjeta muestra el código, el documento vinculado, el título, el
+  solicitante, el apoyo y el responsable, más un botón con el paso siguiente del
+  flujo (`accion_destino`) y la **reasignación** de responsable (RF-053);
+  `Mover` (POST) cambia el estado al arrastrar la tarjeta o al pulsar el botón
+  (`static/js/tubo.js`). El **historial** se ve en
+  `/tubo/tareas/<pk>/historial/`. Visible para el rol `delegado` (y admin,
+  coordinador y funcionario).
 
 ### 20.4 Permisos de los módulos nuevos
 

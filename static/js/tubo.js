@@ -12,6 +12,20 @@
     return match ? decodeURIComponent(match[2]) : "";
   }
 
+  // Envía la acción por fetch; recarga para reflejar el estado ya sea que
+  // resulte bien o mal (el servidor valida las transiciones).
+  function enviar(url, datos) {
+    return fetch(url, {
+      method: "POST",
+      headers: { "X-CSRFToken": csrf() },
+      body: datos,
+    });
+  }
+
+  function recargar() {
+    window.location.reload();
+  }
+
   var arrastrada = null;
 
   kanban.querySelectorAll(".kanban-tarjeta").forEach(function (tarjeta) {
@@ -34,33 +48,28 @@
       if (!arrastrada) {
         return;
       }
-      var estado = lista.getAttribute("data-lista");
-      var destino = lista.querySelector(".kanban-vacio");
-      if (destino) {
-        destino.remove();
-      }
-      lista.appendChild(arrastrada);
-      actualizarContadores();
-
       var datos = new FormData();
-      datos.append("estado", estado);
-      fetch(arrastrada.getAttribute("data-mover"), {
-        method: "POST",
-        headers: { "X-CSRFToken": csrf() },
-        body: datos,
-      }).catch(function () {
-        window.location.reload();
-      });
+      datos.append("estado", lista.getAttribute("data-lista"));
+      enviar(arrastrada.getAttribute("data-mover"), datos).then(recargar, recargar);
     });
   });
 
-  function actualizarContadores() {
-    kanban.querySelectorAll(".kanban-columna").forEach(function (columna) {
-      var total = columna.querySelectorAll(".kanban-tarjeta").length;
-      var contador = columna.querySelector(".kanban-contador");
-      if (contador) {
-        contador.textContent = total;
-      }
+  // Botón de acción de cada tarjeta ("A Pendiente", "A Proceso", "Realizar").
+  kanban.querySelectorAll("[data-accion]").forEach(function (boton) {
+    boton.addEventListener("click", function () {
+      var tarjeta = boton.closest(".kanban-tarjeta");
+      var datos = new FormData();
+      datos.append("estado", boton.getAttribute("data-estado"));
+      boton.disabled = true;
+      enviar(tarjeta.getAttribute("data-mover"), datos).then(recargar, recargar);
     });
-  }
+  });
+
+  // Reasignación del responsable desde la tarjeta (RF-053).
+  kanban.querySelectorAll(".kanban-reasignar").forEach(function (form) {
+    form.addEventListener("submit", function (evento) {
+      evento.preventDefault();
+      enviar(form.getAttribute("action"), new FormData(form)).then(recargar, recargar);
+    });
+  });
 })();

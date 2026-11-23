@@ -102,21 +102,44 @@ class Tablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
     seccion = "tubo"
     url_listado = "tubo:tablero"
 
+    # El tablero rotula y colorea las columnas; el modelo usa singular.
+    ETIQUETAS = {
+        "ingresada": "Ingresados",
+        "pendiente": "Pendientes",
+        "en_proceso": "En proceso",
+        "realizada": "Realizados",
+    }
+    COLORES = {
+        "ingresada": "gris",
+        "pendiente": "rojo",
+        "en_proceso": "ambar",
+        "realizada": "verde",
+    }
+
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
-        tareas = acotar(
-            self.request,
-            TareaTubo.objects.select_related("responsable", "delegacion"),
-            "delegacion",
+        tareas = list(
+            acotar(
+                self.request,
+                TareaTubo.objects.select_related(
+                    "responsable", "delegacion", "apoyo", "atencion"
+                ),
+                "delegacion",
+            )
         )
         columnas = [
             {
                 "codigo": codigo,
-                "etiqueta": etiqueta,
+                "etiqueta": self.ETIQUETAS.get(codigo, etiqueta),
+                "numero": numero,
+                "color": self.COLORES.get(codigo, ""),
                 "tareas": [tarea for tarea in tareas if tarea.estado == codigo],
             }
-            for codigo, etiqueta in ESTADOS
+            for numero, (codigo, etiqueta) in enumerate(ESTADOS, start=1)
         ]
+        total = len(tareas)
+        realizadas = len([tarea for tarea in tareas if tarea.estado == "realizada"])
+        tasa = (realizadas * 100 / total) if total else 0
         contexto.update(
             titulo=self.titulo,
             seccion=self.seccion,
@@ -125,6 +148,32 @@ class Tablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
             columnas=columnas,
             usuarios=Usuario.vigentes(),
             vencidas=len([tarea for tarea in tareas if tarea.vencida]),
+            kpis=[
+                {
+                    "titulo": "GESTIONES EN TUBO",
+                    "numero": total,
+                    "subtitulo": "Derivadas para seguimiento",
+                    "color": "rojo",
+                },
+                {
+                    "titulo": "REALIZADAS / CONCLUIDAS",
+                    "numero": realizadas,
+                    "subtitulo": f"Tasa de resolución: {tasa:.1f}%".replace(".", ","),
+                    "color": "verde",
+                },
+                {
+                    "titulo": "EN PROCESO ACTIVO",
+                    "numero": len([t for t in tareas if t.estado == "en_proceso"]),
+                    "subtitulo": "Con cuadrilla o área de apoyo",
+                    "color": "ambar",
+                },
+                {
+                    "titulo": "PENDIENTES / ALERTA",
+                    "numero": len([t for t in tareas if t.estado == "pendiente"]),
+                    "subtitulo": "Esperando gestión técnica",
+                    "color": "rojo",
+                },
+            ],
         )
         return contexto
 

@@ -12,30 +12,70 @@
     {% endif %}
   </div>
 
+  <div class="kpis">
+    {% for kpi in kpis %}
+      <article class="kpi kpi-{{ kpi.color }}">
+        <span class="kpi-titulo">{{ kpi.titulo }}</span>
+        <span class="kpi-numero">{{ kpi.numero }}</span>
+        <span class="kpi-subtitulo">{{ kpi.subtitulo }}</span>
+      </article>
+    {% endfor %}
+  </div>
+
   <div class="kanban" data-kanban>
     {% for columna in columnas %}
-      <section class="kanban-columna" data-estado="{{ columna.codigo }}">
+      <section class="kanban-columna kanban-col-{{ columna.color }}"
+               data-estado="{{ columna.codigo }}">
         <header class="kanban-cabecera">
-          <h2>{{ columna.etiqueta }}</h2>
+          <h2>{{ columna.numero }}. {{ columna.etiqueta }}</h2>
           <span class="kanban-contador">{{ columna.tareas|length }}</span>
         </header>
         <ul class="kanban-lista" data-lista="{{ columna.codigo }}">
           {% for tarea in columna.tareas %}
-            <li class="kanban-tarjeta{% if tarea.vencida %} kanban-vencida{% endif %}"
+            <li class="kanban-tarjeta kanban-tarjeta-{{ columna.color }}{% if tarea.estado == 'realizada' %} kanban-hecha{% endif %}"
                 draggable="true" data-pk="{{ tarea.pk }}"
                 data-vencida="{{ tarea.vencida|yesno:'1,0' }}"
                 data-mover="{% url 'tubo:tareas_mover' tarea.pk %}">
+              <div class="kanban-cinta">
+                <span class="kanban-codigo">{{ tarea.referencia }}</span>
+                {% if tarea.atencion %}
+                  <span class="kanban-documento">{{ tarea.atencion.referencia }}</span>
+                {% endif %}
+              </div>
               <a class="kanban-titulo" href="{% url 'tubo:tareas_consultar' tarea.pk %}" data-modal>{{ tarea.titulo }}</a>
-              <span class="kanban-responsable">
-                {% if tarea.responsable %}{{ tarea.responsable.get_full_name }}{% else %}Sin responsable{% endif %}
-              </span>
+              {% if tarea.solicitante %}
+                <p class="kanban-dato"><strong>Solicitante:</strong> {{ tarea.solicitante }}</p>
+              {% endif %}
+              {% if tarea.apoyo %}
+                <p class="kanban-dato kanban-apoyo"><strong>Apoyo:</strong> {{ tarea.apoyo.get_full_name }}</p>
+              {% endif %}
               {% if tarea.vencida %}
                 <span class="estado rojo" title="Vencida hace {{ tarea.dias_atraso }} días">
                   Vencida · {{ tarea.fecha_compromiso }}
                 </span>
               {% endif %}
-              <div class="kanban-acciones">
-                <a href="{% url 'tubo:tareas_historial' tarea.pk %}" data-modal>Historial</a>
+              <hr class="kanban-divisor">
+              {% if tarea.estado == 'realizada' %}
+                <div class="kanban-pie">
+                  <span class="kanban-concluido">Concluido</span>
+                  <a class="kanban-ver" href="{% url 'tubo:tareas_consultar' tarea.pk %}" data-modal>Ver Detalle</a>
+                </div>
+              {% else %}
+                <div class="kanban-pie">
+                  <span class="kanban-responsable">Responsable: {% if tarea.responsable %}{{ tarea.responsable.get_full_name }}{% else %}Sin responsable{% endif %}</span>
+                  <a class="kanban-ver" href="{% url 'tubo:tareas_consultar' tarea.pk %}" data-modal>Ver</a>
+                  {% if tarea.accion_destino %}
+                    <button type="button"
+                            class="kanban-accion{% if tarea.accion_destino == 'realizada' %} kanban-accion-fuerte{% endif %}"
+                            data-accion data-mover="{% url 'tubo:tareas_mover' tarea.pk %}"
+                            data-estado="{{ tarea.accion_destino }}">
+                      {% if tarea.accion_destino == 'pendiente' %}A Pendiente{% elif tarea.accion_destino == 'en_proceso' %}A Proceso{% else %}Realizar{% endif %}
+                    </button>
+                  {% endif %}
+                </div>
+              {% endif %}
+              <div class="kanban-extra">
+                <a class="kanban-historial" href="{% url 'tubo:tareas_historial' tarea.pk %}" data-modal>Historial</a>
                 <form class="kanban-reasignar" method="post"
                       action="{% url 'tubo:tareas_reasignar' tarea.pk %}">
                   {% csrf_token %}
