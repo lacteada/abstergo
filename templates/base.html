@@ -38,9 +38,6 @@
           </span>
         </summary>
 
-        <a class="nav-sub{% if seccion == 'buzon' %} activo{% endif %}"
-           href="{% url 'panel:buzon' %}">Buzón de trabajo</a>
-
         {% if 'cases' in modulos_lectura %}
         <a class="nav-sub{% if seccion == 'atenciones' %} activo{% endif %}"
            href="{% url 'atenciones:listado' %}">Atenciones</a>

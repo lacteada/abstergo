@@ -147,7 +147,9 @@ class ListadoBase(
     AcotadoMixin, ExportarExcelMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView
 ):
     template_name = "listado.html"
-    paginate_by = 7
+    paginate_by = 8
+    # Tamaños de página que ofrece el selector del listado (para ver más filas).
+    tamanos_pagina = (8, 16, 32, 64)
     busqueda = ()
     # Llaves foráneas que la plantilla recorre. Traerlas con JOIN evita una
     # consulta por fila.
@@ -171,6 +173,22 @@ class ListadoBase(
         # El alcance territorial se aplica en el servidor, sobre el mismo
         # queryset que exporta: un cambio de contexto actualiza ambas cosas.
         return self.acotar_queryset(queryset)
+
+    def tamano_de_pagina(self):
+        """El tamaño de página pedido en `?por=`, si es uno de los permitidos."""
+        valor = self.request.GET.get("por")
+        if valor and valor.isdigit() and int(valor) in self.tamanos_pagina:
+            return int(valor)
+        return self.paginate_by
+
+    def get_paginate_by(self, queryset):
+        return self.tamano_de_pagina()
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto["tamanos_pagina"] = self.tamanos_pagina
+        contexto["tamano_actual"] = self.tamano_de_pagina()
+        return contexto
 
     def get(self, request, *args, **kwargs):
         if request.GET.get("exportar") and self.exportar_columnas:

@@ -127,6 +127,12 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   API** (`LimpiaModeloMixin`) y validadores del modelo repuestos en campos
   redeclarados. Verificación: `scripts/verificar.sh` en verde (124 pruebas).
   Actualiza `documento_tecnico.md` §19.1, §20.1 y §23.
+- **2026-11-23 · Ajustes de UI**: se **retira el buzón de trabajo** (`/buzon/`,
+  vista, servicio, plantilla, menú y CSS); el **kanban de compromisos** resalta
+  las tareas atrasadas (fondo rojo, distintivo «Atrasada · N días» y conteo por
+  columna); y todos los **listados** suman un selector de filas por página
+  (8/16/32/64, `?por=`, 8 por defecto). Actualiza `documento_tecnico.md` §7,
+  §13.1, §20.3 y §24 y `vision.md` §6.3.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

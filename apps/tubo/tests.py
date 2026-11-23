@@ -75,3 +75,23 @@ def test_la_api_de_tareas_responde_al_admin(cliente, crear_usuario):
     consulta = crear_usuario("con@test.cl", codigo="consulta")
     cliente.force_login(consulta)
     assert cliente.get("/api/v1/tasks/").status_code == 403
+
+
+def test_el_kanban_destaca_las_tareas_atrasadas(cliente, crear_usuario, centro):
+    ayer = timezone.localdate() - timedelta(days=3)
+    TareaTubo.objects.create(
+        titulo="Reparar la plaza",
+        delegacion=centro,
+        estado="pendiente",
+        fecha_compromiso=ayer,
+    )
+    delegado = crear_usuario("del@test.cl", codigo="delegado", delegacion=centro)
+    cliente.force_login(delegado)
+
+    respuesta = cliente.get(reverse("tubo:tablero"))
+
+    assert respuesta.status_code == 200
+    contenido = respuesta.content.decode()
+    assert "kanban-tarjeta-atrasada" in contenido
+    assert "Atrasada · 3 días" in contenido
+    assert "1 atrasada" in contenido

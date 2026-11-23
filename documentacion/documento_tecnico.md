@@ -340,7 +340,7 @@ listado, alta, consulta, edición y borrado. Fuente: `apps/*/urls.py`.
 
 | Namespace | Rutas |
 |---|---|
-| `panel` | `` → Inicio, `buzon/` (buzón de trabajo), `contexto/delegacion/` (cambiar delegación activa) |
+| `panel` | `` → Inicio, `contexto/delegacion/` (cambiar delegación activa) |
 | `organizacion` | `delegaciones/`, `.../nueva/`, `.../<pk>/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
 | `cuentas` | `roles/...`, `usuarios/...`, `login/`, `logout/`, `recuperar/`, `recuperar/<uidb64>/<token>/`, `validar/`, `reenviar/`, `nueva-password/` |
 | `catalogos` | `metas/...`, `tipos-atencion/...`, `sub-atenciones/...` |
@@ -635,11 +635,8 @@ Fuente: `templates/`.
 - `inicio.html`: panel de bienvenida. Tarjetas por rol, botón principal, bloque
   de estado del período SGR (semáforo por área) y últimas atenciones; si
   corresponde, incluye la **guía** (tour por pasos, `js/guia.js`).
-- `buzon.html`: **buzón de trabajo**. Reúne lo accionable de todos los módulos
-  que el perfil puede leer (compromisos abiertos, actividades por corregir,
-  evidencias por validar, llamadas y alertas), agrupado por importancia
-  (crítico, alto, medio, bajo) y con enlace al detalle y a la trazabilidad.
-  Lógica en `apps/panel/servicios.py::buzon`; el ámbito es global por rol.
+- `listado.html`: además del buscador y la exportación, trae el **selector de
+  filas por página** ("Mostrar": 8, 16, 32 o 64; `ListadoBase.tamanos_pagina`).
 - `cuentas/mi_perfil.html`: perfil del usuario, sus contadores y el cambio de
   contraseña.
 - `cuentas/base_auth.html` + `login.html`, `recuperar.html`, `validar.html`,
@@ -1120,7 +1117,9 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   `Mover` (POST) cambia el estado al arrastrar la tarjeta o al pulsar el botón
   (`static/js/tubo.js`). El **historial** se ve en
   `/tubo/tareas/<pk>/historial/`. Visible para el rol `delegado` (y admin,
-  coordinador y funcionario).
+  coordinador y funcionario). Las tareas **atrasadas** se destacan: la cabecera
+  de cada columna muestra cuántas van vencidas y la tarjeta atrasada lleva fondo
+  rojo y un distintivo «Atrasada · N días».
 
 ### 20.4 Permisos de los módulos nuevos
 
@@ -1249,3 +1248,22 @@ en el alta web, evidencia en la API y rediseño del tablero SGR).
   contraseña.
 - **Verificación.** `bash scripts/verificar.sh` en verde: check, migraciones,
   carga de datos, ruff, pytest y smoke de rutas + API.
+
+---
+
+## 24. Ajustes de UI: buzón, kanban y paginador (2026-11-23)
+
+- **Se retira el buzón de trabajo**: se eliminan la ruta `/buzon/`
+  (`panel:BuzonTrabajo`), la función `panel.servicios.buzon`, la plantilla
+  `templates/buzon.html`, sus estilos y su enlace en el menú. El trabajo
+  accionable se sigue viendo en cada módulo; el panel de inicio conserva sus
+  tarjetas por rol.
+- **Kanban de compromisos**: las tareas atrasadas (`TareaTubo.vencida`) se
+  destacan con fondo rojo, un distintivo «Atrasada · N días» y el conteo de
+  atrasadas en la cabecera de cada columna (`apps/tubo/views.py` y las clases
+  `.kanban-tarjeta-atrasada` / `.kanban-atrasadas`). Ver §20.3.
+- **Selector de filas por página** en todos los listados: `ListadoBase` ofrece
+  8, 16, 32 o 64 filas (`?por=`), con 8 por defecto; el selector vive en
+  `templates/listado.html` y `static/js/busqueda.js` lo conserva al buscar. Ver
+  §6.3 de `vision.md`.
+- Verificación: `bash scripts/verificar.sh` en verde.

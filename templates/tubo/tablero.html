@@ -28,11 +28,16 @@
                data-estado="{{ columna.codigo }}">
         <header class="kanban-cabecera">
           <h2>{{ columna.numero }}. {{ columna.etiqueta }}</h2>
-          <span class="kanban-contador">{{ columna.tareas|length }}</span>
+          <span class="kanban-cabecera-marcas">
+            {% if columna.atrasadas %}
+              <span class="kanban-atrasadas">{{ columna.atrasadas }} atrasada{{ columna.atrasadas|pluralize }}</span>
+            {% endif %}
+            <span class="kanban-contador">{{ columna.tareas|length }}</span>
+          </span>
         </header>
         <ul class="kanban-lista" data-lista="{{ columna.codigo }}">
           {% for tarea in columna.tareas %}
-            <li class="kanban-tarjeta kanban-tarjeta-{{ columna.color }}{% if tarea.estado == 'realizada' %} kanban-hecha{% endif %}"
+            <li class="kanban-tarjeta kanban-tarjeta-{{ columna.color }}{% if tarea.estado == 'realizada' %} kanban-hecha{% endif %}{% if tarea.vencida %} kanban-tarjeta-atrasada{% endif %}"
                 draggable="true" data-pk="{{ tarea.pk }}"
                 data-vencida="{{ tarea.vencida|yesno:'1,0' }}"
                 data-mover="{% url 'tubo:tareas_mover' tarea.pk %}">
@@ -50,8 +55,9 @@
                 <p class="kanban-dato kanban-apoyo"><strong>Apoyo:</strong> {{ tarea.apoyo.get_full_name }}</p>
               {% endif %}
               {% if tarea.vencida %}
-                <span class="estado rojo" title="Vencida hace {{ tarea.dias_atraso }} días">
-                  Vencida · {{ tarea.fecha_compromiso }}
+                <span class="kanban-atrasada-badge"
+                      title="Fecha de compromiso: {{ tarea.fecha_compromiso }}">
+                  Atrasada · {{ tarea.dias_atraso }} día{{ tarea.dias_atraso|pluralize }}
                 </span>
               {% endif %}
               <hr class="kanban-divisor">

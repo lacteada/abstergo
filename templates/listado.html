@@ -24,6 +24,17 @@
       </span>
     </form>
 
+    <form class="tamano" method="get">
+      {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+      <label>Mostrar
+        <select name="por" data-tamano aria-label="Filas por página">
+          {% for n in tamanos_pagina %}
+            <option value="{{ n }}"{% if n == tamano_actual %} selected{% endif %}>{{ n }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </form>
+
     {% if permite_exportar %}
       <a class="btn-muni btn-icono"
          href="?exportar=1{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}"
@@ -65,12 +76,12 @@
     {% if is_paginated %}
       {% if page_obj.has_previous %}
         <a class="accion accion-icono" title="Anterior" aria-label="Anterior"
-           href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">{% include 'iconos/anterior.html' %}</a>
+           href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}&por={{ tamano_actual }}">{% include 'iconos/anterior.html' %}</a>
       {% endif %}
       <span class="pie">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
       {% if page_obj.has_next %}
         <a class="accion accion-icono" title="Siguiente" aria-label="Siguiente"
-           href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}">{% include 'iconos/siguiente.html' %}</a>
+           href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q|urlencode }}{% endif %}&por={{ tamano_actual }}">{% include 'iconos/siguiente.html' %}</a>
       {% endif %}
     {% endif %}
   </nav>

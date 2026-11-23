@@ -126,16 +126,20 @@ class Tablero(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
                 "delegacion",
             )
         )
-        columnas = [
-            {
-                "codigo": codigo,
-                "etiqueta": self.ETIQUETAS.get(codigo, etiqueta),
-                "numero": numero,
-                "color": self.COLORES.get(codigo, ""),
-                "tareas": [tarea for tarea in tareas if tarea.estado == codigo],
-            }
-            for numero, (codigo, etiqueta) in enumerate(ESTADOS, start=1)
-        ]
+        columnas = []
+        for numero, (codigo, etiqueta) in enumerate(ESTADOS, start=1):
+            en_columna = [tarea for tarea in tareas if tarea.estado == codigo]
+            columnas.append(
+                {
+                    "codigo": codigo,
+                    "etiqueta": self.ETIQUETAS.get(codigo, etiqueta),
+                    "numero": numero,
+                    "color": self.COLORES.get(codigo, ""),
+                    "tareas": en_columna,
+                    # Las vencidas se cuentan por columna para avisar en la cabecera.
+                    "atrasadas": len([tarea for tarea in en_columna if tarea.vencida]),
+                }
+            )
         total = len(tareas)
         realizadas = len([tarea for tarea in tareas if tarea.estado == "realizada"])
         tasa = (realizadas * 100 / total) if total else 0

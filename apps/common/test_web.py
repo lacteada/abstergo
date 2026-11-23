@@ -142,3 +142,21 @@ def test_la_api_acota_por_delegacion(cliente, crear_usuario, centro, mar):
 
     assert respuesta.status_code == 200
     assert [v["name"] for v in respuesta.json()["results"]] == ["Ana Centro"]
+
+
+def test_el_listado_pagina_y_ofrece_tamanos(cliente, crear_usuario, centro):
+    """El listado arranca en 8 filas y el selector `?por=` permite ver más."""
+    for i in range(20):
+        _vecino(f"Vecino {i:02d}", f"{10_000_000 + i}-1", centro)
+    usuario = crear_usuario("admin@test.cl", codigo="admin", delegacion=centro)
+    cliente.force_login(usuario)
+
+    por_defecto = cliente.get(reverse("ciudadanos:vecinos"))
+    assert len(por_defecto.context["object_list"]) == 8
+    assert list(por_defecto.context["tamanos_pagina"]) == [8, 16, 32, 64]
+
+    ampliado = cliente.get(reverse("ciudadanos:vecinos"), {"por": "16"})
+    assert len(ampliado.context["object_list"]) == 16
+
+    invalido = cliente.get(reverse("ciudadanos:vecinos"), {"por": "99"})
+    assert len(invalido.context["object_list"]) == 8

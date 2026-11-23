@@ -237,9 +237,10 @@ OTP            ^\d{6}$
 
 ### 6.3 Paginación
 
-- Listados con `paginate_by = 7`, máximo 7 filas por página.
+- Listados paginados con un **selector de filas por página** (`?por=`): 8, 16,
+  32 o 64. Por defecto, 8 filas por página.
 - Controles de página al pie, junto al contador de registros.
-- La búsqueda y el filtro se conservan al cambiar de página.
+- La búsqueda y el tamaño de página se conservan al cambiar de página.
 
 ### 6.4 Exportación a Excel
 

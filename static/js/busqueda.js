@@ -15,11 +15,14 @@ function iniciarBusqueda() {
   const pie = document.querySelector("[data-pie]");
   const paginacion = document.querySelector("[data-paginacion]");
   const cargando = document.querySelector("[data-cargando]");
+  const tamano = document.querySelector("[data-tamano]");
   let temporizador = null;
 
   async function actualizar() {
-    const destino =
+    let destino =
       entrada.dataset.url + "?q=" + encodeURIComponent(entrada.value.trim());
+    // Conserva el tamaño de página elegido en el selector "Mostrar".
+    if (tamano) destino += "&por=" + encodeURIComponent(tamano.value);
     if (cargando) cargando.hidden = false;
     try {
       const respuesta = await fetch(destino);
@@ -50,6 +53,11 @@ function iniciarBusqueda() {
     clearTimeout(temporizador);
     temporizador = setTimeout(actualizar, 250);
   });
+
+  // El selector de filas por página recarga el listado con el tamaño elegido.
+  if (tamano) {
+    tamano.addEventListener("change", () => tamano.form.submit());
+  }
 }
 
 if (document.readyState === "loading") {
