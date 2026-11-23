@@ -8,6 +8,7 @@ El glosario está en `documentacion/documento_tecnico.md`.
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from apps.atenciones.models import Atencion
@@ -43,6 +44,7 @@ from apps.sgr.models import (
     RegistroGestion,
     Validacion,
 )
+from apps.sgr.validaciones import falta_evidencia
 from apps.tubo.models import TareaTubo
 
 Usuario = get_user_model()
@@ -56,6 +58,21 @@ class CodigoVisibleMixin(serializers.Serializer):
     """
 
     reference_code = serializers.CharField(source="referencia", read_only=True)
+
+
+class LimpiaModeloMixin:
+    """Corre el `clean()` del modelo al validar, como hace un ModelForm.
+
+    DRF copia los validadores de campo del modelo, pero no ejecuta la validación
+    de cruce de campos (`Model.clean()`). Este mixin la repone, para que la regla
+    viva una sola vez —en el modelo— y la API no la salte. Va antes del
+    `ModelSerializer` en la clase.
+    """
+
+    def validate(self, datos):
+        datos = super().validate(datos)
+        self.Meta.model(**datos).clean()
+        return datos
 
 
 class RolSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
@@ -324,7 +341,7 @@ class VecinoSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class AtencionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+class AtencionSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     neighbor = serializers.PrimaryKeyRelatedField(
         source="vecino", queryset=Vecino.objects.all()
     )
@@ -371,7 +388,7 @@ class AtencionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class OrganizacionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+class OrganizacionSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     name = serializers.CharField(source="nombre", max_length=200, validators=[validar_texto])
     legal_address = serializers.CharField(
         source="domicilio_legal",
@@ -405,19 +422,27 @@ class OrganizacionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         source="verificacion", choices=Organizacion._meta.get_field("verificacion").choices
     )
     active_members = serializers.IntegerField(
-        source="socios_activos", allow_null=True, required=False
+        source="socios_activos", allow_null=True, required=False, min_value=0
     )
     constitution_date = serializers.DateField(
         source="fecha_constitucion", allow_null=True, required=False
     )
     pj_registry = serializers.CharField(
-        source="registro_pj", max_length=20, allow_blank=True, required=False
+        source="registro_pj",
+        max_length=20,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
     )
     registration_date = serializers.DateField(
         source="fecha_inscripcion", allow_null=True, required=False
     )
     directive_registry = serializers.CharField(
-        source="registro_dir", max_length=20, allow_blank=True, required=False
+        source="registro_dir",
+        max_length=20,
+        allow_blank=True,
+        required=False,
+        validators=[validar_catalogo],
     )
     status = serializers.ChoiceField(source="estado", choices=ESTADOS_VIGENCIA)
 
@@ -442,7 +467,7 @@ class OrganizacionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class PeriodoSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+class PeriodoSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     name = serializers.CharField(source="nombre", max_length=120, validators=[validar_catalogo])
     start = serializers.DateField(source="inicio")
     end = serializers.DateField(source="termino")
@@ -543,7 +568,7 @@ class IndicadorSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class MetaIndicadorSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+class MetaIndicadorSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     period = serializers.PrimaryKeyRelatedField(
         source="periodo", queryset=Periodo.objects.all()
     )
@@ -590,7 +615,7 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
     staff = serializers.PrimaryKeyRelatedField(
         source="funcionario", queryset=Usuario.objects.all()
     )
-    quantity = serializers.IntegerField(source="cantidad")
+    quantity = serializers.IntegerField(source="cantidad", min_value=1)
     detail = serializers.CharField(source="detalle", allow_blank=True, required=False)
     stage = serializers.ChoiceField(
         source="etapa", choices=RegistroGestion._meta.get_field("etapa").choices
@@ -603,7 +628,10 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
         source="contacto_nombre", allow_blank=True, required=False
     )
     contact_phone = serializers.CharField(
-        source="contacto_telefono", allow_blank=True, required=False
+        source="contacto_telefono",
+        allow_blank=True,
+        required=False,
+        validators=[validar_telefono],
     )
     scores = serializers.BooleanField(source="puntua", read_only=True)
     no_score_reason = serializers.CharField(source="motivo_no_puntua", read_only=True)
@@ -626,6 +654,18 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
         required=False,
     )
     version = serializers.IntegerField(read_only=True)
+
+    # Evidencia adjunta en la misma creación (una por actividad): se crea la
+    # Evidencia al guardar el registro. Campos de escritura, no del modelo.
+    evidence_file = serializers.FileField(
+        source="evidencia_archivo", write_only=True, required=False
+    )
+    evidence_link = serializers.URLField(
+        source="evidencia_vinculo", write_only=True, required=False, allow_blank=True
+    )
+    evidence_kind = serializers.CharField(
+        source="evidencia_tipo", write_only=True, required=False, allow_blank=True
+    )
 
     class Meta:
         model = RegistroGestion
@@ -651,23 +691,68 @@ class RegistroGestionSerializer(CodigoVisibleMixin, serializers.ModelSerializer)
             "organization",
             "commitment",
             "version",
+            "evidence_file",
+            "evidence_link",
+            "evidence_kind",
         ]
 
     def validate(self, datos):
+        # Se separa la evidencia de los datos del registro antes de validar.
+        self._evidencia = {
+            "archivo": datos.pop("evidencia_archivo", None),
+            "vinculo": datos.pop("evidencia_vinculo", "") or "",
+            "tipo": datos.pop("evidencia_tipo", "") or "",
+        }
         # Igual que la web: la regla del 4° trimestre vive en el modelo.
         instancia = RegistroGestion(**{**datos})
         instancia.clean()
+        # RN-010: la regla y su mensaje viven en un solo lugar (web y API).
+        mensaje = falta_evidencia(
+            datos.get("indicador"),
+            self._evidencia["archivo"],
+            self._evidencia["vinculo"],
+        )
+        if mensaje:
+            raise serializers.ValidationError({"evidence_file": mensaje})
+        archivo = self._evidencia["archivo"]
+        if archivo:
+            prueba = Evidencia(archivo=archivo)
+            try:
+                prueba.clean()
+            except DjangoValidationError as error:
+                raise serializers.ValidationError({"evidence_file": error.messages})
         return datos
 
+    def create(self, validado):
+        datos_evidencia = self._evidencia
+        registro = RegistroGestion.objects.create(**validado)
+        if datos_evidencia["archivo"] or datos_evidencia["vinculo"]:
+            request = self.context.get("request")
+            autor = getattr(request, "user", None) if request else None
+            archivo = datos_evidencia["archivo"]
+            Evidencia.objects.create(
+                registro=registro,
+                autor=autor,
+                archivo=archivo,
+                vinculo=datos_evidencia["vinculo"],
+                tipo=datos_evidencia["tipo"],
+                tamano=archivo.size if archivo else None,
+            )
+        return registro
 
-class AjusteConductaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+
+class AjusteConductaSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     area = serializers.PrimaryKeyRelatedField(queryset=Area.objects.all())
     kind = serializers.ChoiceField(
         source="tipo", choices=AjusteConducta._meta.get_field("tipo").choices
     )
     date = serializers.DateField(source="fecha")
     backing = serializers.CharField(
-        source="respaldo", max_length=200, allow_blank=True, required=False
+        source="respaldo",
+        max_length=200,
+        allow_blank=True,
+        required=False,
+        validators=[validar_texto],
     )
     medium = serializers.ChoiceField(
         source="medio",
@@ -728,7 +813,7 @@ class EvidenciaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         source="registro", queryset=RegistroGestion.objects.all()
     )
     file = serializers.FileField(source="archivo", required=False)
-    link = serializers.CharField(source="vinculo", allow_blank=True, required=False)
+    link = serializers.URLField(source="vinculo", allow_blank=True, required=False)
     author = serializers.PrimaryKeyRelatedField(
         source="autor", queryset=Usuario.objects.all()
     )
@@ -750,8 +835,15 @@ class EvidenciaSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
             "review_status",
         ]
 
+    def validate(self, datos):
+        # Aplica la misma regla del modelo (archivo obligatorio, formato y
+        # tamaño), que el ModelSerializer no ejecuta por sí solo.
+        instancia = Evidencia(**{**datos})
+        instancia.clean()
+        return datos
 
-class ValidacionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+
+class ValidacionSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     evidence = serializers.PrimaryKeyRelatedField(
         source="evidencia", queryset=Evidencia.objects.all()
     )
@@ -777,7 +869,7 @@ class ValidacionSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class TareaTuboSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+class TareaTuboSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     title = serializers.CharField(source="titulo", max_length=160, validators=[validar_texto])
     description = serializers.CharField(
         source="descripcion", allow_blank=True, required=False
@@ -837,7 +929,7 @@ class TareaTuboSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
         ]
 
 
-class CasoSocialSerializer(CodigoVisibleMixin, serializers.ModelSerializer):
+class CasoSocialSerializer(CodigoVisibleMixin, LimpiaModeloMixin, serializers.ModelSerializer):
     neighbor = serializers.PrimaryKeyRelatedField(
         source="vecino", queryset=Vecino.objects.all()
     )
@@ -962,3 +1054,8 @@ class NuevaPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6, min_length=6)
     password = serializers.CharField(write_only=True)
+
+    def validate_password(self, valor):
+        # La misma regla que el registro y la web, para no aceptar claves débiles.
+        validate_password(valor)
+        return valor

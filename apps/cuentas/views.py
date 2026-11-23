@@ -106,7 +106,6 @@ class UsuariosListado(ListadoBase):
     etiqueta_nueva = "Nuevo usuario"
     busqueda = ("referencia", "first_name", "last_name", "email")
     relacionadas = ("rol", "cargo", "delegacion")
-    campo_delegacion = "delegacion"
     auditar_lectura = True
     exportar_nombre = "usuarios"
     exportar_columnas = (

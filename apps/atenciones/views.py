@@ -7,7 +7,7 @@ from django.views import View
 from apps.atenciones.forms import AtencionForm
 from apps.atenciones.models import Atencion
 from apps.ciudadanos.models import Vecino
-from apps.common.delegaciones import activa
+from apps.common.delegaciones import acotar, activa, campo_delegacion_de
 from apps.common.validators import limpiar_rut
 from apps.common.vistas_base import (
     BorradoBase,
@@ -21,12 +21,22 @@ from apps.common.vistas_base import (
 from apps.cumplimiento.auditoria import registrar
 
 
-def buscar_vecinos(consulta):
+def vecinos_autorizados(request):
+    """Los vecinos dentro del alcance territorial del usuario.
+
+    Se usa en todo el flujo de Crear Atención (buscar, precargar, asociar) para
+    que un perfil acotado no vea ni asocie vecinos de otra delegación.
+    """
+    return acotar(request, Vecino.objects.all(), campo_delegacion_de(Vecino))
+
+
+def buscar_vecinos(consulta, request=None):
     """Un solo campo: busca por RUT (normalizado) o por nombre y apellido."""
     consulta = (consulta or "").strip()
     if not consulta:
         return Vecino.objects.none()
-    return Vecino.objects.filter(
+    vecinos = vecinos_autorizados(request) if request else Vecino.objects.all()
+    return vecinos.filter(
         Q(nombre__icontains=consulta) | Q(rut__icontains=limpiar_rut(consulta))
     ).distinct()
 
@@ -53,7 +63,6 @@ class Listado(ListadoBase):
     )
     url_nueva = "atenciones:crear"
     url_listado = "atenciones:listado"
-    campo_delegacion = "delegacion"
     auditar_lectura = True
     exportar_nombre = "atenciones"
     exportar_columnas = (
@@ -91,7 +100,9 @@ class CrearAtencion(LoginRequiredMixin, PermisoRequeridoMixin, View):
         return render(request, self._plantilla(), self._contexto(request))
 
     def post(self, request):
-        vecino = get_object_or_404(Vecino, pk=request.POST.get("vecino"))
+        vecino = get_object_or_404(
+            vecinos_autorizados(request), pk=request.POST.get("vecino")
+        )
         form = AtencionForm(request.POST)
         if form.is_valid():
             atencion = form.save(commit=False)
@@ -120,10 +131,10 @@ class CrearAtencion(LoginRequiredMixin, PermisoRequeridoMixin, View):
         if vecino is None:
             pk = request.GET.get("vecino")
             if pk:
-                vecino = Vecino.objects.filter(pk=pk).first()
+                vecino = vecinos_autorizados(request).filter(pk=pk).first()
         encontrados = Vecino.objects.none()
         if consulta:
-            encontrados = buscar_vecinos(consulta)
+            encontrados = buscar_vecinos(consulta, request)
             if vecino is None and encontrados.count() == 1:
                 vecino = encontrados.first()
         if vecino is not None:

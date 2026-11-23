@@ -9,7 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView, View
 
-from apps.common.delegaciones import acotar
+from apps.common.delegaciones import acotar, campo_delegacion_de
 from apps.common.vistas_base import (
     AltaBase,
     BorradoBase,
@@ -38,7 +38,6 @@ class Listado(_Tubo, ListadoBase):
     etiqueta_nueva = "Nuevo compromiso"
     busqueda = ("referencia", "titulo", "descripcion", "responsable__first_name")
     relacionadas = ("delegacion", "responsable", "vecino")
-    campo_delegacion = "delegacion"
     exportar_nombre = "tubo_tareas"
     exportar_columnas = (
         ("Código", "referencia"),
@@ -190,7 +189,12 @@ class Historial(LoginRequiredMixin, PermisoRequeridoMixin, TemplateView):
     def get_context_data(self, **kwargs):
         contexto = super().get_context_data(**kwargs)
         tarea = get_object_or_404(
-            TareaTubo.todos.select_related("responsable"), pk=self.kwargs["pk"]
+            acotar(
+                self.request,
+                TareaTubo.todos.select_related("responsable"),
+                campo_delegacion_de(TareaTubo),
+            ),
+            pk=self.kwargs["pk"],
         )
         contexto.update(
             titulo=f"Historial · {tarea.titulo}",
@@ -208,7 +212,9 @@ class Mover(LoginRequiredMixin, PermisoRequeridoMixin, View):
     model = TareaTubo
 
     def post(self, request, pk, *args, **kwargs):
-        tarea = get_object_or_404(TareaTubo.todos.all(), pk=pk)
+        tarea = get_object_or_404(
+            acotar(request, TareaTubo.todos.all(), campo_delegacion_de(TareaTubo)), pk=pk
+        )
         nuevo = request.POST.get("estado")
         if nuevo not in dict(ESTADOS):
             return JsonResponse({"error": "estado inválido"}, status=400)
@@ -226,7 +232,9 @@ class Reasignar(LoginRequiredMixin, PermisoRequeridoMixin, View):
     model = TareaTubo
 
     def post(self, request, pk, *args, **kwargs):
-        tarea = get_object_or_404(TareaTubo.todos.all(), pk=pk)
+        tarea = get_object_or_404(
+            acotar(request, TareaTubo.todos.all(), campo_delegacion_de(TareaTubo)), pk=pk
+        )
         tarea.responsable_id = request.POST.get("responsable") or None
         tarea.save(update_fields=["responsable"])
         return JsonResponse({"pk": tarea.pk, "responsable": tarea.responsable_id})
@@ -246,7 +254,6 @@ class CartasListado(_Cartas, ListadoBase):
     etiqueta_nueva = "Nueva carta"
     busqueda = ("referencia", "asunto", "remitente", "destinatario")
     relacionadas = ("delegacion", "encargado")
-    campo_delegacion = "delegacion"
     exportar_nombre = "cartas"
     exportar_columnas = (
         ("Código", "referencia"),
@@ -304,7 +311,6 @@ class Agenda(_Tubo, ListadoBase):
     etiqueta_nueva = "Nuevo compromiso"
     busqueda = ("referencia", "titulo", "descripcion")
     relacionadas = ("delegacion", "responsable", "territorio")
-    campo_delegacion = "delegacion"
     exportar_nombre = "agenda"
     exportar_columnas = (
         ("Código", "referencia"),

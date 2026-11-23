@@ -107,6 +107,26 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   (crítico/alto/medio/bajo) y con enlace al detalle y a la trazabilidad. Lógica en
   `apps/panel/servicios.py::buzon`; ámbito global por rol vía `acotar`. Enlace en
   el menú "Trabajo" y en las acciones del panel. Documentación: §7 y §13.1.
+- **2026-11-23 · Tablero SGR legible (RF-029)**: las cifras crudas (logrado y
+  meta al día) se reemplazan por una **barra de avance** (relleno = logrado,
+  marca vertical = meta al día) y un **cumplido** en % (logrado ÷ meta al día,
+  100 % = al día), con los valores crudos en el `title` de cada celda.
+  `calculos.relativo` es el cálculo puro; `servicios.resumen_area`,
+  `resumen_por_cargo` y los totales exponen `relativo` y `promedio_esperado`, y
+  el total se normaliza por el número de áreas. Cambia `tablero.html`,
+  `global.html`, el pie de `personal.html` y `institucional.css`
+  (`.avance`, `.cumplido`). Actualiza `documento_tecnico.md` §20.1.
+- **2026-11-23 · Revisión de seguridad y coherencia**: cierre de los hallazgos de
+  los tres cambios paralelos. (1) **Acotamiento territorial en todas las
+  operaciones**, no solo el listado: `AcotadoMixin` (web) y `BaseViewSet` (API)
+  filtran por delegación en ver/editar/borrar/acciones, con la ruta del campo
+  resuelta por modelo (`delegaciones.campo_delegacion_de`), y las vistas custom
+  (Crear Atención, cierre de llamada, kanban) también. (2) **RN-010 en una sola
+  fuente** (`validaciones.falta_evidencia`), compartida por form y serializer, y
+  `Evidencia.clean` acepta archivo **o** vínculo. (3) **`model.clean()` en la
+  API** (`LimpiaModeloMixin`) y validadores del modelo repuestos en campos
+  redeclarados. Verificación: `scripts/verificar.sh` en verde (124 pruebas).
+  Actualiza `documento_tecnico.md` §19.1, §20.1 y §23.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

@@ -107,3 +107,38 @@ def test_la_ficha_de_consulta_muestra_el_registro(cliente, crear_usuario, centro
 
     assert respuesta.status_code == 200
     assert b"Rosa Alvarado" in respuesta.content
+
+
+def test_el_acotamiento_vale_al_ver_editar_y_borrar(cliente, crear_usuario, centro, mar):
+    """No basta con acotar el listado: el detalle, la edición y las acciones de un
+    registro de otra delegación responden 404 aunque se conozca la clave."""
+    propio = _vecino("Ana Centro", "11111111-1", centro)
+    ajeno = _vecino("Beto Mar", "12222222-5", mar)
+    usuario = crear_usuario("func@test.cl", codigo="funcionario", delegacion=centro)
+    cliente.force_login(usuario)
+
+    assert cliente.get(
+        reverse("ciudadanos:vecinos_consultar", args=[propio.pk])
+    ).status_code == 200
+    assert cliente.get(
+        reverse("ciudadanos:vecinos_consultar", args=[ajeno.pk])
+    ).status_code == 404
+    assert cliente.get(
+        reverse("ciudadanos:vecinos_editar", args=[ajeno.pk])
+    ).status_code == 404
+    cliente.post(reverse("ciudadanos:vecinos_desactivar", args=[ajeno.pk]))
+    ajeno.refresh_from_db()
+    assert ajeno.eliminado is None, "no debía tocar un vecino de otra delegación"
+
+
+def test_la_api_acota_por_delegacion(cliente, crear_usuario, centro, mar):
+    """La API aplica el mismo acotamiento que la web: no expone otra delegación."""
+    _vecino("Ana Centro", "11111111-1", centro)
+    _vecino("Beto Mar", "12222222-5", mar)
+    usuario = crear_usuario("func@test.cl", codigo="funcionario", delegacion=centro)
+    cliente.force_login(usuario)
+
+    respuesta = cliente.get("/api/v1/neighbors/")
+
+    assert respuesta.status_code == 200
+    assert [v["name"] for v in respuesta.json()["results"]] == ["Ana Centro"]

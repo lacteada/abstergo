@@ -72,3 +72,14 @@ def evaluar_puntaje(etapa, tipo_solicitante, contacto_nombre, contacto_telefono)
     if not (contacto_nombre and contacto_telefono):
         return False, "Falta nombre o teléfono del usuario."
     return True, ""
+
+
+def falta_evidencia(indicador, archivo, vinculo):
+    """El mensaje de RN-010 si el indicador exige evidencia y no se adjuntó.
+
+    Una sola fuente para la web y la API: devuelve el texto del error, o None si
+    no falta nada. Cada borde lo pone en el error del campo que le corresponde.
+    """
+    if indicador and indicador.requiere_evidencia and not (archivo or vinculo):
+        return "Este indicador requiere evidencia: adjunta un archivo o un vínculo."
+    return None

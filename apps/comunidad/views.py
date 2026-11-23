@@ -20,7 +20,6 @@ class Listado(ListadoBase):
     etiqueta_nueva = "Nueva organización"
     busqueda = ("referencia", "codigo", "nombre", "domicilio_legal", "registro_pj")
     relacionadas = ("territorio",)
-    campo_delegacion = "territorio"
     exportar_nombre = "organizaciones"
     exportar_columnas = (
         ("Código", "referencia"),

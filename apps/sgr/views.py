@@ -118,7 +118,6 @@ class AreasListado(_Areas, ListadoBase):
     etiqueta_nueva = "Nueva área"
     busqueda = ("referencia", "codigo", "nombre", "cargo__nombre", "responsable__first_name")
     relacionadas = ("cargo", "responsable", "delegacion")
-    campo_delegacion = "delegacion"
     exportar_nombre = "areas"
     exportar_columnas = (
         ("Código", "referencia"),
@@ -303,6 +302,30 @@ class RegistrosListado(_Registros, ListadoBase):
 
 class RegistrosAlta(_Registros, AltaBase):
     titulo = "Nuevo registro"
+
+    def form_valid(self, form):
+        respuesta = super().form_valid(form)
+        self._crear_evidencia(form)
+        return respuesta
+
+    def _crear_evidencia(self, form):
+        """Crea la evidencia adjunta en el mismo alta (una por actividad).
+
+        El autor es quien registra y el vínculo con la actividad es el registro
+        recién creado.
+        """
+        archivo = form.cleaned_data.get("evidencia_archivo")
+        vinculo = form.cleaned_data.get("evidencia_vinculo")
+        if not (archivo or vinculo):
+            return
+        Evidencia.objects.create(
+            registro=self.object,
+            autor=self.request.user,
+            archivo=archivo,
+            vinculo=vinculo or "",
+            tipo=form.cleaned_data.get("evidencia_tipo") or "",
+            tamano=archivo.size if archivo else None,
+        )
 
 
 class RegistrosEdicion(_Registros, EdicionBase):

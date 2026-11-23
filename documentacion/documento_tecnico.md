@@ -911,7 +911,10 @@ glosario, el mismo que usa el cliente Android:
   `contacto_nombre` → `contact_name`, `contacto_telefono` → `contact_phone`,
   `puntua` → `scores`, `motivo_no_puntua` → `no_score_reason`,
   `estado` → `status`, `accion` → `action`, `actividad` → `activity`,
-  `organizacion` → `organization`, `version` se mantiene.
+  `organizacion` → `organization`, `version` se mantiene. Además, en la
+  **creación** acepta la evidencia adjunta (solo escritura): `evidencia_archivo`
+  → `evidence_file`, `evidencia_vinculo` → `evidence_link`,
+  `evidencia_tipo` → `evidence_kind`.
 - `AjusteConducta` → `sgr_conduct`: `area` se mantiene, `tipo` → `kind`,
   `fecha` → `date`, `respaldo` → `backing`, `medio` → `medium`, `valor` → `value`,
   `periodo` → `period`.
@@ -974,8 +977,13 @@ Fuente: `apps/common/delegaciones.py`, `apps/common/contexto.py`,
   delegación activa, más el usuario y su rol, con icono y texto (el color no es
   la única señal). Cuando el perfil tiene más de una, aparece el **selector**,
   que recarga el contexto en el servidor.
-- `ListadoBase.campo_delegacion` acota el queryset del listado —y por ende la
-  exportación— a la delegación activa. El mismo queryset alimenta el `.xlsx`.
+- El **acotamiento territorial** vive en un solo lugar:
+  `campo_delegacion_de(modelo)` (`apps/common/delegaciones.py`) da la ruta del
+  campo por modelo, y `acotar` filtra por la delegación activa. `AcotadoMixin`
+  (`vistas_base.py`) lo aplica al listado —y por ende a la exportación—, a la
+  consulta, a la edición, al borrado y a las acciones; `BaseViewSet`
+  (`apps/api/views.py`) hace lo mismo en la API. Un rol de alcance global no se
+  acota. Ver §23.
 - Los formularios (`apps/common/forms.py`) acotan sus campos de delegación a las
   autorizadas, así el servidor rechaza una delegación ajena aunque se altere la
   petición.
@@ -1026,9 +1034,10 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   `AjusteConducta` (reclamo o felicitación), `Ausencia` (licencia, vacaciones,
   emergencia, compensatorio), `Evidencia` y `Validacion`.
 - Cálculo puro en `apps/sgr/calculos.py`: `porcentaje` (recortado en el
-  `tope_item` del período, por defecto 1.2), `ponderado`, `semaforo` y
-  `total_ponderado` (`tope_total`, por defecto 1.5). El semáforo compara el
-  avance contra la **meta al día**: VERDE si `avance ≥ objetivo`, NARANJA si
+  `tope_item` del período, por defecto 1.2), `ponderado`, `relativo` (logrado ÷
+  meta al día, sin tope: 1 = al día), `semaforo` y `total_ponderado`
+  (`tope_total`, por defecto 1.5). El semáforo compara el avance contra la
+  **meta al día**: VERDE si `avance ≥ objetivo`, NARANJA si
   `avance ≥ umbral_ambar·objetivo` (0.6), ROJO si no.
 - Reglas del 4° trimestre en `apps/sgr/validaciones.py` y en
   `RegistroGestion.save/clean`: solo puntúa la etapa **ejecutada**, no la
@@ -1039,6 +1048,15 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   registro; `Validacion` la aprueba/rechaza/corrige y actualiza el estado del
   registro. Quien registra no valida lo suyo (RNF-004). Un ítem con
   `requiere_evidencia` solo suma cuando el registro está **aprobado** (RN-010).
+  La evidencia se adjunta en el **mismo formulario de alta de la actividad**
+  (`RegistroGestionForm`: `evidencia_archivo`, `evidencia_vinculo`,
+  `evidencia_tipo`) y se crea en la misma petición: la vista web
+  (`RegistrosAlta.form_valid`) y el `POST /api/v1/sgr-records/`
+  (`RegistroGestionSerializer.create`) crean la `Evidencia` con `autor` = usuario
+  autenticado y `tamano` sellado. `Evidencia` vale con **archivo o vínculo**
+  (`Evidencia.clean`). Si el indicador exige evidencia, el alta la reclama: la
+  regla y el mensaje viven en `validaciones.falta_evidencia`, que comparten el
+  formulario y el `RegistroGestionSerializer`. Ver §23.
 - **Ausencias**: `Ausencia` (por área, con `desde`/`hasta`) descuenta días de la
   meta al día (`apps/sgr/servicios.py`), que se topa en 100 % (RN-008).
 - **Conductas**: `AjusteConducta` (reclamo o felicitación) guarda `medio` y
@@ -1055,11 +1073,14 @@ Fuente: `apps/sgr/`, `apps/comunidad/`, `apps/tubo/`, `apps/common/permisos.py`.
   (RF-034/RNF-002).
 - Mantenedores web en
   `/sgr/{periodos,areas,indicadores,metas,registros,conductas,ausencias,evidencias,validaciones,comentarios,alertas}/`.
-- **Tableros**: `Tablero` (`/sgr/`) por área con logrado, meta al día, semáforo,
-  alerta de reclamos y el total/promedio de la delegación (RF-029/049);
-  `FichaPersonal` (`/sgr/personal/<pk>/`) por persona, con marcas de **bajo
-  umbral** y **en tope** (RF-028/045); y `TableroGlobal` (`/sgr/global/`)
-  consolidado por cargo (RF-031).
+- **Tableros**: `Tablero` (`/sgr/`) por área con una **barra de avance** (relleno
+  = logrado, marca vertical = meta al día), el **cumplido** en % (logrado ÷ meta
+  al día, donde 100 % es "al día"), el semáforo, la alerta de reclamos y el
+  total/promedio de la delegación (RF-029/049); los valores crudos de logrado y
+  meta al día van en el `title` de cada celda y el total se normaliza por el
+  número de áreas. `FichaPersonal` (`/sgr/personal/<pk>/`) por persona, con
+  marcas de **bajo umbral** y **en tope** (RF-028/045); y `TableroGlobal`
+  (`/sgr/global/`) consolidado por cargo (RF-031).
 
 ### 20.2 Organizaciones comunitarias (`apps/comunidad`)
 
@@ -1157,7 +1178,9 @@ Piezas que cerraron los faltantes y parciales de la especificación SGR.
 - **RN-017/018/019 · Caso social.** Parametrizados en `apps/sgr/validaciones.py`
   (`PLAZO_*`, `VALOR_INFORME`, `META_TUBO`) con la línea base inferida.
 - **RNF-009 · Evidencias.** `Evidencia.clean` acota formato (jpg/png/pdf) y
-  tamaño (5 MB).
+  tamaño (5 MB). La misma regla se aplica en el alta de la actividad, web y API:
+  el formulario valida el archivo adjunto y `EvidenciaSerializer.validate` invoca
+  `Evidencia.clean` (antes la API no la ejecutaba).
 - **RNF-005/R9 · Producción.** `config/settings.py` activa HTTPS/HSTS y cookies
   seguras solo con `PRODUCCION_SEGURA=1` (opt-in), porque exige que Apache envíe
   `X-Forwarded-Proto=https`; middleware `apps/common/ratelimit.py` limita los
@@ -1192,3 +1215,37 @@ Conjunto de mejoras para que el sistema se vea y se use con datos reales.
   estado del período SGR (semáforo por área) y "últimas atenciones", calculados
   en `apps/panel/servicios.resumen_visual`. No se agregó ninguna librería de
   gráficos.
+
+---
+
+## 23. Revisión de seguridad y coherencia (2026-11-23)
+
+Cierre de los hallazgos de la revisión de los tres cambios paralelos (evidencia
+en el alta web, evidencia en la API y rediseño del tablero SGR).
+
+- **Acotamiento territorial completo (IDOR).** Antes solo el listado se acotaba
+  por delegación; el detalle, la edición, el borrado, las acciones y toda la API
+  operaban por `pk` sin filtrar delegación, así que un perfil acotado podía
+  leer/editar/borrar registros de otra delegación conociendo la clave. Ahora la
+  ruta del campo se resuelve por modelo en `apps/common/delegaciones.py`
+  (`CAMPO_DELEGACION` + `campo_delegacion_de`) y la aplican `AcotadoMixin` (web,
+  `apps/common/vistas_base.py`) y `BaseViewSet` (API, `apps/api/views.py`) en
+  todas las operaciones. Una `Llamada` se acota por `vecino__territorio` (puede
+  no tener atención asociada).
+- **RN-010 en una sola fuente.** La exigencia de evidencia y su mensaje viven en
+  `apps/sgr/validaciones.py::falta_evidencia`; la consumen el formulario web y el
+  serializer, y la validación del archivo (formato y tamaño) sigue en
+  `Evidencia.clean`. `Evidencia` ahora vale con **archivo o vínculo**, coherente
+  con el alta que admite cualquiera de los dos.
+- **`model.clean()` en la API.** `LimpiaModeloMixin` ejecuta el `clean()` del
+  modelo en los serializers, como hace un `ModelForm`: la API ya no salta las
+  reglas de cruce de campos (reingreso de `CasoSocial`, `responsable`+`fecha` de
+  `TareaTubo`, `término ≥ inicio` de `Periodo`, `meta > 0` de `MetaIndicador`,
+  respaldo de la felicitación y segregación de funciones de `Validacion`).
+- **Validadores repuestos.** Campos redeclarados que perdían el validador del
+  modelo lo recuperan (`contact_phone`, `backing`, `pj_registry`,
+  `directive_registry`); `evidence_link`/`link` vuelven a `URLField`;
+  `quantity`/`active_members` acotan a ≥1/≥0; `NuevaPasswordSerializer` valida la
+  contraseña.
+- **Verificación.** `bash scripts/verificar.sh` en verde: check, migraciones,
+  carga de datos, ruff, pytest y smoke de rutas + API.

@@ -33,7 +33,6 @@ class Listado(ListadoBase):
         "tipo_gestion",
     )
     relacionadas = ("territorio",)
-    campo_delegacion = "territorio"
     auditar_lectura = True
     exportar_nombre = "vecinos"
     exportar_columnas = (

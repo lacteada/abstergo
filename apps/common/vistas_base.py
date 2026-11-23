@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
-from apps.common.delegaciones import acotar
+from apps.common.delegaciones import acotar, campo_delegacion_de
 from apps.common.estados import ACTIVO, INACTIVO, ConEstado
 from apps.common.permisos import modulo_de, puede
 from apps.cumplimiento.auditoria import registrar
@@ -129,8 +129,22 @@ class Comun:
         return contexto
 
 
+class AcotadoMixin:
+    """Acota el queryset a la delegación activa, según el modelo.
+
+    La ruta del campo la resuelve `delegaciones.campo_delegacion_de`: el
+    acotamiento vale igual al listar, ver, editar, borrar y en las acciones, sin
+    repetirlo por vista. Un rol de alcance global no se acota (`acotar` lo deja
+    pasar). Un modelo sin campo de delegación (catálogos, configuración SGR) no
+    se acota.
+    """
+
+    def acotar_queryset(self, queryset):
+        return acotar(self.request, queryset, campo_delegacion_de(self.model))
+
+
 class ListadoBase(
-    ExportarExcelMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView
+    AcotadoMixin, ExportarExcelMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, ListView
 ):
     template_name = "listado.html"
     paginate_by = 7
@@ -138,9 +152,6 @@ class ListadoBase(
     # Llaves foráneas que la plantilla recorre. Traerlas con JOIN evita una
     # consulta por fila.
     relacionadas = ()
-    # Ruta del campo por el que se acota a la delegación activa. Vacío = el
-    # módulo no tiene dimensión territorial (catálogos globales).
-    campo_delegacion = None
     # Los listados con datos personales dejan rastro en la bitácora.
     auditar_lectura = False
 
@@ -159,9 +170,7 @@ class ListadoBase(
             queryset = queryset.filter(condicion)
         # El alcance territorial se aplica en el servidor, sobre el mismo
         # queryset que exporta: un cambio de contexto actualiza ambas cosas.
-        if self.campo_delegacion:
-            queryset = acotar(self.request, queryset, self.campo_delegacion)
-        return queryset
+        return self.acotar_queryset(queryset)
 
     def get(self, request, *args, **kwargs):
         if request.GET.get("exportar") and self.exportar_columnas:
@@ -171,8 +180,13 @@ class ListadoBase(
         return super().get(request, *args, **kwargs)
 
 
-class _FormularioBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin):
+class _FormularioBase(AcotadoMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin):
     template_name = "formulario.html"
+
+    def get_queryset(self):
+        # UpdateView acota el objeto a la delegación del usuario; un alta no usa
+        # el queryset para el objeto.
+        return self.acotar_queryset(super().get_queryset())
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -228,7 +242,7 @@ def marcar_vigencia(objeto, vigente):
         objeto.is_active = vigente
 
 
-class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
+class BorradoBase(AcotadoMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
     """Borra la fila de verdad. Solo si nadie la está usando.
 
     Es la acción destructiva: la contraparte reversible es `DesactivarBase`.
@@ -238,8 +252,8 @@ class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
 
     def get_queryset(self):
         if hasattr(self.model, "todos"):
-            return self.model.todos.all()
-        return super().get_queryset()
+            return self.acotar_queryset(self.model.todos.all())
+        return self.acotar_queryset(super().get_queryset())
 
     def form_valid(self, form):
         objeto = self.object
@@ -270,7 +284,7 @@ class BorradoBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DeleteView):
         return redirect(self.url_listado)
 
 
-class _AccionBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, View):
+class _AccionBase(AcotadoMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, View):
     """Acción sobre un registro, por POST y sin formulario intermedio.
 
     La comparten desactivar y reactivar: cambian la vigencia del registro y
@@ -289,9 +303,10 @@ class _AccionBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, View):
         return redirect(self.url_listado)
 
     def get_objeto(self, pk):
-        # `todos` para llegar también a un registro ya desactivado.
+        # `todos` para llegar también a un registro ya desactivado; y acotado a
+        # la delegación del usuario, para no tocar un registro ajeno.
         gestor = getattr(self.model, "todos", self.model.objects)
-        return get_object_or_404(gestor.all(), pk=pk)
+        return get_object_or_404(self.acotar_queryset(gestor.all()), pk=pk)
 
 
 class DesactivarBase(_AccionBase):
@@ -322,7 +337,7 @@ class ReactivarBase(_AccionBase):
         marcar_vigencia(objeto, True)
 
 
-class ConsultaBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DetailView):
+class ConsultaBase(AcotadoMixin, Comun, LoginRequiredMixin, PermisoRequeridoMixin, DetailView):
     """Ficha de solo lectura de un registro.
 
     Completa el CRUD: el PDF pide crear, **consultar**, listar, editar y
@@ -334,6 +349,9 @@ class ConsultaBase(Comun, LoginRequiredMixin, PermisoRequeridoMixin, DetailView)
     template_name = "consulta.html"
     # Cada campo es (etiqueta, "ruta.atributo") o (etiqueta, función).
     consulta_campos = ()
+
+    def get_queryset(self):
+        return self.acotar_queryset(super().get_queryset())
 
     def get_template_names(self):
         if self.request.headers.get("X-Modal") == "1":

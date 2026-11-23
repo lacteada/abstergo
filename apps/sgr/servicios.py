@@ -155,6 +155,7 @@ def resumen_periodo(periodo, delegacion=None):
     logrado = sum((fila["logrado"] for fila in resumen), Decimal("0"))
     esperado = sum((fila["esperado"] for fila in resumen), Decimal("0"))
     promedio = logrado / len(resumen) if resumen else Decimal("0")
+    promedio_esperado = esperado / len(resumen) if resumen else Decimal("0")
     return {
         "periodo": periodo,
         "fraccion": periodo.fraccion_transcurrida(),
@@ -164,6 +165,7 @@ def resumen_periodo(periodo, delegacion=None):
             "esperado": esperado,
             "relativo": calculos.relativo(logrado, esperado),
             "promedio": promedio,
+            "promedio_esperado": promedio_esperado,
             "semaforo": calculos.semaforo(logrado, esperado, periodo.umbral_ambar),
         },
     }
@@ -186,6 +188,9 @@ def resumen_por_cargo(periodo):
         fila["esperado"] += item["esperado"]
     for fila in grupos.values():
         fila["promedio"] = fila["logrado"] / fila["areas"] if fila["areas"] else Decimal("0")
+        fila["promedio_esperado"] = (
+            fila["esperado"] / fila["areas"] if fila["areas"] else Decimal("0")
+        )
         fila["relativo"] = calculos.relativo(fila["logrado"], fila["esperado"])
         fila["semaforo"] = calculos.semaforo(
             fila["logrado"], fila["esperado"], periodo.umbral_ambar

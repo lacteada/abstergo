@@ -5,7 +5,8 @@ Lo usan la página completa (formulario.html) y el fragmento del modal
 (modal/formulario.html). El `action` apunta a la vista que lo renderizó, así
 el mismo POST funciona en los dos contextos.
 {% endcomment %}
-<form class="formulario" method="post" action="{{ request.path }}">
+<form class="formulario" method="post" action="{{ request.path }}"
+      enctype="multipart/form-data">
   {% csrf_token %}
 
   {% for campo in form %}

@@ -323,3 +323,127 @@ def test_el_generador_marca_ingresos_sospechosos(crear_usuario):
         )
     assert alertas.generar_alertas(periodo) >= 1
     assert Alerta.todos.filter(tipo="ingreso-sospechoso").exists()
+
+
+# ------------------------------------------- Evidencia en el alta (mismo form)
+def _datos_registro(usuario, area, indicador, **extra):
+    datos = {
+        "fecha": timezone.localdate().isoformat(),
+        "area": area.pk,
+        "indicador": indicador.pk,
+        "funcionario": usuario.pk,
+        "cantidad": 1,
+        "etapa": "ejecutada",
+        "tipo_solicitante": "externo",
+        "estado": "registrada",
+        "actividad": "visita",
+    }
+    datos.update(extra)
+    return datos
+
+
+def test_el_alta_exige_evidencia_si_el_indicador_la_requiere(crear_usuario):
+    from apps.sgr.forms import RegistroGestionForm
+
+    usuario = crear_usuario("fun@test.cl", codigo="funcionario")
+    area = _area()
+    indicador = Indicador.objects.create(
+        nombre="Con evidencia", grupo="gestor-social", requiere_evidencia=True
+    )
+    formulario = RegistroGestionForm(data=_datos_registro(usuario, area, indicador))
+    assert formulario.is_valid() is False
+    assert "evidencia_archivo" in formulario.errors
+
+
+def test_el_alta_web_crea_la_evidencia_en_la_misma_peticion(
+    cliente, crear_usuario, settings, tmp_path
+):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    settings.MEDIA_ROOT = tmp_path
+    usuario = crear_usuario("fun@test.cl", codigo="funcionario")
+    area = _area()
+    indicador = Indicador.objects.create(
+        nombre="Con evidencia", grupo="gestor-social", requiere_evidencia=True
+    )
+    cliente.force_login(usuario)
+    archivo = SimpleUploadedFile("foto.png", b"contenido", content_type="image/png")
+    respuesta = cliente.post(
+        reverse("sgr:registros_nueva"),
+        _datos_registro(
+            usuario,
+            area,
+            indicador,
+            contacto_nombre="Ana",
+            contacto_telefono="912345678",
+            evidencia_archivo=archivo,
+            evidencia_tipo="foto",
+        ),
+    )
+    assert respuesta.status_code == 302
+    registro = RegistroGestion.objects.get()
+    evidencia = Evidencia.objects.get()
+    assert evidencia.registro == registro
+    assert evidencia.autor == usuario
+    assert evidencia.tipo == "foto"
+    assert evidencia.estado_revision == "pendiente"
+
+
+def test_la_api_crea_la_evidencia_con_el_registro(
+    cliente, crear_usuario, settings, tmp_path
+):
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    settings.MEDIA_ROOT = tmp_path
+    usuario = crear_usuario("fun@test.cl", codigo="funcionario")
+    area = _area()
+    indicador = Indicador.objects.create(
+        nombre="Con evidencia", grupo="gestor-social", requiere_evidencia=True
+    )
+    cliente.force_login(usuario)
+    archivo = SimpleUploadedFile("respaldo.pdf", b"%PDF-1.4", content_type="application/pdf")
+    respuesta = cliente.post(
+        "/api/v1/sgr-records/",
+        {
+            "date": timezone.localdate().isoformat(),
+            "area": area.pk,
+            "indicator": indicador.pk,
+            "staff": usuario.pk,
+            "quantity": 1,
+            "stage": "ejecutada",
+            "requester_type": "externo",
+            "status": "registrada",
+            "activity": "visita",
+            "evidence_file": archivo,
+            "evidence_kind": "informe",
+        },
+    )
+    assert respuesta.status_code == 201
+    evidencia = Evidencia.objects.get()
+    assert evidencia.registro_id == respuesta.json()["id"]
+    assert evidencia.autor == usuario
+
+
+def test_la_api_rechaza_el_registro_sin_la_evidencia_exigida(cliente, crear_usuario):
+    usuario = crear_usuario("fun@test.cl", codigo="funcionario")
+    area = _area()
+    indicador = Indicador.objects.create(
+        nombre="Con evidencia", grupo="gestor-social", requiere_evidencia=True
+    )
+    cliente.force_login(usuario)
+    respuesta = cliente.post(
+        "/api/v1/sgr-records/",
+        {
+            "date": timezone.localdate().isoformat(),
+            "area": area.pk,
+            "indicator": indicador.pk,
+            "staff": usuario.pk,
+            "quantity": 1,
+            "stage": "ejecutada",
+            "requester_type": "externo",
+            "status": "registrada",
+            "activity": "visita",
+        },
+    )
+    assert respuesta.status_code == 400
+    assert not RegistroGestion.objects.exists()

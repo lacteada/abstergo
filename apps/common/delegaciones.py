@@ -60,9 +60,43 @@ def acotar(request, queryset, campo):
     "pk", que compara contra la clave de la delegación activa: `pk` es un
     entero, así que hay que pasar el número y no el objeto.
     """
+    if not campo:
+        return queryset
     delegacion = activa(request)
     if delegacion is None:
         return queryset
     if campo == "pk":
         return queryset.filter(pk=delegacion.pk)
     return queryset.filter(**{campo: delegacion})
+
+
+# Ruta del campo que lleva a `Delegacion`, por modelo. Es la fuente única del
+# acotamiento territorial: las vistas y la API la consultan por el modelo, así
+# listar, ver, editar, borrar y las acciones acotan igual, sin repetirlo por
+# vista. Un modelo ausente es global (catálogos, configuración SGR).
+CAMPO_DELEGACION = {
+    "Delegacion": "pk",
+    "Territorio": "delegacion",
+    "Meta": "delegacion",
+    "Usuario": "delegacion",
+    "Vecino": "territorio",
+    "Organizacion": "territorio",
+    "Atencion": "delegacion",
+    "TareaTubo": "delegacion",
+    "Carta": "delegacion",
+    "CasoSocial": "vecino__territorio",
+    "Llamada": "vecino__territorio",
+    "Area": "delegacion",
+    "MetaIndicador": "area__delegacion",
+    "RegistroGestion": "area__delegacion",
+    "AjusteConducta": "area__delegacion",
+    "Ausencia": "area__delegacion",
+    "Evidencia": "registro__area__delegacion",
+    "Validacion": "evidencia__registro__area__delegacion",
+    "Comentario": "registro__area__delegacion",
+}
+
+
+def campo_delegacion_de(modelo):
+    """La ruta del campo de delegación de un modelo, o None si es global."""
+    return CAMPO_DELEGACION.get(modelo.__name__) if modelo else None

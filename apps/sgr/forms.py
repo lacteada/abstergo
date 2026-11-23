@@ -16,6 +16,7 @@ from apps.sgr.models import (
     RegistroGestion,
     Validacion,
 )
+from apps.sgr.validaciones import falta_evidencia
 
 
 class PeriodoForm(FormularioCRUD):
@@ -93,6 +94,22 @@ class RegistroGestionForm(FormularioCRUD):
             "estado",
         )
 
+    # Evidencia adjunta en la misma alta (una por actividad). No son campos del
+    # modelo: la vista crea la Evidencia al guardar el registro.
+    evidencia_archivo = forms.FileField(
+        label="Evidencia (archivo)",
+        required=False,
+        help_text="JPG, PNG o PDF, hasta 5 MB.",
+    )
+    evidencia_vinculo = forms.URLField(
+        label="Evidencia (vínculo)",
+        required=False,
+        help_text="Alternativa al archivo: enlace a la evidencia.",
+    )
+    evidencia_tipo = forms.CharField(
+        label="Tipo de evidencia", required=False, max_length=40
+    )
+
     # Concurrencia optimista (RF-034/RNF-002).
     version = forms.IntegerField(required=False, widget=forms.HiddenInput)
 
@@ -104,6 +121,9 @@ class RegistroGestionForm(FormularioCRUD):
                 self.fields["funcionario"].initial = request.user.pk
         else:
             self.fields["version"].initial = self.instance.version
+            # La evidencia se adjunta en el alta; en edición no se toca acá.
+            for campo in ("evidencia_archivo", "evidencia_vinculo", "evidencia_tipo"):
+                self.fields.pop(campo, None)
 
     def clean(self):
         datos = super().clean()
@@ -112,7 +132,28 @@ class RegistroGestionForm(FormularioCRUD):
                 raise ValidationError(
                     "Otro usuario modificó este registro; vuelve a abrirlo."
                 )
+        if not self.instance.pk:
+            self._validar_evidencia(datos)
         return datos
+
+    def _validar_evidencia(self, datos):
+        """Exige evidencia cuando el indicador la requiere (RN-010).
+
+        Reutiliza `Evidencia.clean()` para el formato y el tamaño, así la regla
+        vive en un solo lugar.
+        """
+        archivo = datos.get("evidencia_archivo")
+        vinculo = datos.get("evidencia_vinculo")
+        mensaje = falta_evidencia(datos.get("indicador"), archivo, vinculo)
+        if mensaje:
+            raise ValidationError({"evidencia_archivo": mensaje})
+        if not archivo:
+            return
+        prueba = Evidencia(archivo=archivo)
+        try:
+            prueba.clean()
+        except ValidationError as error:
+            raise ValidationError({"evidencia_archivo": error.messages})
 
 
 class AjusteConductaForm(FormularioCRUD):

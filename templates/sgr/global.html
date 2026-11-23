@@ -27,10 +27,9 @@
           <tr>
             <th>Cargo</th>
             <th>Áreas</th>
-            <th>Logrado</th>
-            <th>Meta al día</th>
-            <th>Promedio</th>
-            <th>Semáforo</th>
+            <th>Avance vs. meta al día</th>
+            <th class="num">Cumplido</th>
+            <th>Estado</th>
           </tr>
         </thead>
         <tbody>
@@ -38,13 +37,27 @@
             <tr>
               <td>{{ fila.cargo }}</td>
               <td>{{ fila.areas }}</td>
-              <td>{{ fila.logrado }}</td>
-              <td>{{ fila.esperado }}</td>
-              <td>{{ fila.promedio|floatformat:3 }}</td>
-              <td><span class="estado {{ fila.semaforo }}">{{ fila.semaforo }}</span></td>
+              <td>
+                <div class="avance {{ fila.semaforo }}"
+                     title="Promedio logrado {{ fila.promedio|floatformat:3 }} · Meta al día {{ fila.promedio_esperado|floatformat:3 }}">
+                  <div class="avance-relleno" style="width:{% widthratio fila.logrado fila.areas 100 %}%"></div>
+                  <div class="avance-marca" style="left:{% widthratio fila.esperado fila.areas 100 %}%"></div>
+                </div>
+              </td>
+              <td class="num">
+                <span class="cumplido {{ fila.semaforo }}"
+                      title="Logrado {{ fila.logrado }} · Meta al día {{ fila.esperado }}">
+                  {% widthratio fila.relativo 1 100 %} %
+                </span>
+              </td>
+              <td>
+                <span class="estado {{ fila.semaforo }}">
+                  {% if fila.semaforo == 'verde' %}al día{% elif fila.semaforo == 'naranja' %}atrasada{% else %}crítica{% endif %}
+                </span>
+              </td>
             </tr>
           {% empty %}
-            <tr><td colspan="6" class="vacio">Sin áreas cargadas para el período.</td></tr>
+            <tr><td colspan="5" class="vacio">Sin áreas cargadas para el período.</td></tr>
           {% endfor %}
         </tbody>
       </table>

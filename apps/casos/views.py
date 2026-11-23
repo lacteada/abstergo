@@ -12,6 +12,7 @@ from django.views import View
 
 from apps.casos.forms import CasoSocialForm, LlamadaForm
 from apps.casos.models import CasoSocial, Llamada
+from apps.common.delegaciones import acotar, campo_delegacion_de
 from apps.common.vistas_base import (
     AltaBase,
     BorradoBase,
@@ -99,7 +100,6 @@ class LlamadasListado(_Llamadas, ListadoBase):
     etiqueta_nueva = "Nueva llamada"
     busqueda = ("referencia", "motivo", "vecino__nombre", "vecino__rut")
     relacionadas = ("vecino", "atencion")
-    campo_delegacion = "atencion__delegacion"
     exportar_nombre = "llamadas"
     exportar_columnas = (
         ("Código", "referencia"),
@@ -138,7 +138,9 @@ class LlamadasCerrar(LoginRequiredMixin, PermisoRequeridoMixin, View):
     url_listado = "casos:llamadas"
 
     def post(self, request, pk, *args, **kwargs):
-        llamada = get_object_or_404(Llamada.todos.all(), pk=pk)
+        llamada = get_object_or_404(
+            acotar(request, Llamada.todos.all(), campo_delegacion_de(Llamada)), pk=pk
+        )
         llamada.estado = Llamada.REALIZADA
         llamada.fecha_realizada = timezone.now()
         llamada.realizada_por = request.user

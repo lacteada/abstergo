@@ -39,7 +39,7 @@ contraseña; al crear un usuario, el sistema le envía un correo con un enlace
 | Consulta de registros | Operativo | Ficha de solo lectura en cada mantenedor |
 | Exportar a Excel | Operativo | Respeta el filtro y todas las páginas |
 | CRUD Organizaciones comunitarias | Operativo | Juntas de vecinos y agrupaciones (OROC), con territorio |
-| Matriz SGR | Operativo | Períodos, áreas, indicadores, metas, registros y tablero con semáforo |
+| Matriz SGR | Operativo | Períodos, áreas, indicadores, metas, registros y tablero con semáforo; la actividad se evidencia en el mismo formulario de alta |
 | Tubo de trabajo | Operativo | Kanban de tareas por delegación, visible al delegado |
 | Dashboard por rol | Parcial | Estadísticas y accesos según el rol |
 | API v1 (cliente móvil) | Operativo | JWT, CRUD y recuperación; esquema en `/api/docs/` |

@@ -71,9 +71,9 @@
             <th colspan="2">Total delegación</th>
             <th>
               <div class="avance {{ resumen.totales.semaforo }}"
-                   title="Logrado {{ resumen.totales.logrado }} · Meta al día {{ resumen.totales.esperado }}">
-                <div class="avance-relleno" style="width:{% widthratio resumen.totales.logrado 1 100 %}%"></div>
-                <div class="avance-marca" style="left:{% widthratio resumen.totales.esperado 1 100 %}%"></div>
+                   title="Promedio logrado {{ resumen.totales.promedio|floatformat:3 }} · Meta al día {{ resumen.totales.promedio_esperado|floatformat:3 }}">
+                <div class="avance-relleno" style="width:{% widthratio resumen.totales.logrado resumen.areas|length 100 %}%"></div>
+                <div class="avance-marca" style="left:{% widthratio resumen.totales.esperado resumen.areas|length 100 %}%"></div>
               </div>
             </th>
             <th class="num">

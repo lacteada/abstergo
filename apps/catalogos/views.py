@@ -20,7 +20,6 @@ class MetasListado(ListadoBase):
     etiqueta_nueva = "Nueva meta"
     busqueda = ("referencia", "codigo", "nombre", "descripcion", "delegacion__nombre")
     relacionadas = ("delegacion",)
-    campo_delegacion = "delegacion"
     exportar_nombre = "metas"
     exportar_columnas = (
         ("Código", "codigo"),

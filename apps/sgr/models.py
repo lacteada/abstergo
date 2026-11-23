@@ -581,11 +581,14 @@ class Evidencia(ConReferencia, BorradoLogico):
         return f"{self.referencia} · {self.registro}"
 
     def clean(self):
-        if not self.archivo:
+        # Una evidencia vale con archivo o con vínculo; el archivo, si viene,
+        # pasa por formato y tamaño (RNF-009).
+        if not (self.archivo or self.vinculo):
             raise ValidationError(
-                {"archivo": "La evidencia debe incluir un archivo."}
+                {"archivo": "La evidencia debe incluir un archivo o un vínculo."}
             )
-        # RNF-009: formato y tamaño acotados.
+        if not self.archivo:
+            return
         nombre = getattr(self.archivo, "name", "") or ""
         extension = nombre.rsplit(".", 1)[-1].lower() if "." in nombre else ""
         if extension not in self.EXTENSIONES:

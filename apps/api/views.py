@@ -13,6 +13,7 @@ from apps.casos.models import CasoSocial
 from apps.catalogos.models import Meta as MetaModel
 from apps.catalogos.models import SubAtencion, TipoAtencion
 from apps.ciudadanos.models import Vecino
+from apps.common.delegaciones import acotar, campo_delegacion_de
 from apps.comunidad.models import Organizacion
 from apps.cuentas import otp
 from apps.cuentas.models import Rol
@@ -76,6 +77,15 @@ class BaseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, PermisoPorRol]
     modulo = None
 
+    def get_queryset(self):
+        # Acota a la delegación del usuario cuando el modelo es territorial, igual
+        # que la web: el cliente acotado no ve ni toca registros de otra delegación.
+        queryset = super().get_queryset()
+        campo = campo_delegacion_de(queryset.model)
+        if not campo:
+            return queryset
+        return acotar(self.request._request, queryset, campo)
+
     def perform_destroy(self, instance):
         instance.eliminar()
 
@@ -93,13 +103,10 @@ class CargoViewSet(BaseViewSet):
 
 
 class UsuarioViewSet(BaseViewSet):
-    # El router exige `queryset` para nombrar las rutas; `get_queryset` manda.
-    queryset = Usuario.objects.all()
+    # El router exige `queryset` para nombrar las rutas; `get_queryset` lo acota.
+    queryset = Usuario.vigentes()
     serializer_class = UsuarioSerializer
     modulo = "users"
-
-    def get_queryset(self):
-        return Usuario.vigentes()
 
 
 class DelegacionViewSet(BaseViewSet):

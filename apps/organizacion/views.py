@@ -19,7 +19,6 @@ class Listado(ListadoBase):
     etiqueta_nueva = "Nueva delegación"
     busqueda = ("referencia", "codigo", "nombre", "comuna", "responsable__first_name")
     relacionadas = ("responsable",)
-    campo_delegacion = "pk"
     exportar_nombre = "delegaciones"
     exportar_columnas = (
         ("Código", "codigo"),
@@ -163,7 +162,6 @@ class TerritoriosListado(ListadoBase):
     etiqueta_nueva = "Nuevo territorio"
     busqueda = ("referencia", "codigo", "nombre", "delegacion__nombre")
     relacionadas = ("delegacion",)
-    campo_delegacion = "delegacion"
     exportar_nombre = "territorios"
     exportar_columnas = (
         ("Código", "referencia"),

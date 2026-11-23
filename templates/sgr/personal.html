@@ -69,14 +69,25 @@
         </tbody>
         <tfoot>
           <tr>
-            <th colspan="5">Logrado</th>
-            <th>{{ resumen.logrado }}</th>
+            <th colspan="5">Avance vs. meta al día</th>
+            <th>
+              <div class="avance {{ resumen.semaforo }}"
+                   title="Logrado {{ resumen.logrado }} · Meta al día {{ resumen.esperado }}">
+                <div class="avance-relleno" style="width:{% widthratio resumen.logrado 1 100 %}%"></div>
+                <div class="avance-marca" style="left:{% widthratio resumen.esperado 1 100 %}%"></div>
+              </div>
+            </th>
           </tr>
           <tr>
-            <th colspan="5">Meta al día / semáforo</th>
+            <th colspan="5">Cumplido</th>
             <th>
-              {{ resumen.esperado }}
-              <span class="estado {{ resumen.semaforo }}">{{ resumen.semaforo }}</span>
+              <span class="cumplido {{ resumen.semaforo }}"
+                    title="Logrado {{ resumen.logrado }} · Meta al día {{ resumen.esperado }}">
+                {% widthratio resumen.relativo 1 100 %} %
+              </span>
+              <span class="estado {{ resumen.semaforo }}">
+                {% if resumen.semaforo == 'verde' %}al día{% elif resumen.semaforo == 'naranja' %}atrasada{% else %}crítica{% endif %}
+              </span>
             </th>
           </tr>
         </tfoot>
