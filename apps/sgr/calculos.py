@@ -38,6 +38,17 @@ def ponderado(ponderador, avance, meta, tope=TOPE_ITEM):
     )
 
 
+def relativo(logrado, objetivo):
+    """Cuánto se ha cumplido respecto de la meta al día, sin tope.
+
+    Es el número que lee la persona: 1 (100 %) significa que va al día,
+    más de 1 adelantada y menos de 1 atrasada.
+    """
+    if not objetivo or Decimal(objetivo) <= 0:
+        return Decimal("0")
+    return (Decimal(logrado) / Decimal(objetivo)).quantize(TRES_DECIMALES)
+
+
 def semaforo(avance, objetivo, factor=FACTOR_SEMAFORO):
     """Color del cumplimiento contra la meta al día.
 

@@ -120,11 +120,14 @@ def resumen_area(periodo, area):
     ultimo = registros.order_by("-fecha").values_list("fecha", flat=True).first()
     ingresos = registros.count()
     dias = periodo.dias_transcurridos() or 1
+    logrado_total = calculos.total_ponderado([logrado], periodo.tope_total)
+    esperado_total = calculos.meta_al_dia(esperado, 1)
     return {
         "area": area,
         "filas": filas,
-        "logrado": calculos.total_ponderado([logrado], periodo.tope_total),
-        "esperado": calculos.meta_al_dia(esperado, 1),
+        "logrado": logrado_total,
+        "esperado": esperado_total,
+        "relativo": calculos.relativo(logrado_total, esperado_total),
         "semaforo": calculos.semaforo(logrado, esperado, periodo.umbral_ambar),
         "reclamos": reclamos,
         "alerta_reclamos": reclamos > MAX_RECLAMOS,
@@ -159,6 +162,7 @@ def resumen_periodo(periodo, delegacion=None):
         "totales": {
             "logrado": logrado,
             "esperado": esperado,
+            "relativo": calculos.relativo(logrado, esperado),
             "promedio": promedio,
             "semaforo": calculos.semaforo(logrado, esperado, periodo.umbral_ambar),
         },
@@ -182,6 +186,7 @@ def resumen_por_cargo(periodo):
         fila["esperado"] += item["esperado"]
     for fila in grupos.values():
         fila["promedio"] = fila["logrado"] / fila["areas"] if fila["areas"] else Decimal("0")
+        fila["relativo"] = calculos.relativo(fila["logrado"], fila["esperado"])
         fila["semaforo"] = calculos.semaforo(
             fila["logrado"], fila["esperado"], periodo.umbral_ambar
         )

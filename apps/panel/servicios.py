@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.atenciones.models import Atencion
+from apps.casos.models import Llamada
 from apps.common.delegaciones import acotar, activa
 from apps.common.permisos import (
     ADMIN,
@@ -19,9 +20,10 @@ from apps.common.permisos import (
     FUNCIONARIO,
     VERIFICADOR,
     codigo_de,
+    puede,
 )
 from apps.comunidad.models import Organizacion
-from apps.sgr.models import Evidencia, RegistroGestion, Validacion
+from apps.sgr.models import Alerta, Evidencia, RegistroGestion, Validacion
 from apps.tubo.models import TareaTubo
 
 TITULOS = {
@@ -93,7 +95,9 @@ def titulo_panel(usuario):
 
 def acciones_del_rol(usuario):
     """Las acciones del rol: una destacada primero y unas pocas secundarias."""
-    filas = ACCIONES.get(codigo_de(usuario), ACCIONES[CONSULTA])
+    filas = [(False, "Buzón de trabajo", "panel:buzon")] + ACCIONES.get(
+        codigo_de(usuario), ACCIONES[CONSULTA]
+    )
     return [
         {"titulo": titulo, "url": reverse(ruta), "destacada": destacada}
         for destacada, titulo, ruta in filas
@@ -205,3 +209,194 @@ def resumen_visual(request):
     )
     ultimas = acotar(request, Atencion.objects.select_related("vecino"), "delegacion")[:6]
     return {"sgr": resumen, "ultimas": ultimas}
+
+
+# -------------------------------------------------------------- Buzón de trabajo
+# Importancia de cada ítem: 1 es lo más urgente. Dentro de una prioridad se
+# ordena por la fecha relevante, con lo más atrasado primero.
+PRIORIDADES = [
+    (1, "Crítico"),
+    (2, "Alto"),
+    (3, "Medio"),
+    (4, "Bajo"),
+]
+
+# Un ítem sin fecha se ordena al final de su grupo.
+SIN_FECHA = timezone.datetime.max.date()
+
+
+def _fecha(valor):
+    """La fecha de un ítem como `date`, para poder ordenar entre módulos."""
+    if valor is None:
+        return SIN_FECHA
+    return valor.date() if hasattr(valor, "date") else valor
+
+
+def _fila(prioridad, tipo, codigo, titulo, detalle, fecha, url, color, traza="", vencido=False):
+    """Un ítem del buzón, con su enlace al detalle y a la trazabilidad."""
+    return {
+        "prioridad": prioridad,
+        "tipo": tipo,
+        "codigo": codigo,
+        "titulo": titulo,
+        "detalle": detalle,
+        "fecha": _fecha(fecha),
+        "vencido": vencido,
+        "color": color,
+        "url": url,
+        "traza": traza,
+    }
+
+
+def buzon(request):
+    """El trabajo accionable de todos los módulos, ordenado por importancia.
+
+    Reúne lo pendiente de acción en cada módulo que el perfil puede leer
+    (compromisos abiertos, actividades por corregir, evidencias por validar,
+    llamadas y alertas), con enlace al detalle y a la trazabilidad de cada uno.
+    El ámbito lo fija `acotar`: global para admin y coordinador, por delegación
+    para el resto.
+    """
+    usuario = request.user
+    hoy = timezone.localdate()
+    items = []
+
+    if puede(usuario, "tasks"):
+        abiertas = acotar(
+            request, TareaTubo.objects.select_related("delegacion"), "delegacion"
+        ).exclude(estado="realizada")
+        for tarea in abiertas:
+            vencida = tarea.vencida
+            items.append(
+                _fila(
+                    prioridad=1 if vencida else 3,
+                    tipo="Compromiso",
+                    codigo=tarea.referencia,
+                    titulo=tarea.titulo,
+                    detalle=f"{tarea.delegacion.nombre} · {tarea.get_estado_display()}",
+                    fecha=tarea.fecha_compromiso,
+                    url=reverse("tubo:tareas_consultar", args=[tarea.pk]),
+                    traza=reverse("tubo:tareas_historial", args=[tarea.pk]),
+                    color="rojo" if vencida else "ambar",
+                    vencido=vencida,
+                )
+            )
+
+    if puede(usuario, "sgr_records"):
+        por_corregir = acotar(
+            request,
+            RegistroGestion.objects.select_related("area", "indicador"),
+            "area__delegacion",
+        ).filter(estado__in=["correccion", "rechazada"])
+        for registro in por_corregir:
+            items.append(
+                _fila(
+                    prioridad=2,
+                    tipo="Actividad",
+                    codigo=registro.referencia,
+                    titulo=f"{registro.indicador.nombre} · {registro.area.nombre}",
+                    detalle=registro.get_estado_display(),
+                    fecha=registro.fecha,
+                    url=reverse("sgr:registros_consultar", args=[registro.pk]),
+                    color="rojo",
+                )
+            )
+
+    if puede(usuario, "evidence"):
+        por_validar = acotar(
+            request,
+            Evidencia.objects.select_related("registro__indicador"),
+            "registro__area__delegacion",
+        ).filter(estado_revision="pendiente")
+        for evidencia in por_validar:
+            items.append(
+                _fila(
+                    prioridad=2,
+                    tipo="Evidencia",
+                    codigo=evidencia.referencia,
+                    titulo=evidencia.registro.indicador.nombre,
+                    detalle="Pendiente de validación",
+                    fecha=evidencia.fecha,
+                    url=reverse("sgr:evidencias_consultar", args=[evidencia.pk]),
+                    traza=reverse(
+                        "sgr:registros_consultar", args=[evidencia.registro_id]
+                    ),
+                    color="ambar",
+                )
+            )
+
+    if puede(usuario, "cases"):
+        llamadas = acotar(
+            request, Llamada.objects.select_related("vecino"), "atencion__delegacion"
+        ).filter(estado="pendiente")
+        for llamada in llamadas:
+            vencida = bool(llamada.fecha_programada and llamada.fecha_programada < hoy)
+            items.append(
+                _fila(
+                    prioridad=2 if vencida else 3,
+                    tipo="Llamada",
+                    codigo=llamada.referencia,
+                    titulo=f"Llamar a {llamada.vecino.nombre}",
+                    detalle=llamada.motivo or "Seguimiento preventivo",
+                    fecha=llamada.fecha_programada,
+                    url=reverse("casos:llamadas_consultar", args=[llamada.pk]),
+                    color="rojo" if vencida else "ambar",
+                    vencido=vencida,
+                )
+            )
+
+    if puede(usuario, "alerts"):
+        pendientes = acotar(
+            request, Alerta.objects.select_related("area"), "area__delegacion"
+        ).filter(resuelta=False)
+        for alerta in pendientes:
+            items.append(
+                _fila(
+                    prioridad={"alta": 1, "media": 2, "baja": 4}.get(
+                        alerta.severidad, 3
+                    ),
+                    tipo="Alerta",
+                    codigo=alerta.referencia,
+                    titulo=alerta.mensaje,
+                    detalle=(
+                        f"{alerta.get_tipo_display()} · "
+                        f"severidad {alerta.get_severidad_display()}"
+                    ),
+                    fecha=alerta.fecha,
+                    url=reverse("sgr:alertas_consultar", args=[alerta.pk]),
+                    color="rojo" if alerta.severidad == "alta" else "gris",
+                )
+            )
+
+    items.sort(key=lambda item: (item["prioridad"], item["fecha"]))
+
+    grupos = [
+        {
+            "prioridad": prioridad,
+            "titulo": titulo,
+            "items": [item for item in items if item["prioridad"] == prioridad],
+        }
+        for prioridad, titulo in PRIORIDADES
+    ]
+    return {
+        "total": len(items),
+        "grupos": [grupo for grupo in grupos if grupo["items"]],
+        "resumen": [
+            {"titulo": "EN EL BUZÓN", "numero": len(items), "color": "rojo"},
+            {
+                "titulo": "CRÍTICOS",
+                "numero": len([i for i in items if i["prioridad"] == 1]),
+                "color": "rojo",
+            },
+            {
+                "titulo": "VENCIDOS",
+                "numero": len([i for i in items if i["vencido"]]),
+                "color": "ambar",
+            },
+            {
+                "titulo": "POR VALIDAR",
+                "numero": len([i for i in items if i["tipo"] == "Evidencia"]),
+                "color": "verde",
+            },
+        ],
+    }

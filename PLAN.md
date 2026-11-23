@@ -100,6 +100,13 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   `ACCION_SIGUIENTE` + `TareaTubo.accion_destino` (`apps/tubo/models.py`) dan el
   paso siguiente del flujo; el botón y la reasignación van por `tubo.js`. Ajuste
   de UI: actualiza `documento_tecnico.md` §20.3.
+- **2026-11-23 · Buzón de trabajo (RF-021/037)**: nueva vista `/buzon/`
+  (`panel:buzon`, `BuzonTrabajo`) que reúne el trabajo accionable de todos los
+  módulos que el perfil puede leer —compromisos abiertos, actividades por
+  corregir, evidencias por validar, llamadas y alertas—, agrupado por importancia
+  (crítico/alto/medio/bajo) y con enlace al detalle y a la trazabilidad. Lógica en
+  `apps/panel/servicios.py::buzon`; ámbito global por rol vía `acotar`. Enlace en
+  el menú "Trabajo" y en las acciones del panel. Documentación: §7 y §13.1.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

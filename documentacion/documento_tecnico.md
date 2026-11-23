@@ -340,7 +340,7 @@ listado, alta, consulta, edición y borrado. Fuente: `apps/*/urls.py`.
 
 | Namespace | Rutas |
 |---|---|
-| `panel` | `` → Inicio, `contexto/delegacion/` (cambiar delegación activa) |
+| `panel` | `` → Inicio, `buzon/` (buzón de trabajo), `contexto/delegacion/` (cambiar delegación activa) |
 | `organizacion` | `delegaciones/`, `.../nueva/`, `.../<pk>/`, `.../<pk>/editar/`, `.../<pk>/eliminar/` |
 | `cuentas` | `roles/...`, `usuarios/...`, `login/`, `logout/`, `recuperar/`, `recuperar/<uidb64>/<token>/`, `validar/`, `reenviar/`, `nueva-password/` |
 | `catalogos` | `metas/...`, `tipos-atencion/...`, `sub-atenciones/...` |
@@ -635,6 +635,11 @@ Fuente: `templates/`.
 - `inicio.html`: panel de bienvenida. Tarjetas por rol, botón principal, bloque
   de estado del período SGR (semáforo por área) y últimas atenciones; si
   corresponde, incluye la **guía** (tour por pasos, `js/guia.js`).
+- `buzon.html`: **buzón de trabajo**. Reúne lo accionable de todos los módulos
+  que el perfil puede leer (compromisos abiertos, actividades por corregir,
+  evidencias por validar, llamadas y alertas), agrupado por importancia
+  (crítico, alto, medio, bajo) y con enlace al detalle y a la trazabilidad.
+  Lógica en `apps/panel/servicios.py::buzon`; el ámbito es global por rol.
 - `cuentas/mi_perfil.html`: perfil del usuario, sus contadores y el cambio de
   contraseña.
 - `cuentas/base_auth.html` + `login.html`, `recuperar.html`, `validar.html`,

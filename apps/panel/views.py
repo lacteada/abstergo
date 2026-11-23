@@ -8,6 +8,7 @@ from apps.common.delegaciones import CLAVE_SESION, autorizadas
 from apps.common.permisos import codigo_de
 from apps.panel.servicios import (
     acciones_del_rol,
+    buzon,
     mantenedores_del_rol,
     resumen_visual,
     tarjetas,
@@ -38,6 +39,25 @@ class Inicio(LoginRequiredMixin, TemplateView):
         # con ?guia=1 (por ejemplo, desde el perfil).
         contexto["mostrar_guia"] = (not usuario.guia_vista) or (
             self.request.GET.get("guia") == "1"
+        )
+        return contexto
+
+
+class BuzonTrabajo(LoginRequiredMixin, TemplateView):
+    """El trabajo pendiente de todos los módulos, ordenado por importancia.
+
+    No exige un módulo propio: reúne lo que el perfil puede leer en cada uno,
+    acotado a su ámbito. Si no hay nada pendiente, muestra un estado vacío.
+    """
+
+    template_name = "buzon.html"
+
+    def get_context_data(self, **kwargs):
+        contexto = super().get_context_data(**kwargs)
+        contexto.update(
+            seccion="buzon",
+            titulo="Buzón de trabajo",
+            **buzon(self.request),
         )
         return contexto
 

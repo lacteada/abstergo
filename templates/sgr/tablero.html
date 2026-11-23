@@ -29,9 +29,9 @@
           <tr>
             <th>Área</th>
             <th>Grupo</th>
-            <th>Logrado</th>
-            <th>Meta al día</th>
-            <th>Semáforo</th>
+            <th>Avance vs. meta al día</th>
+            <th class="num">Cumplido</th>
+            <th>Estado</th>
             <th></th>
           </tr>
         </thead>
@@ -40,10 +40,23 @@
             <tr>
               <td>{{ fila.area.nombre }}</td>
               <td>{{ fila.area.get_grupo_display }}</td>
-              <td>{{ fila.logrado }}</td>
-              <td>{{ fila.esperado }}</td>
               <td>
-                <span class="estado {{ fila.semaforo }}">{{ fila.semaforo }}</span>
+                <div class="avance {{ fila.semaforo }}"
+                     title="Logrado {{ fila.logrado }} · Meta al día {{ fila.esperado }}">
+                  <div class="avance-relleno" style="width:{% widthratio fila.logrado 1 100 %}%"></div>
+                  <div class="avance-marca" style="left:{% widthratio fila.esperado 1 100 %}%"></div>
+                </div>
+              </td>
+              <td class="num">
+                <span class="cumplido {{ fila.semaforo }}"
+                      title="Logrado {{ fila.logrado }} · Meta al día {{ fila.esperado }}">
+                  {% widthratio fila.relativo 1 100 %} %
+                </span>
+              </td>
+              <td>
+                <span class="estado {{ fila.semaforo }}">
+                  {% if fila.semaforo == 'verde' %}al día{% elif fila.semaforo == 'naranja' %}atrasada{% else %}crítica{% endif %}
+                </span>
                 {% if fila.alerta_reclamos %}<span class="estado rojo" title="{{ fila.reclamos }} reclamos">RR.HH.</span>{% endif %}
                 {% if fila.suma_incompleta %}<span class="estado naranja" title="Ponderadores ≠ 100%">ponderadores</span>{% endif %}
               </td>
@@ -56,10 +69,22 @@
         <tfoot>
           <tr>
             <th colspan="2">Total delegación</th>
-            <th>{{ resumen.totales.logrado }}</th>
-            <th>{{ resumen.totales.esperado }}</th>
+            <th>
+              <div class="avance {{ resumen.totales.semaforo }}"
+                   title="Logrado {{ resumen.totales.logrado }} · Meta al día {{ resumen.totales.esperado }}">
+                <div class="avance-relleno" style="width:{% widthratio resumen.totales.logrado 1 100 %}%"></div>
+                <div class="avance-marca" style="left:{% widthratio resumen.totales.esperado 1 100 %}%"></div>
+              </div>
+            </th>
+            <th class="num">
+              <span class="cumplido {{ resumen.totales.semaforo }}">
+                {% widthratio resumen.totales.relativo 1 100 %} %
+              </span>
+            </th>
             <th colspan="2">
-              <span class="estado {{ resumen.totales.semaforo }}">{{ resumen.totales.semaforo }}</span>
+              <span class="estado {{ resumen.totales.semaforo }}">
+                {% if resumen.totales.semaforo == 'verde' %}al día{% elif resumen.totales.semaforo == 'naranja' %}atrasada{% else %}crítica{% endif %}
+              </span>
               · promedio {{ resumen.totales.promedio|floatformat:3 }}
             </th>
           </tr>
