@@ -23,6 +23,12 @@ class SelectSubAtencion(forms.Select):
 
 
 class AtencionForm(FormularioCRUD):
+    filas = (
+        ("tipo_atencion", "sub_atencion"),
+        ("motivo", "estado"),
+        ("canal", "detalle"),
+    )
+
     class Meta:
         model = Atencion
         fields = (

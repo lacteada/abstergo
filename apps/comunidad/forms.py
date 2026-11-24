@@ -1,9 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 
 from apps.ciudadanos.models import Vecino
 from apps.ciudadanos.servicios import crear_vecino, vecinos_autorizados
 from apps.common.forms import FormularioCRUD
+from apps.common.widgets import SelectorPersona
 from apps.comunidad.models import Organizacion
 
 # Los roles de la directiva que son personas (vecinos): se buscan o se crean.
@@ -37,27 +39,46 @@ class OrganizacionForm(FormularioCRUD):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Cada rol se resuelve de dos formas: buscar un vecino existente (el
-        # select con buscador) o crear la persona aquí mismo. Los campos para
-        # crearla van justo debajo de su select, para que el flujo sea continuo.
+        # La directiva son tres personas. Cada cargo es un buscador (personas.js
+        # dibuja el botón «+» sobre el select) y, si la persona no existe, se
+        # crea con los campos ocultos: el alta se guarda junto con el formulario.
+        url_vecino = reverse("autocompletar", args=["vecino"])
         for rol in ROLES:
-            self.fields[rol].help_text = (
-                "Busca el vecino por nombre o RUT, o créalo aquí abajo."
-            )
             self.fields[f"nuevo_{rol}_nombre"] = forms.CharField(
-                label=f"{rol.capitalize()} nuevo · nombre",
-                max_length=120,
-                required=False,
-                widget=forms.TextInput(attrs={"placeholder": "Nombre y apellido"}),
+                max_length=120, required=False, widget=forms.HiddenInput()
             )
             self.fields[f"nuevo_{rol}_rut"] = forms.CharField(
-                label=f"{rol.capitalize()} nuevo · RUT",
-                max_length=15,
-                required=False,
-                widget=forms.TextInput(attrs={"placeholder": "12345678-9"}),
+                max_length=15, required=False, widget=forms.HiddenInput()
             )
+            widget = SelectorPersona(
+                url=url_vecino,
+                crear=(f"nuevo_{rol}_nombre", f"nuevo_{rol}_rut"),
+                etiqueta=rol.capitalize(),
+            )
+            # El widget nuevo hereda las opciones del select que reemplaza.
+            widget.choices = self.fields[rol].choices
+            self.fields[rol].widget = widget
+            self.fields[rol].help_text = ""
+        # Distribución en filas: los tres cargos de la directiva van juntos.
+        self.filas = (
+            ("domicilio_legal", "territorio"),
+            ("tipo", "subtipo"),
+            ("situacion", "verificacion"),
+            ("socios_activos", "registro_pj"),
+            ("fecha_constitucion", "fecha_inscripcion"),
+            (
+                "presidente",
+                "tesorero",
+                "secretario",
+                "nuevo_presidente_nombre",
+                "nuevo_presidente_rut",
+                "nuevo_tesorero_nombre",
+                "nuevo_tesorero_rut",
+                "nuevo_secretario_nombre",
+                "nuevo_secretario_rut",
+            ),
+        )
         self._acotar_directiva()
-        self._ordenar()
 
     def _acotar_directiva(self):
         """Limita los vecinos de la directiva al alcance del usuario."""
@@ -80,15 +101,6 @@ class OrganizacionForm(FormularioCRUD):
                 disponibles = disponibles | Vecino.objects.filter(pk__in=actuales)
         for rol in ROLES:
             self.fields[rol].queryset = disponibles
-
-    def _ordenar(self):
-        """Deja los campos de creación pegados a su select."""
-        orden = []
-        for nombre in self.fields:
-            orden.append(nombre)
-            if nombre in ROLES:
-                orden += [f"nuevo_{nombre}_nombre", f"nuevo_{nombre}_rut"]
-        self.order_fields(orden)
 
     def clean(self):
         datos = super().clean()

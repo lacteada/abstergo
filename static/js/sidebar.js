@@ -37,4 +37,14 @@
       }
     });
   });
+
+  // En pantallas angostas el menú se abre con un botón (menú off-canvas).
+  var boton = document.querySelector("[data-menu-boton]");
+  if (boton) {
+    boton.addEventListener("click", function () {
+      var app = document.querySelector(".app");
+      var abierto = app.classList.toggle("menu-abierto");
+      boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+    });
+  }
 })();

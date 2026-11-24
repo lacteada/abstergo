@@ -11,6 +11,29 @@ Campos de la ficha de consulta. Los arma `ConsultaBase` a partir de
   {% endfor %}
 </dl>
 
+{# Visor de evidencia: la ficha de una evidencia o de su validación muestra el
+   respaldo (imagen en línea, o enlace al archivo y al vínculo). #}
+{% if object.archivo or object.vinculo or object.evidencia %}
+  {% with prueba=object.evidencia|default:object %}
+    {% if prueba.archivo %}
+      {% if '.png' in prueba.archivo.name or '.jpg' in prueba.archivo.name or '.jpeg' in prueba.archivo.name %}
+        <figure class="evidencia-vista">
+          <img src="{{ prueba.archivo.url }}" alt="Evidencia adjunta">
+        </figure>
+      {% else %}
+        <p class="evidencia-vinculo">
+          <a href="{{ prueba.archivo.url }}" target="_blank" rel="noopener">Abrir archivo adjunto</a>
+        </p>
+      {% endif %}
+    {% endif %}
+    {% if prueba.vinculo %}
+      <p class="evidencia-vinculo">
+        <a href="{{ prueba.vinculo }}" target="_blank" rel="noopener">Abrir vínculo</a>
+      </p>
+    {% endif %}
+  {% endwith %}
+{% endif %}
+
 {% if acciones_tubo %}
   <div class="ficha-acciones">
     {% for accion in acciones_tubo %}

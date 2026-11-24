@@ -2,6 +2,7 @@
 
 from apps.common import periodo
 from apps.common.delegaciones import activa, autorizadas
+from apps.common.menu import menu_de
 from apps.common.permisos import alcance_global, codigo_de, modulos_de
 
 
@@ -19,6 +20,7 @@ def permisos(request):
         "delegacion_activa": activa(request),
         "delegaciones_autorizadas": autorizadas(usuario),
         "alcance_global": alcance_global(usuario),
+        "menu": menu_de(usuario),
     }
     if usuario is not None and usuario.is_authenticated:
         contexto["periodo_activo"] = periodo.activa(request)

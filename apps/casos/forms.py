@@ -3,6 +3,14 @@ from apps.common.forms import FormularioCRUD
 
 
 class CasoSocialForm(FormularioCRUD):
+    filas = (
+        ("vecino", "responsable"),
+        ("fecha_apertura", "estado"),
+        ("motivo",),
+        ("reingreso", "caso_anterior"),
+        ("observaciones",),
+    )
+
     class Meta:
         model = CasoSocial
         fields = (
@@ -18,6 +26,8 @@ class CasoSocialForm(FormularioCRUD):
 
 
 class LlamadaForm(FormularioCRUD):
+    filas = (("vecino", "atencion"), ("motivo",), ("fecha_programada", "estado"))
+
     class Meta:
         model = Llamada
         fields = ("vecino", "atencion", "motivo", "fecha_programada", "estado")

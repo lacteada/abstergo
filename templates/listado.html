@@ -1,7 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block titulo %}{{ titulo }} · Sistema Municipal{% endblock %}
+
 {% block contenido %}
+
+  <nav class="migas" aria-label="Ruta de navegación">
+    <a href="{% url 'panel:inicio' %}">Inicio</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ titulo }}</span>
+  </nav>
 
   <div class="cabecera">
     <h1 class="titulo">{{ titulo }}</h1>

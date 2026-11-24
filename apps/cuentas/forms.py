@@ -24,6 +24,8 @@ class FormularioLogin(AuthenticationForm):
 
 
 class RolForm(FormularioCRUD):
+    filas = (("nombre", "descripcion"),)
+
     class Meta:
         # El `codigo` no se pide: se deriva del nombre (apps/common/codigo.py).
         model = Rol
@@ -41,6 +43,13 @@ class UsuarioForm(FormularioCRUD):
     """
 
     campo_delegacion = "delegacion"
+
+    filas = (
+        ("nombre", "apellido"),
+        ("email", "rol"),
+        ("cargo", "delegacion"),
+        ("delegaciones_autorizadas", "is_active"),
+    )
 
     nombre = forms.CharField(
         label="Nombre", max_length=150, validators=[validar_nombre]

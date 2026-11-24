@@ -7,6 +7,7 @@ from apps.common.forms import FormularioCRUD
 
 class MetaForm(FormularioCRUD):
     campo_delegacion = "delegacion"
+    filas = (("nombre", "delegacion"), ("descripcion",), ("estado",))
 
     class Meta:
         model = Meta
@@ -14,12 +15,16 @@ class MetaForm(FormularioCRUD):
 
 
 class TipoAtencionForm(FormularioCRUD):
+    filas = (("nombre", "estado"), ("descripcion",))
+
     class Meta:
         model = TipoAtencion
         fields = ("nombre", "descripcion", "estado")
 
 
 class SubAtencionForm(FormularioCRUD):
+    filas = (("nombre", "tipo_atencion"), ("forma", "estado"))
+
     class Meta:
         model = SubAtencion
         fields = ("nombre", "tipo_atencion", "forma", "estado")

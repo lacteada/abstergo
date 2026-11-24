@@ -3,7 +3,7 @@
 Sistema Municipal de Gestión de Atención Ciudadana (Abstergo).
 Acompaña a los requisitos del PDF de la segunda evaluación.
 
-- Fecha de la corrida: 2026-10-19
+- Fecha de la corrida: 2026-10-19 · actualizado 2026-11-24 (131 pruebas)
 - Responsable: equipo de desarrollo (Abstergo)
 - Entorno funcional: SQLite temporal vía `scripts/verificar.sh` (Air/Dev).
 - Entorno de carga: AWS (EC2 + Apache + gunicorn + MariaDB).
@@ -44,7 +44,7 @@ cd ~/code/ina/backend/abstergo
 bash scripts/verificar.sh        # espera VERIFICACIÓN OK
 ```
 
-Resultado de la última corrida: **32 pruebas, 0 fallos**.
+Resultado de la última corrida (2026-11-24): **131 pruebas, 0 fallos**; `ruff` limpio; `bash scripts/verificar.sh` termina en `VERIFICACIÓN OK`.
 
 ## 2. Pruebas manuales de interfaz
 
@@ -89,9 +89,13 @@ script sobre el entorno desplegado)_
 ## 5. Pendientes por falta de Backend
 
 No quedan pantallas sin persistencia. Todos los mantenedores, el ingreso de
-atención y el flujo de acceso persisten en MariaDB. Lo que no cubre esta
-entrega: las tareas trimestrales y el módulo de Reportes (fuera de alcance en
-`documentacion/vision.md`).
+atención y el flujo de acceso persisten en MariaDB. Las tareas y metas
+trimestrales **sí están dentro de alcance** (módulo SGR: períodos, indicadores,
+metas, ponderadores y semáforo); ver `documentacion/vision.md` §2.
+
+Nota (2026-11-24): esta corrida usa SQLite temporal (`scripts/verificar.sh`) y no
+mide rendimiento; el rendimiento de los tableros consolidados (RNF-001) queda
+como pendiente en `documentacion/auditoria/ROADMAP_COMPLETITUD_ABSTERGO.md`.
 
 ### 2026-10-19 08:44 · http://18.209.251.129/login/
 

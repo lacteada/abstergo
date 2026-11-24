@@ -69,7 +69,7 @@ def _registrar_modelos():
     from apps.catalogos.models import Meta, SubAtencion, TipoAtencion
     from apps.ciudadanos.models import Vecino
     from apps.comunidad.models import Organizacion
-    from apps.cuentas.models import Usuario
+    from apps.cuentas.models import Rol, Usuario
     from apps.organizacion.models import Cargo, Delegacion, Territorio
     from apps.sgr.models import Area, Indicador, Periodo
     from apps.tubo.models import TareaTubo
@@ -84,6 +84,7 @@ def _registrar_modelos():
         lambda o: f"{o.codigo} · {o.nombre}",
     )
     registrar("cargo", Cargo, ("nombre",), lambda o: o.nombre)
+    registrar("rol", Rol, ("nombre",), lambda o: o.nombre)
     registrar(
         "usuario", Usuario, ("first_name", "last_name", "email"),
         lambda o: o.get_full_name() or o.email or f"Usuario {o.pk}",

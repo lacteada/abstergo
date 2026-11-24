@@ -20,13 +20,13 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - **Autenticación**: sesión web + token con refresh para móvil, endpoints login/refresh/logout y `/me`. — **hecho** (JWT con refresh y blacklist; falta HTTPS).
 - **RBAC centralizado**: roles como dato (`Rol.codigo`) + una matriz rol × permiso + un mixin o clase que la aplica. — **hecho** (`apps/common/permisos.py`; web y API la consultan). Desde 2026 suma una segunda matriz **cargo × módulo** (`Cargo`, `MATRIZ_CARGO`): el rol es el acceso y el cargo el puesto funcional, y el permiso se resuelve por unión. Cada rol se refleja además como `auth.Group` espejo (`apps/cuentas/grupos.py`).
 - **Validación en el borde**: validadores de campo + cruce en serializer/form + restricciones en la base. — **parcial** (serializers en la API; faltan restricciones en la base).
-- **Errores uniformes** 400/401/403/404/500. — **ausente**.
+- **Errores uniformes** 400/401/403/404/500. — **parcial** (páginas 403/404/500 propias; la API responde 400/401/403).
 - **Auditoría central** por señal o middleware. — **parcial y mal ubicada** (se llama desde las vistas).
 - **Borrado lógico** con un solo significado. — **parcial** (front lógico, admin `DELETE`).
 - **Migraciones** versionadas + `makemigrations --check` en CI. — **hecho** (chequeo en `scripts/verificar.sh` y en CI).
 - **Seeding idempotente y no destructivo**. — **parcial** (`cargar_datos` resucita borrados).
 - **Listados**: paginación, filtro y búsqueda como base. — **hecho**.
-- **Verificación**: lint + tests + `check --deploy` en un script y en CI. — **parcial** (script y CI listos; faltan lint y tests).
+- **Verificación**: lint + tests + `check --deploy` en un script y en CI. — **parcial** (script y CI en verde con `ruff` y 131 pruebas; falta `check --deploy` en CI).
 
 ## 2. Requisitos del usuario → estado
 - El hueco de raíz: no existe una lista de requisitos con estado. Eso es "no hay puntos claros de qué cubrir".
@@ -36,11 +36,11 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
 - R3 · Gestión de usuarios, roles, cargos, delegaciones, catálogos y vecinos — **hecho** (CRUD web y de API; los cargos salen del descriptor de funciones de las Delegaciones, versión 2026).
 - R4 · Flujo "crear atención" con historial del vecino — **parcial**.
 - R5 · Reemplazar el Excel: importación única, export y UX del funcionario — **parcial**.
-- R6 · Cumplimiento Ley 21.719 (ARCOP, consentimiento, retención, incidentes, auditoría) — **ausente** (solo modelos).
+- R6 · Cumplimiento Ley 21.719 (ARCOP, consentimiento, retención, incidentes, auditoría) — **parcial** (modelos implementados; gestión solo por Admin).
 - R7 · API para el cliente Android — **parcial** (API v1 con token, CRUD y recuperación; falta HTTPS).
 - R8 · Dashboard por rol — **parcial**.
-- R9 · Seguridad de producción (HTTPS, rate limiting) — **ausente**.
-- R10 · Calidad (tests, CI) — **hecho** (CI creada; 25 pruebas funcionales y unitarias con `pytest`, registro en `documentacion/pruebas.md`).
+- R9 · Seguridad de producción (HTTPS, rate limiting) — **parcial** (HSTS/cookies/rate limit opt-in con `PRODUCCION_SEGURA=1`; falta TLS efectivo).
+- R10 · Calidad (tests, CI) — **hecho** (CI en verde; **131 pruebas** con `pytest` y `ruff`, registro en `documentacion/pruebas.md`).
 
 ## 3. Módulos (variable, paralelizable)
 - Un módulo = una entidad de dominio: modelo, migración, serializer/form, vista, permiso, tests, import/export.
@@ -155,6 +155,12 @@ Test para separar: ¿esto estaría en cualquier proyecto de este tipo? Si sí, e
   (felicitación/regaño), **período activo en la top bar**, **tablero SGR en el
   dashboard** y **mantenedores plegados**. Migraciones `comunidad/0004`, `tubo/0006`
   y `tubo/0007`. Actualiza `documento_tecnico.md` §26, `vision.md` §6.6 y §25.
+
+- **2026-11-24 · Auditoría y completitud**: se crea `documentacion/auditoria/` con `INFORME_DETALLE_ABSTERGO.md` (cobertura RF ~95 %, RNF ~75 %), `PROMPT_DETALLE_ABSTERGO.md` (regenerable) y `ROADMAP_COMPLETITUD_ABSTERGO.md` (qué falta para una app completa, P1–P3). Se corrige el desfase de este PLAN (§1 y §2) y de `pruebas.md`. Verificación: 131 pruebas, 0 fallos; `check --deploy` da 7 issues con `PRODUCCION_SEGURA` apagado y 3 con `=1`.
+
+- **2026-11-24 · Rediseño de formularios y UX (Fase A)**: los 22 formularios agrupan sus campos en filas (`FormularioCRUD.filas`/`distribucion`); la directiva de `OrganizacionForm` es un selector de persona con buscador y alta inline (`SelectorPersona` + `personas.js`); fechas nativas con calendario (`CampoFecha`/`CampoFechaHora`), multiselect con búsqueda (`SelectMultipleBuscable` + `multibuscable.js`), teléfono con teclado numérico; accesibilidad (`:focus-visible`, `aria-invalid`/`aria-describedby`, `<title>` por pantalla, contraste) y menú off-canvas. Verificación: 131 pruebas, 0 fallos, ruff limpio. Detalle en `documentacion/auditoria/INFORME_UX_ABSTERGO.md` y `REDISENO_ANTES_DESPUES.md`.
+
+- **2026-11-24 · Navegación y kanban (Fases B y C)**: una sola fuente de menú (`apps/common/menu.py`) alimenta el sidebar y el panel; las acciones del panel se filtran por la matriz de módulos (sin enlaces que terminen en 403 — se quitó el "Tablero de delegación" del delegado). El kanban usa Pointer Events: marcador de destino, animación FLIP, sin recarga de página, soporte táctil y arrastre solo con permiso de escritura (`data-escribir`). Se suman migas, visor de evidencia en la ficha y estado de envío del botón de guardar. Verificación: 131 pruebas, 0 fallos, ruff limpio.
 
 ## 11. Verificación
 - Cada ítem del esqueleto tiene estado (hecho / parcial / ausente).

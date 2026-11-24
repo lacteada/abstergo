@@ -1,11 +1,11 @@
-/* Kanban del Tubo de trabajo: arrastrar mueve y reordena sin recargar la página.
+/* Kanban del Tubo de trabajo: arrastrar mueve y reordena sin recargar.
 
-   Al soltar, la tarjeta se mueve en el DOM de inmediato (respuesta instantánea),
-   se envía el nuevo estado y el orden de la columna destino, y al confirmar el
-   servidor se refresca solo el tablero (no toda la página). Si el servidor
-   rechaza el movimiento, la tarjeta vuelve a su lugar y se avisa.
-
-   Sirve igual para el tablero de tareas y el de cartas: todo va por [data-kanban].
+   Usa Pointer Events, así funciona con mouse, dedo y lápiz. Al arrastrar aparece
+   un marcador en el punto de destino y una copia que sigue al puntero; al soltar,
+   la tarjeta se mueve en el DOM con una animación corta y se envía el estado y el
+   orden. No se recarga la página: solo se actualizan los contadores. Si el
+   servidor rechaza, la tarjeta vuelve a su lugar. Solo se puede arrastrar con
+   permiso de escritura (`data-escribir`).
 */
 (function () {
   "use strict";
@@ -13,22 +13,18 @@
   var kanban = document.querySelector("[data-kanban]");
   if (!kanban) return;
 
+  var escribir = kanban.dataset.escribir === "1";
+  var arrastrada = null;
+  var origen = null;
+  var clon = null;
+  var marca = null;
+  var inicio = null; // punto donde empezó el puntero
+  var desfase = { x: 0, y: 0 };
+  var activo = false;
+
   function csrf() {
-    var match = document.cookie.match(/(^|;)\s*csrftoken=([^;]+)/);
-    return match ? decodeURIComponent(match[2]) : "";
-  }
-
-  function listaDe(estado) {
-    return kanban.querySelector('[data-lista="' + estado + '"]');
-  }
-
-  function pksDe(lista) {
-    return Array.prototype.map.call(
-      lista.querySelectorAll(".kanban-tarjeta"),
-      function (tarjeta) {
-        return tarjeta.dataset.pk;
-      }
-    );
+    var m = document.cookie.match(/(^|;)\s*csrftoken=([^;]+)/);
+    return m ? decodeURIComponent(m[2]) : "";
   }
 
   function avisar(mensaje) {
@@ -47,28 +43,31 @@
     });
   }
 
-  // Reemplaza el tablero por el estado del servidor, sin recargar la página.
-  function refrescar() {
-    return fetch(window.location.href)
-      .then(function (respuesta) {
-        return respuesta.text();
-      })
-      .then(function (html) {
-        var documento = new DOMParser().parseFromString(html, "text/html");
-        var nuevo = documento.querySelector("[data-kanban]");
-        if (nuevo) kanban.innerHTML = nuevo.innerHTML;
-        enganchar();
-      })
-      .catch(function () {});
+  function pksDe(lista) {
+    return Array.prototype.map.call(
+      lista.querySelectorAll(".kanban-tarjeta"),
+      function (t) {
+        return t.dataset.pk;
+      }
+    );
   }
 
-  var arrastrada = null;
-
-  // La tarjeta ante la cual insertar, según dónde va el cursor.
-  function trasCursor(lista, y) {
-    var candidatas = Array.prototype.slice.call(
-      lista.querySelectorAll(".kanban-tarjeta:not(.arrastrando)")
+  function tarjetas(lista) {
+    return Array.prototype.filter.call(
+      lista.querySelectorAll(".kanban-tarjeta"),
+      function (t) {
+        return t !== arrastrada;
+      }
     );
+  }
+
+  function listaBajoPunto(x, y) {
+    var nodo = document.elementFromPoint(x, y);
+    return nodo ? nodo.closest("[data-lista]") : null;
+  }
+
+  function trasPunto(lista, y) {
+    var candidatas = tarjetas(lista);
     for (var i = 0; i < candidatas.length; i++) {
       var caja = candidatas[i].getBoundingClientRect();
       if (y < caja.top + caja.height / 2) return candidatas[i];
@@ -76,44 +75,159 @@
     return null;
   }
 
-  function mover(tarjeta, destino, antesDe) {
-    var lista = listaDe(destino);
-    if (!lista) return;
-    var origen = tarjeta.parentNode;
-    lista.insertBefore(tarjeta, antesDe || null);
+  function actualizarContadores() {
+    kanban.querySelectorAll("[data-lista]").forEach(function (lista) {
+      var columna = lista.closest(".kanban-columna");
+      var total = lista.querySelectorAll(".kanban-tarjeta").length;
+      var contador = columna && columna.querySelector(".kanban-contador");
+      if (contador) contador.textContent = total;
+      var vacio = lista.querySelector(".kanban-vacio");
+      if (total === 0 && !vacio) {
+        var li = document.createElement("li");
+        li.className = "kanban-vacio";
+        li.textContent = lista.dataset.vacio || "Sin registros";
+        lista.appendChild(li);
+      } else if (total > 0 && vacio) {
+        vacio.remove();
+      }
+    });
+  }
+
+  // Animación FLIP: las tarjetas se deslizan a su nueva posición.
+  function animar(antes) {
+    kanban.querySelectorAll(".kanban-tarjeta").forEach(function (t) {
+      var previo = antes.get(t);
+      if (!previo) return;
+      var nuevo = t.getBoundingClientRect();
+      var dx = previo.left - nuevo.left;
+      var dy = previo.top - nuevo.top;
+      if (!dx && !dy) return;
+      t.animate(
+        [{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }],
+        { duration: 180, easing: "ease" }
+      );
+    });
+  }
+
+  function posiciones() {
+    var mapa = new Map();
+    kanban.querySelectorAll(".kanban-tarjeta").forEach(function (t) {
+      mapa.set(t, t.getBoundingClientRect());
+    });
+    return mapa;
+  }
+
+  function enviarMovimiento(url, lista) {
     var datos = new FormData();
-    datos.append("estado", destino);
+    datos.append("estado", lista.dataset.lista);
     datos.append("orden", pksDe(lista).join(","));
-    enviar(tarjeta.dataset.mover, datos)
+    return enviar(url, datos);
+  }
+
+  function empezar(evento) {
+    if (!escribir || evento.button > 0) return;
+    arrastrada = evento.currentTarget;
+    origen = arrastrada.parentNode;
+    inicio = { x: evento.clientX, y: evento.clientY };
+    activo = false;
+    document.addEventListener("pointermove", alMover);
+    document.addEventListener("pointerup", alSoltar, { once: true });
+  }
+
+  function activar(evento) {
+    var caja = arrastrada.getBoundingClientRect();
+    desfase = { x: evento.clientX - caja.left, y: evento.clientY - caja.top };
+    clon = arrastrada.cloneNode(true);
+    clon.classList.add("kanban-clon");
+    clon.style.width = caja.width + "px";
+    document.body.appendChild(clon);
+    marca = document.createElement("li");
+    marca.className = "kanban-marca";
+    arrastrada.classList.add("kanban-arrastrando");
+    arrastrada.parentNode.insertBefore(marca, arrastrada);
+    document.body.classList.add("arrastrando-kanban");
+  }
+
+  function alMover(evento) {
+    if (!arrastrada) return;
+    if (!activo) {
+      var lejos =
+        Math.abs(evento.clientX - inicio.x) + Math.abs(evento.clientY - inicio.y);
+      if (lejos < 6) return;
+      activo = true;
+      activar(evento);
+    }
+    clon.style.transform =
+      "translate(" + (evento.clientX - desfase.x) + "px," + (evento.clientY - desfase.y) + "px)";
+    var lista = listaBajoPunto(evento.clientX, evento.clientY);
+    if (lista) lista.insertBefore(marca, trasPunto(lista, evento.clientY));
+  }
+
+  function alSoltar() {
+    document.removeEventListener("pointermove", alMover);
+    if (!arrastrada) return;
+    if (!activo) {
+      arrastrada = null;
+      return;
+    }
+    var tarjeta = arrastrada;
+    var lista = marca.parentNode;
+    var antes = posiciones();
+    lista.insertBefore(tarjeta, marca);
+    marca.remove();
+    clon.remove();
+    tarjeta.classList.remove("kanban-arrastrando");
+    document.body.classList.remove("arrastrando-kanban");
+    actualizarContadores();
+    animar(antes);
+
+    var volverAlOrigen = origen;
+    enviarMovimiento(tarjeta.dataset.mover, lista)
       .then(function (resultado) {
         if (!resultado.ok) {
-          origen.appendChild(tarjeta);
+          volverAlOrigen.insertBefore(tarjeta, volverAlOrigen.firstChild);
+          actualizarContadores();
           avisar(
             (resultado.cuerpo && resultado.cuerpo.error) ||
               "No se pudo mover la tarjeta."
           );
-          return;
         }
-        refrescar();
       })
       .catch(function () {
-        origen.appendChild(tarjeta);
+        volverAlOrigen.insertBefore(tarjeta, volverAlOrigen.firstChild);
+        actualizarContadores();
         avisar("No se pudo mover la tarjeta.");
       });
-  }
 
-  function alSoltar(evento) {
-    evento.preventDefault();
-    if (!arrastrada) return;
-    var lista = evento.currentTarget;
-    mover(arrastrada, lista.dataset.lista, trasCursor(lista, evento.clientY));
+    arrastrada = null;
+    activo = false;
+    clon = null;
+    marca = null;
   }
 
   function alAccion(evento) {
     var boton = evento.currentTarget;
     var tarjeta = boton.closest(".kanban-tarjeta");
+    var antes = posiciones();
     boton.disabled = true;
-    mover(tarjeta, boton.dataset.estado, null);
+    var lista = kanban.querySelector('[data-lista="' + boton.dataset.estado + '"]');
+    if (!lista) return;
+    lista.appendChild(tarjeta);
+    actualizarContadores();
+    animar(antes);
+    enviarMovimiento(boton.dataset.mover, lista)
+      .then(function (resultado) {
+        if (!resultado.ok) {
+          boton.disabled = false;
+          avisar("No se pudo mover la tarjeta.");
+          return;
+        }
+        boton.remove();
+      })
+      .catch(function () {
+        boton.disabled = false;
+        avisar("No se pudo mover la tarjeta.");
+      });
   }
 
   function alReasignar(evento) {
@@ -121,50 +235,23 @@
     var formulario = evento.currentTarget;
     enviar(formulario.getAttribute("action"), new FormData(formulario))
       .then(function (resultado) {
-        if (!resultado.ok) {
-          avisar("No se pudo reasignar.");
-          return;
-        }
-        refrescar();
+        if (resultado.ok && window.Mensajes) window.Mensajes.avisar("ok", "Reasignado.");
+        else avisar("No se pudo reasignar.");
       })
       .catch(function () {
         avisar("No se pudo reasignar.");
       });
   }
 
-  // Idempotente: marca cada nodo ya enganchado, así el refresco no duplica.
-  function enganchar() {
+  if (escribir) {
     kanban.querySelectorAll(".kanban-tarjeta").forEach(function (tarjeta) {
-      if (tarjeta.dataset.enganchada) return;
-      tarjeta.dataset.enganchada = "1";
-      tarjeta.addEventListener("dragstart", function () {
-        arrastrada = tarjeta;
-        tarjeta.classList.add("arrastrando");
-      });
-      tarjeta.addEventListener("dragend", function () {
-        tarjeta.classList.remove("arrastrando");
-        arrastrada = null;
-      });
-    });
-    kanban.querySelectorAll("[data-lista]").forEach(function (lista) {
-      if (lista.dataset.enganchada) return;
-      lista.dataset.enganchada = "1";
-      lista.addEventListener("dragover", function (evento) {
-        evento.preventDefault();
-      });
-      lista.addEventListener("drop", alSoltar);
-    });
-    kanban.querySelectorAll("[data-accion]").forEach(function (boton) {
-      if (boton.dataset.enganchada) return;
-      boton.dataset.enganchada = "1";
-      boton.addEventListener("click", alAccion);
-    });
-    kanban.querySelectorAll(".kanban-reasignar").forEach(function (formulario) {
-      if (formulario.dataset.enganchada) return;
-      formulario.dataset.enganchada = "1";
-      formulario.addEventListener("submit", alReasignar);
+      tarjeta.addEventListener("pointerdown", empezar);
     });
   }
-
-  enganchar();
+  kanban.querySelectorAll("[data-accion]").forEach(function (boton) {
+    boton.addEventListener("click", alAccion);
+  });
+  kanban.querySelectorAll(".kanban-reasignar").forEach(function (formulario) {
+    formulario.addEventListener("submit", alReasignar);
+  });
 })();

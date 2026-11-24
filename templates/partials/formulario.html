@@ -9,13 +9,24 @@ el mismo POST funciona en los dos contextos.
       enctype="multipart/form-data">
   {% csrf_token %}
 
-  {% for campo in form %}
-    <div class="campo">
-      <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-      {{ campo }}
-      {% if campo.help_text %}<p class="ayuda">{{ campo.help_text }}</p>{% endif %}
-      {% for error in campo.errors %}<p class="error">{{ error }}</p>{% endfor %}
-    </div>
+  {% for fila in form.distribucion %}
+    {% if fila|length > 1 %}<div class="campo-fila">{% endif %}
+    {% for campo in fila %}
+      {% if campo.is_hidden %}
+        {{ campo }}
+        {% for error in campo.errors %}<p class="error">{{ error }}</p>{% endfor %}
+      {% else %}
+        <div class="campo">
+          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {{ campo }}
+          {% if campo.help_text %}<p class="ayuda">{{ campo.help_text }}</p>{% endif %}
+          {% for error in campo.errors %}
+            <p class="error" id="error_{{ campo.name }}">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    {% if fila|length > 1 %}</div>{% endif %}
   {% endfor %}
 
   {% for error in form.non_field_errors %}<p class="error">{{ error }}</p>{% endfor %}

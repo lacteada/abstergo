@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 
+{% block titulo %}{{ titulo }} · Sistema Municipal{% endblock %}
+
 {% block contenido %}
+
+  <nav class="migas" aria-label="Ruta de navegación">
+    <a href="{% url 'panel:inicio' %}">Inicio</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{{ titulo }}</span>
+  </nav>
 
   <h1 class="titulo">{{ titulo }}</h1>
   {% if subtitulo %}<p class="subtitulo">{{ subtitulo }}</p>{% endif %}

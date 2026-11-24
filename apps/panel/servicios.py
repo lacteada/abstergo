@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from apps.atenciones.models import Atencion
 from apps.common.delegaciones import acotar, activa
+from apps.common.menu import MANTENEDORES as MENU_MANTENEDORES
 from apps.common.permisos import (
     ADMIN,
     CONSULTA,
@@ -19,6 +20,7 @@ from apps.common.permisos import (
     FUNCIONARIO,
     VERIFICADOR,
     codigo_de,
+    puede,
 )
 from apps.comunidad.models import Organizacion
 from apps.sgr.models import Evidencia, RegistroGestion, Validacion
@@ -33,58 +35,44 @@ TITULOS = {
     CONSULTA: "Consulta",
 }
 
-# (destacada, título, ruta de la url)
+# (destacada, título, ruta de la url, módulo que la habilita)
 ACCIONES = {
     FUNCIONARIO: [
-        (True, "Registrar actividad", "sgr:registros_nueva"),
-        (False, "Mis actividades", "sgr:registros"),
-        (False, "Mis compromisos", "tubo:tablero"),
-        (False, "Mis evidencias", "sgr:evidencias"),
+        (True, "Registrar actividad", "sgr:registros_nueva", "sgr_records"),
+        (False, "Mis actividades", "sgr:registros", "sgr_records"),
+        (False, "Mis compromisos", "tubo:tablero", "tasks"),
+        (False, "Mis evidencias", "sgr:evidencias", "evidence"),
     ],
     DELEGADO: [
-        (True, "Compromisos", "tubo:tablero"),
-        (False, "Registrar atención", "atenciones:crear"),
-        (False, "Mi agenda", "tubo:agenda"),
-        (False, "Actividades", "sgr:registros"),
-        (False, "Casos sociales", "casos:casos"),
-        (False, "Tablero de delegación", "sgr:tablero"),
+        (True, "Compromisos", "tubo:tablero", "tasks"),
+        (False, "Registrar atención", "atenciones:crear", "cases"),
+        (False, "Mi agenda", "tubo:agenda", "tasks"),
+        (False, "Actividades", "sgr:registros", "sgr_records"),
+        (False, "Casos sociales", "casos:casos", "social_cases"),
     ],
     VERIFICADOR: [
-        (True, "Por validar", "sgr:validaciones"),
-        (False, "Evidencias", "sgr:evidencias"),
+        (True, "Por validar", "sgr:validaciones", "validation"),
+        (False, "Evidencias", "sgr:evidencias", "evidence"),
     ],
     COORDINADOR: [
-        (True, "Tablero global", "sgr:global"),
-        (False, "Por validar", "sgr:validaciones"),
-        (False, "Compromisos", "tubo:tablero"),
-        (False, "Metas", "sgr:metas"),
+        (True, "Tablero global", "sgr:global", "sgr"),
+        (False, "Por validar", "sgr:validaciones", "validation"),
+        (False, "Compromisos", "tubo:tablero", "tasks"),
+        (False, "Metas", "sgr:metas", "goals"),
     ],
     ADMIN: [
-        (True, "Tablero SGR", "sgr:tablero"),
-        (False, "Usuarios", "cuentas:usuarios"),
-        (False, "Delegaciones", "organizacion:delegaciones"),
-        (False, "Períodos", "sgr:periodos"),
-        (False, "Organizaciones", "comunidad:organizaciones"),
+        (True, "Tablero SGR", "sgr:tablero", "sgr"),
+        (False, "Usuarios", "cuentas:usuarios", "users"),
+        (False, "Delegaciones", "organizacion:delegaciones", "delegations"),
+        (False, "Períodos", "sgr:periodos", "sgr"),
+        (False, "Organizaciones", "comunidad:organizaciones", "community"),
     ],
     CONSULTA: [
-        (True, "Tablero SGR", "sgr:tablero"),
-        (False, "Actividades", "sgr:registros"),
-        (False, "Organizaciones", "comunidad:organizaciones"),
+        (True, "Tablero SGR", "sgr:tablero", "sgr"),
+        (False, "Actividades", "sgr:registros", "sgr_records"),
+        (False, "Organizaciones", "comunidad:organizaciones", "community"),
     ],
 }
-
-MANTENEDORES = [
-    ("Delegaciones", "organizacion:delegaciones"),
-    ("Territorios", "organizacion:territorios"),
-    ("Cargos", "organizacion:cargos"),
-    ("Vecinos", "ciudadanos:vecinos"),
-    ("Usuarios", "cuentas:usuarios"),
-    ("Roles", "cuentas:roles"),
-    ("Períodos", "sgr:periodos"),
-    ("Áreas", "sgr:areas"),
-    ("Indicadores", "sgr:indicadores"),
-    ("Metas SGR", "sgr:metas"),
-]
 
 
 def titulo_panel(usuario):
@@ -92,18 +80,28 @@ def titulo_panel(usuario):
 
 
 def acciones_del_rol(usuario):
-    """Las acciones del rol: una destacada primero y unas pocas secundarias."""
+    """Las acciones del rol: una destacada primero y unas pocas secundarias.
+
+    Solo las que el usuario puede abrir: la misma matriz decide qué se ve, así
+    no quedan enlaces que terminen en 403.
+    """
     filas = ACCIONES.get(codigo_de(usuario), ACCIONES[CONSULTA])
     return [
         {"titulo": titulo, "url": reverse(ruta), "destacada": destacada}
-        for destacada, titulo, ruta in filas
+        for destacada, titulo, ruta, modulo in filas
+        if puede(usuario, modulo)
     ]
 
 
 def mantenedores_del_rol(usuario):
+    """Los mantenedores del panel: solo para quien administra, desde el menú."""
     if codigo_de(usuario) != ADMIN:
         return []
-    return [{"titulo": titulo, "url": reverse(ruta)} for titulo, ruta in MANTENEDORES]
+    return [
+        {"titulo": titulo, "url": reverse(ruta)}
+        for titulo, ruta, modulo, _ in MENU_MANTENEDORES
+        if puede(usuario, modulo)
+    ]
 
 
 def _rango_dia(dia):

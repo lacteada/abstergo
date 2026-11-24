@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 from apps.common.forms import FormularioCRUD
+from apps.common.widgets import CampoTelefono
 from apps.sgr.models import (
     AjusteConducta,
     Alerta,
@@ -20,6 +21,14 @@ from apps.sgr.validaciones import falta_evidencia
 
 
 class PeriodoForm(FormularioCRUD):
+    filas = (
+        ("nombre",),
+        ("inicio", "termino", "dias"),
+        ("situacion", "estado"),
+        ("umbral_minimo", "umbral_ambar"),
+        ("tope_item", "tope_total"),
+    )
+
     class Meta:
         model = Periodo
         fields = (
@@ -38,6 +47,7 @@ class PeriodoForm(FormularioCRUD):
 
 class AreaForm(FormularioCRUD):
     campo_delegacion = "delegacion"
+    filas = (("nombre", "grupo"), ("cargo", "responsable"), ("delegacion", "estado"))
 
     class Meta:
         model = Area
@@ -45,6 +55,13 @@ class AreaForm(FormularioCRUD):
 
 
 class IndicadorForm(FormularioCRUD):
+    filas = (
+        ("nombre", "cargo"),
+        ("grupo", "unidad"),
+        ("tipo_calculo", "estado"),
+        ("requiere_evidencia",),
+    )
+
     class Meta:
         model = Indicador
         fields = (
@@ -59,6 +76,13 @@ class IndicadorForm(FormularioCRUD):
 
 
 class MetaIndicadorForm(FormularioCRUD):
+    filas = (
+        ("periodo", "area"),
+        ("indicador", "funcionario"),
+        ("ponderador", "meta"),
+        ("vigente_desde",),
+    )
+
     class Meta:
         model = MetaIndicador
         fields = (
@@ -73,6 +97,17 @@ class MetaIndicadorForm(FormularioCRUD):
 
 
 class RegistroGestionForm(FormularioCRUD):
+    filas = (
+        ("fecha", "area", "indicador"),
+        ("vecino", "funcionario", "cantidad"),
+        ("detalle",),
+        ("etapa", "tipo_solicitante"),
+        ("contacto_nombre", "contacto_telefono"),
+        ("accion", "actividad", "organizacion"),
+        ("compromiso", "estado"),
+        ("evidencia_archivo", "evidencia_vinculo", "evidencia_tipo"),
+    )
+
     class Meta:
         model = RegistroGestion
         fields = (
@@ -115,6 +150,7 @@ class RegistroGestionForm(FormularioCRUD):
 
     def __init__(self, *args, request=None, **kwargs):
         super().__init__(*args, request=request, **kwargs)
+        self.fields["contacto_telefono"].widget = CampoTelefono()
         if not self.instance.pk:
             self.fields["fecha"].initial = timezone.localdate()
             if request is not None and request.user.is_authenticated:
@@ -157,36 +193,64 @@ class RegistroGestionForm(FormularioCRUD):
 
 
 class AjusteConductaForm(FormularioCRUD):
+    filas = (
+        ("area", "tipo"),
+        ("fecha", "periodo"),
+        ("valor", "medio"),
+        ("respaldo",),
+    )
+
     class Meta:
         model = AjusteConducta
         fields = ("area", "tipo", "fecha", "respaldo", "medio", "valor", "periodo")
 
 
 class AusenciaForm(FormularioCRUD):
+    filas = (
+        ("area", "periodo"),
+        ("tipo",),
+        ("desde", "hasta"),
+        ("registrada_por",),
+    )
+
     class Meta:
         model = Ausencia
         fields = ("area", "periodo", "tipo", "desde", "hasta", "registrada_por")
 
 
 class EvidenciaForm(FormularioCRUD):
+    filas = (("registro", "tipo"), ("archivo", "vinculo"))
+
     class Meta:
         model = Evidencia
         fields = ("registro", "archivo", "vinculo", "tipo")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # La evidencia admite archivo *o* vínculo (RN-010); se exige al menos uno
+        # en la validación del modelo, no el archivo a la fuerza.
+        self.fields["archivo"].required = False
+
 
 class ValidacionForm(FormularioCRUD):
+    filas = (("evidencia", "decision"), ("observacion",))
+
     class Meta:
         model = Validacion
         fields = ("evidencia", "decision", "observacion")
 
 
 class ComentarioForm(FormularioCRUD):
+    filas = (("registro",), ("texto",))
+
     class Meta:
         model = Comentario
         fields = ("registro", "texto")
 
 
 class AlertaForm(FormularioCRUD):
+    filas = (("tipo", "severidad"), ("area", "resuelta"), ("mensaje",))
+
     class Meta:
         model = Alerta
         fields = ("tipo", "severidad", "mensaje", "area", "resuelta")

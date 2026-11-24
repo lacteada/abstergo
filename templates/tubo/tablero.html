@@ -22,7 +22,7 @@
     {% endfor %}
   </div>
 
-  <div class="kanban" data-kanban>
+  <div class="kanban" data-kanban data-escribir="{{ puede_escribir|yesno:'1,0' }}">
     {% for columna in columnas %}
       <section class="kanban-columna kanban-col-{{ columna.color }}"
                data-estado="{{ columna.codigo }}">
@@ -35,10 +35,10 @@
             <span class="kanban-contador">{{ columna.tareas|length }}</span>
           </span>
         </header>
-        <ul class="kanban-lista" data-lista="{{ columna.codigo }}">
+        <ul class="kanban-lista" data-lista="{{ columna.codigo }}" data-vacio="Sin tareas">
           {% for tarea in columna.tareas %}
             <li class="kanban-tarjeta kanban-tarjeta-{{ columna.color }}{% if tarea.estado == 'realizada' %} kanban-hecha{% endif %}{% if tarea.vencida %} kanban-tarjeta-atrasada{% endif %}"
-                draggable="true" data-pk="{{ tarea.pk }}"
+                data-pk="{{ tarea.pk }}"
                 data-vencida="{{ tarea.vencida|yesno:'1,0' }}"
                 data-mover="{% url 'tubo:tareas_mover' tarea.pk %}">
               <div class="kanban-cinta">
@@ -70,7 +70,7 @@
                 <div class="kanban-pie">
                   <span class="kanban-responsable">Responsable: {% if tarea.responsable %}{{ tarea.responsable.get_full_name }}{% else %}Sin responsable{% endif %}</span>
                   <a class="kanban-ver" href="{% url 'tubo:tareas_consultar' tarea.pk %}" data-modal>Ver</a>
-                  {% if tarea.accion_destino %}
+                  {% if puede_escribir and tarea.accion_destino %}
                     <button type="button"
                             class="kanban-accion{% if tarea.accion_destino == 'realizada' %} kanban-accion-fuerte{% endif %}"
                             data-accion data-mover="{% url 'tubo:tareas_mover' tarea.pk %}"
@@ -82,6 +82,7 @@
               {% endif %}
               <div class="kanban-extra">
                 <a class="kanban-historial" href="{% url 'tubo:tareas_historial' tarea.pk %}" data-modal>Historial</a>
+                {% if puede_escribir %}
                 <form class="kanban-reasignar" method="post"
                       action="{% url 'tubo:tareas_reasignar' tarea.pk %}">
                   {% csrf_token %}
@@ -95,6 +96,7 @@
                   </select>
                   <button type="submit">Reasignar</button>
                 </form>
+                {% endif %}
               </div>
             </li>
           {% empty %}

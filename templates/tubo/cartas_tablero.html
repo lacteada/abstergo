@@ -12,7 +12,7 @@
     {% endif %}
   </div>
 
-  <div class="kanban" data-kanban>
+  <div class="kanban" data-kanban data-escribir="{{ puede_escribir|yesno:'1,0' }}">
     {% for columna in columnas %}
       <section class="kanban-columna kanban-col-{{ columna.color }}"
                data-estado="{{ columna.codigo }}">
@@ -20,10 +20,10 @@
           <h2>{{ columna.numero }}. {{ columna.etiqueta }}</h2>
           <span class="kanban-contador">{{ columna.cartas|length }}</span>
         </header>
-        <ul class="kanban-lista" data-lista="{{ columna.codigo }}">
+        <ul class="kanban-lista" data-lista="{{ columna.codigo }}" data-vacio="Sin cartas">
           {% for item in columna.cartas %}
             <li class="kanban-tarjeta kanban-tarjeta-{{ columna.color }}"
-                draggable="true" data-pk="{{ item.carta.pk }}"
+                data-pk="{{ item.carta.pk }}"
                 data-mover="{% url 'tubo:cartas_mover' item.carta.pk %}">
               <div class="kanban-cinta">
                 <span class="kanban-codigo">{{ item.carta.referencia }}</span>
@@ -46,7 +46,7 @@
               <div class="kanban-pie">
                 <span class="kanban-responsable">Fecha: {{ item.carta.fecha|date:"d-m-Y" }}</span>
                 <a class="kanban-ver" href="{% url 'tubo:cartas_consultar' item.carta.pk %}" data-modal>Ver</a>
-                {% if item.accion %}
+                {% if puede_escribir and item.accion %}
                   <button type="button" class="kanban-accion"
                           data-accion data-mover="{% url 'tubo:cartas_mover' item.carta.pk %}"
                           data-estado="{{ item.accion }}">{{ item.accion_etiqueta }}</button>

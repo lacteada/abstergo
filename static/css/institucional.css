@@ -118,8 +118,8 @@ body {
 .avatar svg { width: 18px; height: 18px; color: #5b6169; }
 .usuario-textos { display: flex; flex-direction: column; line-height: 1.15; }
 .usuario-nombre { font-weight: 600; }
-.usuario-rol { color: #8a9099; font-size: 12px; }
-.usuario-flecha { display: inline-flex; color: #8a9099; }
+.usuario-rol { color: #5f6672; font-size: 12px; }
+.usuario-flecha { display: inline-flex; color: #5f6672; }
 .usuario-flecha svg { width: 14px; height: 14px; }
 .usuario-menu {
   position: absolute; right: 0; top: calc(100% + 8px); z-index: 10;
@@ -211,7 +211,7 @@ body {
 .tabla tbody td { padding: 10px 12px; border-bottom: 1px solid #eef0f2; }
 .tabla tbody tr:last-child td { border-bottom: 0; }
 .tabla tbody tr:hover { background: #fafbfc; }
-.vacio { text-align: center; color: #8a9099; padding: 22px; }
+.vacio { text-align: center; color: #5f6672; padding: 22px; }
 
 /* ---------- Estado ---------- */
 .estado {
@@ -231,7 +231,7 @@ body {
 .accion.peligro { color: var(--muni-oscuro); }
 .accion:hover { text-decoration: underline; }
 
-.pie { color: #8a9099; font-size: 13px; margin-top: 12px; }
+.pie { color: #5f6672; font-size: 13px; margin-top: 12px; }
 
 /* ---------- Pantalla de login ---------- */
 .auth {
@@ -248,7 +248,7 @@ body {
   background: var(--muni-base); margin-bottom: 14px;
 }
 .auth-titulo { margin: 0; font-size: 20px; }
-.auth-subtitulo { margin: 4px 0 22px; color: #8a9099; font-size: 13px; }
+.auth-subtitulo { margin: 4px 0 22px; color: #5f6672; font-size: 13px; }
 .auth-form { display: flex; flex-direction: column; text-align: left; gap: 6px; }
 .auth-form label { font-size: 12px; font-weight: 600; color: #5b6169; }
 .auth-form input {
@@ -285,7 +285,7 @@ body {
   width: 10px; height: 10px; border-radius: 50%;
   background: var(--gris-borde); display: inline-block;
 }
-.ventana em { font-style: normal; font-size: 11px; color: #8a9099; margin-left: 6px; }
+.ventana em { font-style: normal; font-size: 11px; color: #5f6672; margin-left: 6px; }
 
 /* El código de 6 dígitos del mockup 0.3, en un solo campo */
 .auth-form input.codigo {
@@ -307,7 +307,7 @@ body {
   width: 100%; padding: 9px 12px; border: 1px solid var(--gris-borde);
   border-radius: 6px; font-size: 14px;
 }
-.ayuda { font-size: 12px; color: #8a9099; margin: 4px 0 0; }
+.ayuda { font-size: 12px; color: #5f6672; margin: 4px 0 0; }
 .error { font-size: 12px; color: #9b1c1c; margin: 4px 0 0; }
 .aviso {
   background: #fff; border: 1px solid var(--gris-borde); border-radius: 8px;
@@ -347,7 +347,7 @@ body {
 }
 .tarjeta-numero { font-size: 26px; font-weight: 700; color: var(--muni-base); }
 .tarjeta-texto {
-  font-size: 12px; color: #8a9099; text-transform: uppercase; letter-spacing: .04em;
+  font-size: 12px; color: #5f6672; text-transform: uppercase; letter-spacing: .04em;
 }
 .acciones-cuadricula {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -360,7 +360,7 @@ body {
 }
 .accion-cuadro:hover { border-color: var(--muni-base); }
 .accion-cuadro strong { color: var(--muni-base); }
-.accion-cuadro span { font-size: 12px; color: #8a9099; }
+.accion-cuadro span { font-size: 12px; color: #5f6672; }
 
 /* Los mantenedores quedan secundarios frente a las acciones de trabajo. */
 .acciones-cuadricula.mantenedores .accion-cuadro { padding: 10px 14px; background: #fafbfc; }
@@ -395,7 +395,7 @@ body {
   text-decoration: none; color: #22262b;
 }
 .lista-vecinos a:hover strong { color: var(--muni-base); }
-.lista-vecinos span { font-size: 12px; color: #8a9099; }
+.lista-vecinos span { font-size: 12px; color: #5f6672; }
 
 /* ---------- Botones con icono ---------- */
 /* Los botones del CRUD y de las tablas se muestran solo con su icono. */
@@ -475,7 +475,7 @@ tr.fila-deshabilitada .estado.inactivo {
 .modal .formulario,
 .modal .ficha,
 .modal .aviso { border: 0; padding: 0; max-width: none; background: transparent; }
-.modal-cargando { padding: 28px; text-align: center; color: #8a9099; font-size: 14px; }
+.modal-cargando { padding: 28px; text-align: center; color: #5f6672; font-size: 14px; }
 
 /* ---------- Layout Horizontal de Atenciones (2 Columnas) ---------- */
 .flujo-atencion-horizontal {
@@ -530,7 +530,7 @@ tr.fila-deshabilitada .estado.inactivo {
 .detalle-item { border-bottom: 1px solid #eef0f2; padding-bottom: 8px; }
 .detalle-item dt {
   font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
-  color: #8a9099; margin-bottom: 2px;
+  color: #5f6672; margin-bottom: 2px;
 }
 .detalle-item dd { margin: 0; font-size: 14px; color: #22262b; }
 
@@ -593,7 +593,7 @@ tr.fila-deshabilitada .estado.inactivo {
   padding: 7px 0; border-bottom: 1px solid #eef0f2; font-size: 13px;
 }
 .panel-lista li:last-child { border-bottom: 0; }
-.panel-lista .panel-vacio { color: #8a9099; justify-content: flex-start; }
+.panel-lista .panel-vacio { color: #5f6672; justify-content: flex-start; }
 .estado.verde { background: #e4f4e8; color: #1d6b33; }
 .estado.naranja { background: #fdf3d7; color: #8a5a00; }
 .estado.rojo { background: #fbe6e6; color: #9b1c1c; }
@@ -754,7 +754,7 @@ tr.fila-deshabilitada .estado.inactivo {
 }
 .kanban-accion:hover { filter: brightness(.95); }
 .kanban-accion-fuerte { background: #D8E8DC; }
-.kanban-hecha .kanban-titulo { color: #8a9099; text-decoration: line-through; }
+.kanban-hecha .kanban-titulo { color: #5f6672; text-decoration: line-through; }
 
 .kanban-extra {
   display: flex; align-items: center; justify-content: space-between;
@@ -772,7 +772,7 @@ tr.fila-deshabilitada .estado.inactivo {
   padding: 4px 8px; border: 1px solid var(--gris-borde); border-radius: 4px;
   background: var(--gris-fondo); font-size: 12px; cursor: pointer;
 }
-.kanban-vacio { padding: 14px 0; color: #8a9099; font-size: 14px; text-align: center; }
+.kanban-vacio { padding: 14px 0; color: #5f6672; font-size: 14px; text-align: center; }
 
 @media (max-width: 1100px) {
   .kpis, .kanban { grid-template-columns: repeat(2, 1fr); }
@@ -820,4 +820,117 @@ tr.fila-deshabilitada .estado.inactivo {
 /* ---------- Bloques plegables del panel ---------- */
 .plegable { margin-top: 18px; }
 .plegable > summary { cursor: pointer; }
+
+/* ---------- Filas de campos y selector de persona ----------
+   Distribución en fila (FormularioCRUD.filas) y el botón «+» de personas. */
+.campo-fila { display: flex; flex-wrap: wrap; gap: 12px; }
+.campo-fila > .campo { flex: 1 1 180px; min-width: 0; }
+
+.persona { position: relative; }
+.persona-select {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.persona-slot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; padding: 9px 12px; text-align: left; cursor: pointer;
+  background: #fff; border: 1px solid var(--gris-borde); border-radius: 6px;
+  font: inherit; color: inherit;
+}
+.persona-slot:hover { border-color: var(--muni-base); }
+.persona-nombre { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.persona-vacia .persona-nombre { color: #5f6672; }
+.persona-mas {
+  flex: none; width: 22px; height: 22px; line-height: 20px; text-align: center;
+  border-radius: 50%; background: var(--muni-base); color: #fff; font-weight: 700;
+}
+.persona-resultados {
+  list-style: none; margin: 8px 0; padding: 4px 0; max-height: 240px;
+  overflow-y: auto;
+}
+.persona-resultados:empty { display: none; }
+.persona-resultado { padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+.persona-resultado:hover { background: var(--gris-fondo); }
+.persona-crear {
+  margin-top: 10px; padding: 12px; border: 1px dashed var(--gris-borde);
+  border-radius: 8px; background: var(--gris-fondo);
+}
+.persona-crear[hidden] { display: none; }
+.persona-modal { width: min(460px, 92vw); }
+
+/* ---------- Foco visible (accesibilidad) ---------- */
+:focus-visible { outline: 2px solid var(--muni-base); outline-offset: 2px; }
+.sidebar :focus-visible { outline-color: #fff; }
+
+/* ---------- Multiselect con buscador ---------- */
+.multibuscable { position: relative; }
+.multibuscable-select {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.multibuscable-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px 3px 10px;
+  background: var(--gris-fondo); border: 1px solid var(--gris-borde);
+  border-radius: 999px; font-size: 13px;
+}
+.chip-quitar {
+  border: 0; background: transparent; cursor: pointer; font-size: 15px;
+  line-height: 1; color: #5f6672;
+}
+.multibuscable-lista {
+  position: absolute; z-index: 20; left: 0; right: 0; top: 100%;
+  max-height: 220px; overflow-y: auto; margin: 2px 0 0; padding: 4px;
+  list-style: none; background: #fff; border: 1px solid var(--gris-borde);
+  border-radius: 6px; box-shadow: 0 8px 22px rgba(15, 23, 42, .12);
+}
+.multibuscable-lista[hidden] { display: none; }
+.multibuscable-lista li {
+  padding: 7px 9px; border-radius: 4px; font-size: 14px; cursor: pointer;
+}
+.multibuscable-lista li:hover { background: var(--gris-fondo); }
+
+/* ---------- Migas, visor de evidencia y estado de envío ---------- */
+.migas {
+  display: flex; gap: 6px; align-items: center; font-size: 13px;
+  color: #5f6672; margin-bottom: 10px;
+}
+.migas a { color: var(--muni-base); text-decoration: none; }
+.migas a:hover { text-decoration: underline; }
+.evidencia-vista { margin: 12px 0; }
+.evidencia-vista img {
+  max-width: 100%; border: 1px solid var(--gris-borde); border-radius: 8px;
+}
+.evidencia-vinculo { margin: 8px 0; }
+.formulario button[type="submit"].enviando { opacity: .6; cursor: progress; }
+
+/* ---------- Kanban: arrastre con Pointer Events ---------- */
+.kanban-tarjeta { touch-action: none; }
+.kanban-arrastrando { opacity: .35; }
+.kanban-clon {
+  position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .28); transform-origin: top left;
+}
+.kanban-marca {
+  list-style: none; margin: 6px 0; height: 56px; border-radius: 10px;
+  border: 2px dashed var(--muni-base); background: rgba(196, 18, 48, .06);
+}
+body.arrastrando-kanban { cursor: grabbing; }
+
+/* ---------- Menú y sidebar en pantallas angostas ---------- */
+.menu-boton {
+  display: none; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border: 1px solid var(--gris-borde);
+  border-radius: 8px; background: #fff; cursor: pointer; color: var(--muni-base);
+}
+@media (max-width: 900px) {
+  .menu-boton { display: inline-flex; }
+  .sidebar {
+    position: fixed; top: 0; left: 0; height: 100%; z-index: 40;
+    transform: translateX(-100%); transition: transform .2s ease;
+  }
+  .app.menu-abierto .sidebar {
+    transform: translateX(0); box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .4);
+  }
+}
 
