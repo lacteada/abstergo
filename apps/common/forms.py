@@ -16,6 +16,7 @@ from apps.common.widgets import (
     CampoFechaHora,
     SelectBuscable,
     SelectMultipleBuscable,
+    SelectorPersona,
 )
 
 
@@ -38,6 +39,26 @@ class FormularioCRUD(forms.ModelForm):
         self._acotar_delegacion()
         self._fechas()
         self._buscables()
+        self._etiquetas_vacias()
+
+    def _etiquetas_vacias(self):
+        """Opción en blanco en español, no el "- Select an option -" de Django.
+
+        En los campos con buscador la opción vacía es irrelevante (el buscador
+        ofrece "ninguno"), así que se deja neutra; en el resto se escribe la
+        indicación en español.
+        """
+        for campo in self.fields.values():
+            if isinstance(campo, forms.ModelChoiceField):
+                buscable = isinstance(campo.widget, (SelectBuscable, SelectorPersona))
+                if hasattr(campo, "empty_label"):
+                    campo.empty_label = "—" if buscable else "— Selecciona —"
+                continue
+            if isinstance(campo, forms.ChoiceField):
+                opciones = list(campo.choices)
+                if opciones and opciones[0][0] in ("", None):
+                    opciones[0] = ("", "— Selecciona —")
+                    campo.choices = opciones
 
     def add_error(self, field, error):
         """Marca el campo con error para lectores de pantalla (RNF-010)."""
