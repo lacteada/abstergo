@@ -63,6 +63,15 @@
   "descarga_json_verificada": true,
   "validacion_visual": "Desafío, rechazo, acceso correcto, estado activo y panel verificados",
   "bash_ejecutado": false,
-  "publicado_github": false,
-  "desplegado_aws": false
+  "publicado_github": true,
+  "desplegado_aws": false,
+  "commit_implementacion": "f5e4570b7d85f58c918cdba39bcdd9d8404a0e28",
+  "ci_implementacion": "https://github.com/lacteada/abstergo/actions/runs/45665505999",
+  "ci_implementacion_resultado": "success",
+  "pruebas_remotas": {
+    "total": 148,
+    "fallos": 0,
+    "errores": 0,
+    "omitidas": 0
+  }
 }
