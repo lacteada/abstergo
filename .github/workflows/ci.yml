@@ -13,6 +13,16 @@ jobs:
         with:
           python-version: "3.14"
       - name: Dependencias
-        run: pip install -r requirements.txt pytest pytest-django ruff
+        run: pip install -r requirements.txt -r requirements-dev.txt
       - name: Verificación
         run: bash scripts/verificar.sh
+      - name: Evidencia de calidad
+        env:
+          SECRET_KEY: verificacion-ci-sin-secreto-de-produccion-2026
+        run: python scripts/verificar_calidad.py
+      - name: Conservar evidencia
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidencia-calidad
+          path: var/

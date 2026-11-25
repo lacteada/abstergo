@@ -64,7 +64,7 @@ def acotar(request, queryset, campo):
         return queryset
     delegacion = activa(request)
     if delegacion is None:
-        return queryset
+        return queryset if alcance_global(request.user) else queryset.none()
     if campo == "pk":
         return queryset.filter(pk=delegacion.pk)
     return queryset.filter(**{campo: delegacion})

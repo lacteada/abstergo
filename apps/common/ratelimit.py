@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
 
-RUTAS_LOGIN = ("/login/", "/api/v1/auth/login/")
+RUTAS_LOGIN = ("/login/", "/login/segundo-factor/", "/perfil/seguridad/", "/api/v1/auth/login/")
 
 
 class LimiteIntentos:

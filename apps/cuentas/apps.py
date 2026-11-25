@@ -9,7 +9,7 @@ class CuentasConfig(AppConfig):
     def ready(self):
         # Importar acá conecta las señales `post_save`; el `post_migrate` deja
         # los grupos espejo tras cada migración.
-        from apps.cuentas import signals
+        from apps.cuentas import checks, signals  # noqa: F401
 
         post_migrate.connect(
             signals.sincronizar_grupos, sender=self, dispatch_uid="cuentas.grupos"

@@ -92,6 +92,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.common.ratelimit.LimiteIntentos",
+    "apps.cuentas.acceso.ExigirSegundoFactor",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -214,8 +215,8 @@ USUARIOS_PASSWORD_INICIAL = env("USUARIOS_PASSWORD_INICIAL")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        "apps.api.autenticacion.JWTConSegundoFactor",
+        "apps.api.autenticacion.SesionConSegundoFactor",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -224,6 +225,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
+    "TOKEN_OBTAIN_SERIALIZER": "apps.api.autenticacion.TokenConSegundoFactor",
+    "TOKEN_REFRESH_SERIALIZER": "apps.api.autenticacion.RenovarConSegundoFactor",
+    "CHECK_REVOKE_TOKEN": True,
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(env("JWT_ACCESS_MINUTES", "60"))),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_DAYS", "7"))),
     "ROTATE_REFRESH_TOKENS": True,
@@ -237,3 +241,7 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# Llave independiente de SECRET_KEY. Se respalda fuera del repositorio.
+MFA_ENCRYPTION_KEY = env("MFA_ENCRYPTION_KEY")
+QUALITY_REPORT_PATH = Path(env("QUALITY_REPORT_PATH", str(BASE_DIR / "var/calidad.json")))

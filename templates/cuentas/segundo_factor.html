@@ -1,0 +1,13 @@
+{% extends "cuentas/base_auth.html" %}
+{% block titulo %}Verificación en dos pasos{% endblock %}
+{% block contenido %}
+<h1>Verificación en dos pasos</h1>
+<p>Tu contraseña es correcta. Para completar el acceso, ingresa el código de tu aplicación autenticadora.</p>
+<form method="post" class="auth-form">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn-muni auth-boton" type="submit">Verificar e ingresar</button>
+</form>
+<p>El código cambia cada 30 segundos y solo puede usarse una vez. También puedes usar uno de tus códigos de recuperación.</p>
+<a class="auth-enlace" href="{% url 'cuentas:login' %}">Volver al inicio de sesión</a>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Evidencia de calidad{% endblock %}
+{% block contenido %}
+<h1 class="titulo">Evidencia de calidad</h1>
+<p class="subtitulo">Resultados de comprobaciones ejecutadas sobre el código del proyecto.</p>
+<p>Evaluación de criterios seleccionados del modelo ISO/IEC 25010:2023. Este panel no constituye una certificación ISO.</p>
+{% if reporte %}
+<section class="seguridad-panel">
+  <h2>Última ejecución verificable</h2>
+  <p class="seguridad-estado">{% if reporte.correcto %}COMPROBACIONES APROBADAS{% else %}REQUIERE CORRECCIONES{% endif %}</p>
+  <p>Fecha UTC: {{ reporte.fecha }}<br>Revisión base: <code>{{ reporte.revision|truncatechars:13 }}</code>{% if reporte.arbol_modificado %} con cambios de trabajo identificados por la huella{% endif %}<br>Entorno: {{ reporte.entorno }}</p>
+  {% if not vigente %}<p class="seguridad-error" role="alert">El código actual difiere del evaluado o no se pudo comprobar su huella. Ejecuta nuevamente la verificación.</p>{% endif %}
+  {% if antiguo %}<p class="seguridad-error">El reporte tiene más de siete días. Actualiza la evidencia antes de entregar.</p>{% endif %}
+  <div class="tarjetas">
+    <div class="tarjeta"><strong class="tarjeta-numero">{{ reporte.pruebas.total }}</strong><span>Pruebas ejecutadas</span></div>
+    <div class="tarjeta"><strong class="tarjeta-numero">{{ reporte.pruebas.fallos }}</strong><span>Fallos</span></div>
+    <div class="tarjeta"><strong class="tarjeta-numero">{{ reporte.pruebas.errores }}</strong><span>Errores de ejecución</span></div>
+  </div>
+  <div class="tabla-envoltura"><table class="tabla"><thead><tr><th>Comprobación</th><th>Resultado</th><th>Duración</th></tr></thead><tbody>
+    {% for prueba in reporte.comprobaciones %}<tr><td>{{ prueba.nombre }}</td><td>{% if prueba.correcto %}Aprobada{% else %}Falló{% endif %}</td><td>{{ prueba.segundos }} s</td></tr>{% endfor %}
+  </tbody></table></div>
+  <p><a class="chip" href="?descargar=1">Descargar evidencia JSON</a></p>
+</section>
+{% else %}<section class="seguridad-panel"><h2>Sin evidencia disponible</h2><p>No hay un reporte firmado válido. El responsable técnico debe ejecutar la verificación. No se muestran resultados de ejemplo.</p></section>{% endif %}
+<section class="seguridad-panel"><h2>Controles del entorno que estás usando</h2>
+<ul><li>HTTPS en esta conexión: {% if https %}Sí{% else %}No{% endif %}</li>
+<li>Cookies de sesión Secure: {% if cookie_segura %}Sí{% else %}No{% endif %}</li>
+<li>Modo de depuración: {% if debug %}Activo{% else %}Desactivado{% endif %}</li>
+<li>Llave de segundo factor configurada: {% if mfa_configurada %}Sí{% else %}No{% endif %}</li></ul>
+<p>Una verificación sobre SQLite no acredita el despliegue, la carga concurrente ni la configuración del servidor.</p></section>
+{% endblock %}

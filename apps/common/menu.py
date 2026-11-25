@@ -24,6 +24,7 @@ TRABAJO = [
 ]
 
 MANTENEDORES = [
+    ("Evidencia de calidad", "calidad", "quality", "calidad"),
     ("Delegaciones", "organizacion:delegaciones", "delegations", "delegaciones"),
     ("Territorios", "organizacion:territorios", "territories", "territorios"),
     ("Cargos", "organizacion:cargos", "positions", "cargos"),

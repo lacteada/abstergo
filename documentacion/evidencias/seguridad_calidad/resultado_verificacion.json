@@ -1,0 +1,68 @@
+{
+  "fecha": "2026-11-25T17:20:40.551303+00:00",
+  "base": "164eef7a2295c234b0a41fac1ddc732fed0b24e0",
+  "huella": "d7024f316a58cc9d79aee5ccd150192f36019b0918c3738b79639ca5053cb5fb",
+  "entorno": "SQLite temporal de verificación",
+  "pruebas": {
+    "total": 148,
+    "fallos": 0,
+    "errores": 0,
+    "omitidas": 0
+  },
+  "comprobaciones": [
+    {
+      "nombre": "Configuración Django",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 1.52
+    },
+    {
+      "nombre": "Migraciones completas",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 1.53
+    },
+    {
+      "nombre": "Aplicación de migraciones",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 4.47
+    },
+    {
+      "nombre": "Carga de catálogos",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 9.42
+    },
+    {
+      "nombre": "Análisis estático Ruff",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 0.11
+    },
+    {
+      "nombre": "Pruebas automatizadas",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 105.22
+    },
+    {
+      "nombre": "Dependencias conocidas",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 19.19
+    },
+    {
+      "nombre": "Rutas y API con permisos",
+      "correcto": true,
+      "codigo": 0,
+      "segundos": 17.31
+    }
+  ],
+  "reporte_firmado_validado_en_panel": true,
+  "descarga_json_verificada": true,
+  "validacion_visual": "Desafío, rechazo, acceso correcto, estado activo y panel verificados",
+  "bash_ejecutado": false,
+  "publicado_github": false,
+  "desplegado_aws": false
+}

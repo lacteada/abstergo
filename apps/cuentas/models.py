@@ -222,3 +222,28 @@ class RecuperacionPassword(models.Model):
         codigo = f"{secrets.randbelow(1000000):06d}"
         vence = timezone.now() + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)
         return cls.objects.create(usuario=usuario, codigo=codigo, expira=vence)
+
+
+class SegundoFactor(models.Model):
+    """Credencial TOTP privada. Nunca se expone por API ni por el Admin."""
+
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name="segundo_factor")
+    secreto_cifrado = models.TextField(blank=True, editable=False)
+    activo = models.BooleanField(default=False, editable=False)
+    version = models.PositiveIntegerField(default=0, editable=False)
+    ultimo_paso = models.BigIntegerField(default=-1, editable=False)
+    recuperaciones = models.JSONField(default=list, editable=False)
+    fallos = models.PositiveSmallIntegerField(default=0, editable=False)
+    bloqueado_hasta = models.DateTimeField(null=True, blank=True, editable=False)
+    activado = models.DateTimeField(null=True, blank=True, editable=False)
+
+
+class EventoAcceso(models.Model):
+    """Bitácora de autenticación sin contraseñas, códigos, semillas ni tokens."""
+
+    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True)
+    evento = models.CharField(max_length=60)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha", "-pk"]

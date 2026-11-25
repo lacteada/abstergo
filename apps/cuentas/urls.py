@@ -2,7 +2,8 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from apps.cuentas import views
-from apps.cuentas.forms import FormularioLogin
+from apps.cuentas.acceso import Ingresar, VerificarSegundoFactor
+from apps.cuentas.seguridad import Seguridad
 
 app_name = "cuentas"
 
@@ -10,13 +11,12 @@ urlpatterns = [
     # Autenticación
     path(
         "login/",
-        auth_views.LoginView.as_view(
-            template_name="cuentas/login.html",
-            authentication_form=FormularioLogin,
-        ),
+        Ingresar.as_view(),
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("login/segundo-factor/", VerificarSegundoFactor.as_view(), name="segundo_factor"),
+    path("perfil/seguridad/", Seguridad.as_view(), name="seguridad"),
     path("recuperar/", views.Recuperar.as_view(), name="recuperar"),
     path(
         "recuperar/<uidb64>/<token>/",

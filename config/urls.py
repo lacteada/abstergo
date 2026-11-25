@@ -19,8 +19,10 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.common.autocomplete import Autocompletar
+from apps.panel.calidad import Calidad
 
 urlpatterns = [
+    path("calidad/", Calidad.as_view(), name="calidad"),
     path("admin/", admin.site.urls),
     path("api/v1/", include("apps.api.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

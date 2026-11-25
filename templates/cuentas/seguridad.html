@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block titulo %}Seguridad de mi cuenta{% endblock %}
+{% block contenido %}
+<h1 class="titulo">Seguridad de mi cuenta</h1>
+<p class="subtitulo">Protege el acceso con tu contraseña y un código de tu aplicación autenticadora.</p>
+{% if error %}<p class="seguridad-error" role="alert">{{ error }}</p>{% endif %}
+<section class="seguridad-panel">
+  <h2>Verificación en dos pasos</h2>
+  {% if factor.activo %}
+    <p class="seguridad-estado">ACTIVADA</p>
+    <p>Necesitas tu contraseña y un código para iniciar sesión en la web o en la API.</p>
+    <p>Activada el {{ factor.activado|date:"d/m/Y H:i" }} · Códigos de recuperación disponibles: {{ factor.recuperaciones|length }}</p>
+    {% if codigos %}
+    <div class="recuperacion-codigos">
+      <h3>Guarda estos códigos de recuperación</h3>
+      <p>Se muestran una sola vez. Cada código permite un acceso y después queda inutilizado. Guárdalos fuera de este equipo.</p>
+      <ul>{% for codigo in codigos %}<li><code>{{ codigo }}</code></li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    <details><summary>Desactivar el segundo factor</summary>
+      <p>Confirma tu contraseña y un código válido. Se revocarán las sesiones y tokens anteriores.</p>
+      <form method="post" class="formulario">
+        {% csrf_token %}<input type="hidden" name="accion" value="desactivar">
+        {{ form.as_p }}
+        <p><label for="codigo-baja">Código del autenticador o de recuperación</label>
+        <input id="codigo-baja" name="codigo" maxlength="32" autocomplete="one-time-code" required></p>
+        <button class="btn-muni" type="submit">Desactivar segundo factor</button>
+      </form>
+    </details>
+  {% elif secreto %}
+    <h3>Vincula tu aplicación autenticadora</h3>
+    <p>Escanea el QR con tu autenticador. También puedes ingresar la clave manualmente.</p>
+    <div class="seguridad-qr">{{ qr|safe }}</div>
+    <p>Clave manual: <code class="semilla">{{ secreto }}</code></p>
+    <p>No compartas esta clave. Esta configuración vence en cinco minutos.</p>
+    <form method="post" class="formulario">
+      {% csrf_token %}<input type="hidden" name="accion" value="confirmar">
+      <p><label for="codigo-alta">Código de seis dígitos</label>
+      <input id="codigo-alta" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></p>
+      <button class="btn-muni" type="submit">Confirmar y activar</button>
+    </form>
+  {% else %}
+    <p class="seguridad-estado">SIN ACTIVAR</p>
+    <p>Primero confirma tu contraseña. Después vincularás tu autenticador y recibirás ocho códigos de recuperación.</p>
+    {% if disponible %}
+    <form method="post" class="formulario">
+      {% csrf_token %}<input type="hidden" name="accion" value="preparar">
+      {{ form.as_p }}
+      <button class="btn-muni" type="submit">Configurar segundo factor</button>
+    </form>
+    {% else %}<p>El administrador debe configurar la llave de cifrado para habilitar esta función.</p>{% endif %}
+  {% endif %}
+</section>
+<section class="seguridad-panel">
+  <h2>Actividad de seguridad de mi cuenta</h2>
+  <p>Se registran las acciones de acceso sin guardar contraseñas ni códigos.</p>
+  <ul class="seguridad-eventos">{% for evento in eventos %}<li><time>{{ evento.fecha|date:"d/m/Y H:i:s" }}</time> {{ evento.evento }}</li>{% empty %}<li>Todavía no hay eventos.</li>{% endfor %}</ul>
+</section>
+{% endblock %}

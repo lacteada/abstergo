@@ -322,3 +322,20 @@ OTP            ^\d{6}$
 - Ley 21.719, texto oficial: <https://www.bcn.cl/leychile/navegar?idNorma=1209272>
 - EIPD Chile, explicación de la ley: <https://eipd.cl/ley-21719-explicada>
 - PrivacidadWeb, guía 2026: <https://www.privacidadweb.cl/aprende/ley-21719>
+
+
+## Seguridad y calidad demostrables del 25 de noviembre de 2026
+Base de trabajo: origin/main 164eef7. No se trasladan automáticamente los dos commits locales anteriores, porque el usuario declaró al repositorio remoto como fuente actual.
+
+- RNF-003/R9: segundo factor TOTP optativo por cuenta, con alta confirmada por contraseña y código, QR generado localmente, semilla cifrada mediante Fernet y ocho recuperaciones con hash de un solo uso. Clave independiente MFA_ENCRYPTION_KEY. Bloqueo persistente de cinco minutos tras cinco fallos; rechazo de pasos TOTP ya consumidos. No hay generación de códigos en la pantalla de acceso.
+- La web crea la sesión solo después del factor. El acceso alternativo del Admin redirige al flujo general. API login admite otp cuando la cuenta tiene MFA; JWT, refresh y sesiones API comprueban la versión de la credencial. Altas y bajas invalidan credenciales anteriores; cambios de contraseña revocan JWT mediante CHECK_REVOKE_TOKEN.
+- Registro privado de activación, desactivación, rechazos, bloqueos y accesos del propio usuario. Nunca guarda contraseñas, semillas ni códigos. Las páginas sensibles llevan no-store. La baja exige contraseña más TOTP o recuperación.
+- Corrección de aislamiento: si un perfil territorial no tiene delegación autorizada, acotar devuelve un queryset vacío. Conserva el alcance global de admin/coordinador.
+- Calidad: /calidad/ solo para admin/coordinador, accesible desde el menú. Consume un reporte JSON firmado, verifica la huella del código, muestra ejecución, revisión, duración, pruebas y fallos; rechaza contenido alterado y advierte diferencias de código o antigüedad. No ejecuta comandos desde HTTP ni inventa resultados.
+- scripts/verificar_calidad.py ejecuta check, comprobación/aplicación de migraciones, carga de catálogos, Ruff, pytest/JUnit, pip-audit y el bloque smoke oficial sobre SQLite temporal. Requiere requirements-dev.txt. Logs y reportes en var/ (ignorado). La firma usa SECRET_KEY del entorno que mostrará el reporte; la evidencia de CI se conserva como artefacto y debe regenerarse con la configuración del destino antes de publicarse en ese panel.
+- Criterios seleccionados del modelo ISO/IEC 25010:2023: adecuación funcional (flujos y validaciones), fiabilidad (regresión y migraciones), mantenibilidad (análisis estático y comprobación reproducible) y seguridad (MFA, permisos, CSRF y revocación). Es una evaluación parcial del producto, no una certificación ni conformidad integral con ISO.
+- Migración cuentas/0009: SegundoFactor y EventoAcceso. Los usuarios existentes siguen sin MFA hasta vincular un autenticador. No existe un reinicio de MFA por correo ni una puerta de omisión; conservar recuperaciones y respaldar la llave. Producción necesita HTTPS válido, reloj sincronizado, DEBUG=False y caché compartida para el límite general por IP. La comprobación --deploy incorpora cuentas.E001 si falta una llave MFA válida.
+
+
+### Verificación observada de seguridad y calidad
+148 pruebas aprobadas, cero fallos y errores. Ocho comprobaciones aprobadas, incluida auditoría de dependencias sin vulnerabilidades conocidas y smoke oficial. Validación visual del desafío, rechazo de código, acceso válido, estado de MFA y panel; descarga JSON comprobada. Evidencias en documentacion/evidencias/seguridad_calidad y guía en documentacion/seguridad_calidad.md. Bash no ejecutado en Windows: descarga/ejecución de Git portable rechazada por revisión automática; se ejecutó la puerta Python y el mismo bloque smoke original. Publicación remota pendiente de comprobar.

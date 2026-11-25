@@ -53,6 +53,7 @@ ALCANCE_GLOBAL = {ADMIN, COORDINADOR}
 # - funcionario: consulta vecinos y crea/gestiona atenciones.
 # - verificador, consulta: sin permisos operativos por ahora.
 MATRIZ = {
+    "quality": {"read": {ADMIN, COORDINADOR}, "write": {ADMIN}},
     "cases": {
         "read": {ADMIN, COORDINADOR, DELEGADO, FUNCIONARIO},
         "write": {ADMIN, DELEGADO, FUNCIONARIO},
